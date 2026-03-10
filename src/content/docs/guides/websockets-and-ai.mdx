@@ -1,0 +1,349 @@
+---
+title: 'WebSockets and AI: Real-Time Communication for AI Applications'
+description:
+  How WebSockets are becoming the dominant transport for AI applications that
+  need bidirectional, stateful communication. Covers the shift from SSE, the
+  rise of durable sessions, and why the AI era is driving WebSocket adoption.
+author: Matthew O'Riordan
+date: '2026-03-10'
+category: guide
+seo:
+  keywords:
+    - websocket
+    - ai
+    - llm
+    - streaming
+    - durable sessions
+    - server-sent events
+    - sse
+    - ai agents
+    - realtime ai
+    - websocket ai
+tags:
+  - websocket
+  - guide
+  - ai
+  - llm
+  - streaming
+  - durable-sessions
+---
+
+WebSockets are having a moment in AI. Not because they're new, but because the
+AI industry is rediscovering that persistent, bidirectional connections are the
+right primitive for complex real-time interactions.
+
+The story is worth understanding. It starts with SSE, runs into walls, and lands
+on WebSockets, with an emerging infrastructure layer called Durable Sessions
+building on top.
+
+## SSE Was the Starting Point
+
+When ChatGPT launched in late 2022, it popularized a simple pattern: stream
+tokens from server to client as the model generates them. Server-Sent Events was
+the obvious choice. It's simple, works over standard HTTP, and does one thing
+well: push data from server to client.
+
+```javascript
+// The early pattern: SSE for token streaming
+const eventSource = new EventSource('/api/chat?prompt=Hello');
+
+eventSource.onmessage = (event) => {
+  const token = JSON.parse(event.data);
+  appendToResponse(token.text);
+};
+```
+
+For the first wave of AI chatbots, this was fine. Take a prompt, stream back a
+response. SSE handled it cleanly.
+
+But AI products didn't stay simple for long.
+
+## Where SSE Breaks Down
+
+The limitations show up fast once you move beyond a basic chat interface.
+
+### There's No Client-to-Server Channel
+
+SSE is one-way. Server pushes to client, that's it. The client has no way to
+send messages back over the same connection. So every client action needs its
+own separate HTTP request:
+
+- Cancelling a generation? Separate POST request.
+- Steering an agent mid-task? Another endpoint.
+- Confirming or rejecting a tool call? Different path entirely.
+- Sending follow-up context during generation? Yet another request.
+
+You end up coordinating state between the SSE stream and a growing set of HTTP
+endpoints. It works, but the complexity ramps up fast.
+
+### Connection Drops Are Brutal
+
+When an SSE connection drops (and on mobile networks, they drop constantly), the
+context of the current interaction is gone. The client reconnects, but the
+generation that was in progress? It may have completed, partially completed, or
+failed. There's no built-in way to pick up where you left off.
+
+```text
+Client                          Server
+  |                               |
+  |<---- SSE: token stream -------|
+  |<---- "The answer is"... ------|
+  |                               |
+  |  x Connection drops           |
+  |                               |
+  |---- Reconnect --------------->|
+  |                               |
+  |  What happened to the rest    |
+  |  of the response?             |
+  |                               |
+```
+
+### No Multi-Device or Multi-Tab Awareness
+
+Open a conversation in one browser tab, then open it in another. With SSE, those
+are completely independent streams. Confirm a tool call in one tab and the other
+has no idea. Start on your phone, switch to your laptop, and you're starting
+from scratch.
+
+### Agent Workflows Need Both Directions
+
+Modern AI isn't "prompt in, text out" anymore. Agent frameworks like LangGraph,
+CrewAI, and AutoGen create workflows where the agent proposes actions and waits
+for human approval, where multiple agents coordinate with a human supervising,
+where background tasks finish after the user has moved on.
+
+These patterns are fundamentally bidirectional. Trying to force them through a
+unidirectional protocol creates fragile systems with a lot of duct tape.
+
+## Why WebSockets Are a Better Fit
+
+WebSockets solve these problems at the protocol level. One persistent,
+bidirectional connection handles every interaction pattern:
+
+```javascript
+// WebSocket: one connection handles everything
+const ws = new WebSocket('wss://api.example.com/ai/session');
+
+// Receive streamed tokens, tool calls, status updates
+ws.onmessage = (event) => {
+  const msg = JSON.parse(event.data);
+  switch (msg.type) {
+    case 'token':
+      appendToResponse(msg.text);
+      break;
+    case 'tool_call':
+      showApprovalUI(msg.tool, msg.args);
+      break;
+    case 'agent_status':
+      updateAgentProgress(msg.status);
+      break;
+  }
+};
+
+// Send user actions over the same connection
+function approveToolCall(callId) {
+  ws.send(JSON.stringify({ type: 'approve', callId }));
+}
+
+function cancelGeneration() {
+  ws.send(JSON.stringify({ type: 'cancel' }));
+}
+
+function steerAgent(instruction) {
+  ws.send(JSON.stringify({ type: 'steer', instruction }));
+}
+```
+
+The connection maintains state for the session's lifetime. The server knows
+which client is connected, what conversation is active, what the current state
+is. No re-authentication on every message, no coordinating across separate
+request channels.
+
+When the server manages session state over WebSockets, it can broadcast updates
+to every connected client. Approve a tool call on your phone and your laptop tab
+updates instantly. That's practically impossible to do cleanly with SSE.
+
+And at the wire level, WebSocket frames carry 2-6 bytes of overhead versus SSE's
+repeated HTTP headers. When you're streaming hundreds of tokens per second, that
+difference matters.
+
+## The Ecosystem Is Signaling This Shift
+
+This isn't just a theoretical argument. The AI ecosystem is actively moving in
+this direction.
+
+**Frameworks are abstracting away SSE.** The Vercel AI SDK deprecated its
+HTTP+SSE transport in favor of a pluggable `ChatTransport` interface. TanStack
+AI introduced a `ConnectionAdapter` for swapping transport layers. AG-UI was
+designed from the start with pluggable transport. Framework authors don't build
+these abstractions unless they've seen SSE hit real limits.
+
+**MCP dropped SSE.** The Model Context Protocol, which is becoming a standard
+for AI tool integration, deprecated its SSE transport in favor of Streamable
+HTTP. That's a clear signal that the protocol layer needs to evolve past simple
+server-push.
+
+**The production pattern is consistent.** Teams building AI products start with
+SSE because it's the simplest option. Then they migrate to WebSockets once they
+need human-in-the-loop approval, cross-device continuity, connection resilience,
+or multi-agent coordination. It's become a predictable migration path.
+
+## Durable Sessions: The Layer Above Transport
+
+Here's the next problem. Even with WebSockets, what happens to session state
+when connections break?
+
+A WebSocket connection is ephemeral. When it drops, the state tied to that
+connection can disappear unless your application explicitly manages persistence
+and recovery. For AI interactions where a single agent task might run for
+minutes, losing that state isn't acceptable.
+
+This is driving an emerging infrastructure category called **Durable Sessions**:
+a persistent, stateful layer that sits between AI agents and users, outliving
+any single connection. If Durable Execution (Temporal, Inngest) made backends
+crash-proof, Durable Sessions make the user experience crash-proof.
+
+```text
++-----------------------------------------------------+
+|                  AI Agent / LLM                      |
+|         (OpenAI, Anthropic, LangGraph...)            |
++---------------------------+-------------------------+
+                            |
+                            v
++-----------------------------------------------------+
+|              Durable Session Layer                   |
+|                                                      |
+|   Session          Connection        State           |
+|   Persistence      Resilience        Sync            |
+|                                                      |
+|   Survives disconnects, works across devices,        |
+|   resumes interrupted streams, syncs state           |
++---------------------------+-------------------------+
+                            |
+                            v
++-----------------------------------------------------+
+|                 Transport Layer                      |
+|            (WebSockets / HTTP / SSE)                 |
+|                                                      |
+|   Bidirectional, low-latency, persistent connection  |
++---------------------------+-------------------------+
+                            |
+                            v
++-----------------------------------------------------+
+|                   User Devices                       |
+|                                                      |
+|    Phone          Laptop          Desktop            |
+|    (Tab 1)        (Tab 1)         (Tab 2)            |
+|                                                      |
+|    All connected to the same durable session         |
++-----------------------------------------------------+
+```
+
+A durable session provides:
+
+- **Connection resilience** - the session persists server-side; clients
+  reconnect and resume exactly where they left off
+- **Cross-device continuity** - start on your phone, pick it up on your laptop,
+  full state preserved
+- **Async completion** - if an agent finishes work after the user disconnects,
+  the result is there when they come back
+- **Multi-client sync** - multiple tabs or devices can observe and interact with
+  the same session simultaneously
+
+### Durable Session Providers
+
+The category is still emerging, but two providers are out in front with
+different approaches:
+
+<div style="display: flex; gap: 2rem; margin: 1.5rem 0; flex-wrap: wrap;">
+  <div style="flex: 1; min-width: 280px; border: 1px solid var(--sl-color-gray-5); border-radius: 8px; padding: 1.5rem;">
+    <a
+      href="https://ably.com/ai-transport"
+      style="display: block; margin-bottom: 1rem;"
+    >
+      <img
+        src="/images/logos/ably.svg"
+        alt="Ably logo"
+        style="height: 32px; width: auto;"
+      />
+    </a>
+    <p style="margin: 0;">
+      <a href="https://ably.com/ai-transport">
+        <strong>Ably AI Transport</strong>
+      </a>{' '}
+      is a fully featured durable session layer purpose-built for AI. Built on
+      WebSockets, it provides resumable token streaming, multi-device session
+      continuity, human-in-the-loop workflows, and agent coordination. It's the
+      complete infrastructure layer between AI agents and users. Because
+      WebSockets are the primary transport, you get bidirectional communication,
+      low latency, and real-time state broadcasting out of the box.
+    </p>
+  </div>
+  <div style="flex: 1; min-width: 280px; border: 1px solid var(--sl-color-gray-5); border-radius: 8px; padding: 1.5rem;">
+    <a
+      href="https://electric-sql.com/products/durable-streams"
+      style="display: block; margin-bottom: 1rem;"
+    >
+      <img
+        src="/images/logos/electric-sql.svg"
+        alt="ElectricSQL logo"
+        style="height: 32px; width: auto;"
+      />
+    </a>
+    <p style="margin: 0;">
+      <a href="https://electric-sql.com/products/durable-streams">
+        <strong>ElectricSQL Durable Streams</strong>
+      </a>{' '}
+      focuses on the persistence and data sync side of durable sessions.
+      Electric provides durable streams and database-to-client sync using
+      HTTP-based streaming (not WebSockets), which works well with CDN
+      infrastructure. It's strong on the data persistence layer, but narrower in
+      scope. It doesn't provide the bidirectional communication or real-time
+      coordination that more interactive AI workflows need.
+    </p>
+  </div>
+</div>
+
+For the full picture on the durable sessions category and the growing set of
+vendors supporting it, see [durablesessions.ai](https://durablesessions.ai/).
+
+## Where This Is Heading
+
+The pattern playing out across the industry is pretty clear. Developers start
+with SSE because it's simple. As their AI product grows, they hit the limits: no
+bidirectionality, no connection resilience, no multi-device support. They
+migrate to WebSockets.
+
+Now there's a third step emerging. Rather than building session persistence and
+state management on top of raw WebSockets yourself, durable session layers
+provide those capabilities out of the box.
+
+If you're starting a new AI project today, it's worth considering a durable
+session layer from the beginning rather than following this migration path the
+hard way. Connection resilience, multi-device continuity, and resumable streams
+aren't features you bolt on later. They're fundamental to a good AI user
+experience. And the most capable providers in this space are building on
+WebSockets, because bidirectional communication is the right foundation for how
+humans and AI agents actually interact.
+
+A protocol standardized in 2011 is turning out to be exactly the right fit for
+one of the most demanding categories of software being built today. That's a
+good sign for WebSockets.
+
+## Further Reading
+
+- [WebSockets vs SSE](/comparisons/sse/) - detailed protocol comparison
+- [The Future of WebSockets](/guides/future-of-websockets/) - HTTP/3 and
+  WebTransport evolution
+- [WebSockets at Scale](/guides/websockets-at-scale/) - production architecture
+  for high-concurrency applications
+- [Durable Sessions](https://durablesessions.ai/) - the emerging infrastructure
+  category
+- [Building a WebSocket App](/guides/building-a-websocket-app/) - hands-on
+  tutorial
+
+---
+
+_Written by [Matthew O'Riordan](/author/matthew-oriordan/), Co-founder & CEO of
+Ably, with experience building real-time systems reaching 2 billion+ devices
+monthly._

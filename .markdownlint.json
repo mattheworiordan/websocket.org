@@ -38,6 +38,8 @@
       "summary",
       "sup",
       "sub",
+      "p",
+      "strong",
       "AuthorBio",
       "SEOMetadata",
       "CardGrid",

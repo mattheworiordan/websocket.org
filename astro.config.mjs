@@ -20,6 +20,7 @@ export default defineConfig({
                 { label: 'The Road to WebSockets', link: '/guides/road-to-websockets/' },
                 { label: 'WebSocket Protocol', link: '/guides/websocket-protocol/' },
                 { label: 'The Future of WebSockets', link: '/guides/future-of-websockets/' },
+                { label: 'WebSockets and AI', link: '/guides/websockets-and-ai/' },
               ],
             },
             {

@@ -102,6 +102,7 @@ retry: 5000
 ```
 
 Each message is separated by double newlines (`\n\n`), with fields including:
+
 - `data:` - The message payload
 - `event:` - Event type for named events
 - `id:` - Message ID for resumption
@@ -176,6 +177,7 @@ ws.send(new ArrayBuffer(8));
 ### 1. Communication Direction
 
 **SSE: Unidirectional (Server → Client)**
+
 ```javascript
 // SSE: Client can only receive
 eventSource.onmessage = (event) => {
@@ -192,6 +194,7 @@ async function sendToServer(data) {
 ```
 
 **WebSocket: Bidirectional**
+
 ```javascript
 // WebSocket: Both send and receive on same connection
 ws.onmessage = (event) => {
@@ -207,6 +210,7 @@ ws.send(JSON.stringify({
 ### 2. Automatic Reconnection
 
 **SSE: Built-in reconnection with resume**
+
 ```javascript
 // No code needed! EventSource handles it automatically
 const eventSource = new EventSource('/events');
@@ -216,6 +220,7 @@ const eventSource = new EventSource('/events');
 ```
 
 **WebSocket: Manual reconnection required**
+
 ```javascript
 class ReconnectingWebSocket {
   constructor(url) {
@@ -247,6 +252,7 @@ class ReconnectingWebSocket {
 ### 3. Data Types
 
 **SSE: Text only (UTF-8)**
+
 ```javascript
 // SSE: Must serialize binary data
 eventSource.onmessage = (event) => {
@@ -259,6 +265,7 @@ eventSource.onmessage = (event) => {
 ```
 
 **WebSocket: Binary and text**
+
 ```javascript
 // WebSocket: Native binary support
 ws.binaryType = 'arraybuffer'; // or 'blob'
@@ -282,6 +289,7 @@ ws.send(buffer);
 ### 4. Message Boundaries and Framing
 
 **SSE: Built-in message framing**
+
 ```javascript
 // Each event is discrete and complete
 eventSource.onmessage = (event) => {
@@ -291,6 +299,7 @@ eventSource.onmessage = (event) => {
 ```
 
 **WebSocket: Messages always complete but need structure**
+
 ```javascript
 // WebSocket ensures message boundaries but not structure
 ws.onmessage = (event) => {
@@ -310,6 +319,7 @@ ws.onmessage = (event) => {
 ### 5. HTTP/2 Benefits
 
 **SSE: Full HTTP/2 multiplexing**
+
 ```javascript
 // SSE over HTTP/2: Multiple streams, one connection
 const events1 = new EventSource('/events/stream1');
@@ -319,6 +329,7 @@ const events3 = new EventSource('/events/stream3');
 ```
 
 **WebSocket: No HTTP/2 benefits**
+
 ```javascript
 // Each WebSocket needs separate TCP connection
 const ws1 = new WebSocket('wss://example.com/socket1');
@@ -331,6 +342,7 @@ const ws2 = new WebSocket('wss://example.com/socket2');
 ### When to Use SSE
 
 ✅ **Perfect for:**
+
 - Live news feeds
 - Stock price updates
 - Server monitoring dashboards
@@ -341,6 +353,7 @@ const ws2 = new WebSocket('wss://example.com/socket2');
 - Log streaming
 
 **Example: Live Dashboard**
+
 ```javascript
 // SSE excels at server-push dashboards
 const dashboard = new EventSource('/api/metrics');
@@ -366,6 +379,7 @@ dashboard.onerror = () => {
 ### When to Use WebSockets
 
 ✅ **Perfect for:**
+
 - Chat applications
 - Multiplayer games
 - Collaborative editing
@@ -376,6 +390,7 @@ dashboard.onerror = () => {
 - Real-time location sharing
 
 **Example: Chat Application**
+
 ```javascript
 // WebSocket needed for bidirectional chat
 const chat = new WebSocket('wss://chat.example.com');
@@ -488,6 +503,7 @@ wss.on('connection', (ws) => {
 });
 
 app.listen(3000);
+
 ```
 </TabItem>
 <TabItem label="Python">
@@ -549,6 +565,7 @@ async def websocket_handler(websocket, path):
 if __name__ == '__main__':
     app.run(threaded=True)
 ```
+
 </TabItem>
 <TabItem label="Go">
 ```go
@@ -562,13 +579,13 @@ import (
 )
 
 // SSE Server
-func sseHandler(w http.ResponseWriter, r *http.Request) {
+func sseHandler(w http.ResponseWriter, r _http.Request) {
     // Set SSE headers
     w.Header().Set("Content-Type", "text/event-stream")
     w.Header().Set("Cache-Control", "no-cache")
     w.Header().Set("Connection", "keep-alive")
-    w.Header().Set("Access-Control-Allow-Origin", "*")
-    
+    w.Header().Set("Access-Control-Allow-Origin", "_")
+
     flusher, ok := w.(http.Flusher)
     if !ok {
         http.Error(w, "SSE not supported", http.StatusInternalServerError)
@@ -616,7 +633,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
     defer conn.Close()
-    
+
     for {
         messageType, p, err := conn.ReadMessage()
         if err != nil {
@@ -635,6 +652,7 @@ func main() {
     http.HandleFunc("/ws", wsHandler)
     http.ListenAndServe(":3000", nil)
 }
+
 ```
 </TabItem>
 </Tabs>
@@ -722,6 +740,7 @@ client.on('notification', (data) => {
 
 client.connect();
 ```
+
 </TabItem>
 <TabItem label="React Hook">
 ```jsx
@@ -737,7 +756,7 @@ function useServerSentEvents(url, options = {}) {
   useEffect(() => {
     const eventSource = new EventSource(url, options);
     eventSourceRef.current = eventSource;
-    
+
     eventSource.onopen = () => {
       setReadyState(EventSource.OPEN);
       setError(null);
@@ -806,6 +825,7 @@ function LiveDashboard() {
     </div>
   );
 }
+
 ```
 </TabItem>
 </Tabs>
@@ -841,6 +861,7 @@ events.onmessage = (e) => {
 ```
 
 **WebSocket: No browser limit**
+
 ```javascript
 // WebSocket has no connection limit
 for (let i = 0; i < 100; i++) {
@@ -852,6 +873,7 @@ for (let i = 0; i < 100; i++) {
 ### Mobile Browser Behavior
 
 **SSE on Mobile:**
+
 ```javascript
 // SSE may disconnect on mobile background
 document.addEventListener('visibilitychange', () => {
@@ -883,6 +905,7 @@ document.addEventListener('visibilitychange', () => {
 ### CORS Differences
 
 **SSE: Standard CORS**
+
 ```javascript
 // SSE follows normal CORS rules
 const eventSource = new EventSource('https://other-domain.com/events', {
@@ -895,68 +918,93 @@ const eventSource = new EventSource('https://other-domain.com/events', {
 ```
 
 **WebSocket: Origin checking only**
+
 ```javascript
 // WebSocket doesn't use CORS, only Origin header
 const ws = new WebSocket('wss://other-domain.com/socket');
 // Server should validate Origin header manually
 ```
 
-
-
-
-
-
-
-
-
 ## When to Choose Which
 
-### Choose SSE When:
+### Choose SSE When
 
 ✅ **You only need server-to-client communication**
+
 - Live feeds and notifications
 - Progress updates
 - Monitoring dashboards
 - Log streaming
 
 ✅ **You want automatic reconnection**
+
 - Unreliable networks
 - Mobile applications
 - Critical update streams
 
 ✅ **You need HTTP/2 benefits**
+
 - Multiple event streams
 - Existing HTTP/2 infrastructure
 - CDN compatibility
 
 ✅ **Simplicity is important**
+
 - Quick prototypes
 - Simple event streaming
 - Limited client resources
 
-### Choose WebSockets When:
+### Choose WebSockets When
 
 ✅ **You need bidirectional communication**
+
 - Chat applications
 - Multiplayer games
 - Collaborative editing
 - Remote control
 
 ✅ **You need binary data support**
+
 - File transfers
 - Audio/video streaming
 - Binary protocols
 - IoT sensor data
 
 ✅ **You need lowest latency**
+
 - Trading platforms
 - Gaming
 - Real-time control systems
 
 ✅ **You have complex interaction patterns**
+
 - Request-response over same connection
 - Multiple message types
 - Stateful protocols
+
+## AI and LLM Streaming: A Shifting Landscape
+
+One of the most significant recent developments in the SSE vs WebSockets
+debate comes from AI applications. When LLM-powered chatbots first emerged,
+SSE was the natural choice for streaming tokens from server to client - it's
+simple and does server-push well.
+
+However, as AI applications have matured beyond basic chat into agent
+workflows, human-in-the-loop approval, and multi-device interactions, teams
+are increasingly adopting WebSockets. The core issue is bidirectionality:
+modern AI interactions need the client to send signals back to the server
+during a session (cancelling generation, approving tool calls, steering
+agents), which SSE cannot provide over the same connection.
+
+This shift is reflected in the ecosystem. The Vercel AI SDK deprecated its
+HTTP+SSE transport in favor of a pluggable transport interface. The MCP
+protocol moved away from SSE. And an emerging infrastructure category called
+[Durable Sessions](https://durablesessions.ai/) is building persistent,
+resumable session layers on top of WebSockets to handle the demands of
+complex AI workflows.
+
+For a deeper look at this trend, see our guide on
+[WebSockets and AI](/guides/websockets-and-ai/).
 
 ## Conclusion
 
