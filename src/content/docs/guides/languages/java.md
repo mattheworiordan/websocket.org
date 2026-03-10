@@ -1,29 +1,56 @@
 ---
-title: Java WebSocket Implementation
+title: 'Java WebSocket: Spring Boot & Jakarta EE Guide'
 description:
-  Learn how to implement WebSockets with production-ready code examples, best
-  practices, and real-world patterns. Complete guide to WebSocket clients and
-  servers in Java using Spring Boot, Jakarta EE, native Java, and Android
-  patterns with security, performance optimization, and testing strategies.
+  'Build Java WebSocket apps with Spring Boot and Jakarta EE (JSR 356). Covers
+  server endpoints, STOMP messaging, client connections, security, testing, and
+  production deployment.'
 sidebar:
   order: 5
 author: Matthew O'Riordan
+authorRole: Co-founder & CEO, Ably
 date: '2024-09-02'
+lastUpdated: 2026-03-10
 category: guide
+keywords:
+  - java websocket
+  - spring boot websocket
+  - jakarta ee websocket
+  - java websocket server
+  - java websocket client
 seo:
   keywords:
-    - websocket
-    - tutorial
-    - guide
-    - how-to
-    - java
-    - implementation
-    - real-time
-    - websocket implementation
+    - java websocket
     - spring boot websocket
     - jakarta ee websocket
-    - java websocket client
     - java websocket server
+    - java websocket client
+    - jsr 356 websocket
+    - stomp websocket java
+    - tyrus websocket
+faq:
+  - q: 'How do I add WebSockets to a Spring Boot application?'
+    a:
+      'Add the spring-boot-starter-websocket dependency. Create a class
+      annotated with @ServerEndpoint or use Spring STOMP support with
+      @EnableWebSocketMessageBroker. Spring handles the upgrade handshake and
+      connection lifecycle automatically.'
+  - q: 'What is JSR 356 and how does it relate to Java WebSockets?'
+    a:
+      'JSR 356 (Jakarta WebSocket) is the standard Java API for WebSockets. It
+      defines annotations like @ServerEndpoint and @ClientEndpoint for building
+      WebSocket applications. Tyrus is the reference implementation, and all
+      major Java servers support it.'
+  - q: 'Can I use WebSockets with Jakarta EE?'
+    a:
+      'Yes. Jakarta WebSocket (formerly JSR 356) is part of Jakarta EE. Annotate
+      a class with @ServerEndpoint, implement @OnOpen, @OnMessage, @OnClose, and
+      @OnError methods, and deploy to any Jakarta EE-compatible server like
+      Tomcat, Jetty, or WildFly.'
+  - q: 'How do I handle WebSocket authentication in Java?'
+    a:
+      'Use a HandshakeInterceptor in Spring or a Configurator in Jakarta EE to
+      validate tokens during the HTTP upgrade. Check JWT tokens, session
+      cookies, or custom headers before accepting the WebSocket connection.'
 tags:
   - websocket
   - java
@@ -36,6 +63,11 @@ tags:
   - guide
   - how-to
 ---
+
+:::note[Quick Answer] Use **Spring Boot** with `spring-boot-starter-websocket`
+for the fastest setup. For Jakarta EE, annotate a class with
+`@ServerEndpoint("/path")` and implement `@OnOpen`, `@OnMessage`, `@OnClose`
+methods. Both approaches support the standard JSR 356 WebSocket API. :::
 
 WebSockets have revolutionized real-time communication in Java applications,
 enabling bi-directional, low-latency communication between clients and servers.
@@ -2299,3 +2331,45 @@ bottlenecks with precision. Application Performance Monitoring (APM) tools
 provide deep insights into WebSocket behavior in production. IDE support for
 WebSocket development includes everything from code completion to automated
 refactoring, making development more efficient and less error-prone.
+
+## Frequently Asked Questions
+
+### How do I add WebSockets to a Spring Boot application?
+
+Add the `spring-boot-starter-websocket` dependency. Create a class annotated
+with `@ServerEndpoint` or use Spring STOMP support with
+`@EnableWebSocketMessageBroker`. Spring handles the upgrade handshake and
+connection lifecycle automatically.
+
+### What is JSR 356 and how does it relate to Java WebSockets?
+
+JSR 356 (Jakarta WebSocket) is the standard Java API for WebSockets. It defines
+annotations like `@ServerEndpoint` and `@ClientEndpoint` for building WebSocket
+applications. Tyrus is the reference implementation, and all major Java servers
+support it.
+
+### Can I use WebSockets with Jakarta EE?
+
+Yes. Jakarta WebSocket (formerly JSR 356) is part of Jakarta EE. Annotate a
+class with `@ServerEndpoint`, implement `@OnOpen`, `@OnMessage`, `@OnClose`, and
+`@OnError` methods, and deploy to any Jakarta EE-compatible server like Tomcat,
+Jetty, or WildFly.
+
+### How do I handle WebSocket authentication in Java?
+
+Use a `HandshakeInterceptor` in Spring or a `Configurator` in Jakarta EE to
+validate tokens during the HTTP upgrade. Check JWT tokens, session cookies, or
+custom headers before accepting the WebSocket connection.
+
+## Related Content
+
+- [WebSocket Protocol: RFC 6455 Handshake, Frames & More](/guides/websocket-protocol/) -
+  The protocol underlying Java WebSocket implementations
+- [WebSocket API: Events, Methods & Properties](/reference/websocket-api/) -
+  Browser-side API for connecting to your Java server
+- [WebSocket Security](/guides/security/) - Authentication, TLS, and rate
+  limiting for WebSocket servers
+- [WebSocket Libraries, Tools & Specs](/resources/websocket-resources/) -
+  Curated list including Java libraries like Tyrus and Jetty
+- [WebSockets at Scale](/guides/websockets-at-scale/) - Scaling patterns
+  applicable to Java WebSocket deployments

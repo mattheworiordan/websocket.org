@@ -1,31 +1,56 @@
 ---
-title: Go WebSocket Implementation
+title: 'Go WebSocket: Gorilla, nhooyr & Concurrency Patterns'
 description:
-  Learn how to implement WebSockets with production-ready code examples, best
-  practices, and real-world patterns. Complete guide to WebSocket servers and
-  clients in Go using Gorilla WebSocket, nhooyr/websocket, concurrent
-  programming patterns, performance optimization, security, testing, and
-  production deployment strategies.
+  'Build Go WebSocket servers and clients with Gorilla WebSocket and
+  nhooyr/websocket. Covers goroutines, channels, connection pooling, testing,
+  and production deployment.'
 sidebar:
   order: 3
 author: Matthew O'Riordan
+authorRole: Co-founder & CEO, Ably
 date: '2024-09-02'
+lastUpdated: 2026-03-10
 category: guide
+keywords:
+  - go websocket
+  - golang websocket
+  - gorilla websocket
+  - go websocket server
+  - nhooyr websocket
 seo:
   keywords:
-    - websocket
-    - tutorial
-    - guide
-    - how-to
-    - implementation
-    - go
-    - golang
-    - real-time
-    - websocket implementation
+    - go websocket
+    - golang websocket
     - gorilla websocket
     - go websocket server
     - go websocket client
-    - golang websocket
+    - nhooyr websocket
+    - golang realtime
+    - go websocket goroutine
+faq:
+  - q: 'What is the best Go WebSocket library?'
+    a:
+      'Gorilla WebSocket is the most popular and battle-tested choice.
+      nhooyr/websocket is a newer alternative with a simpler API and better
+      context support. Both are production-ready. Gorilla has more examples and
+      community resources.'
+  - q: 'How do I handle concurrent WebSocket connections in Go?'
+    a:
+      'Use one goroutine per connection for reading and one for writing. Protect
+      shared state with sync.Mutex or use channels to coordinate. Go goroutines
+      are lightweight, so thousands of concurrent connections are practical.'
+  - q: 'Is Go good for WebSocket servers?'
+    a:
+      'Yes, Go is excellent for WebSocket servers. Goroutines handle thousands
+      of concurrent connections efficiently without thread overhead. Static
+      binaries deploy easily, and Go standard library has built-in HTTP upgrade
+      support.'
+  - q: 'How do I add WebSocket support to an existing Go HTTP server?'
+    a:
+      'Use gorilla/websocket Upgrader to upgrade HTTP connections. Create an
+      Upgrader instance, call Upgrade() in your HTTP handler, then read and
+      write messages on the returned Conn. The upgrade happens on your existing
+      HTTP server and port.'
 tags:
   - websocket
   - go
@@ -38,6 +63,12 @@ tags:
   - guide
   - how-to
 ---
+
+:::note[Quick Answer] Use **gorilla/websocket** for full-featured WebSocket
+support or **nhooyr/websocket** for a simpler API. Create an `Upgrader`, call
+`Upgrade()` in your HTTP handler, then use `ReadMessage()` and `WriteMessage()`
+on the connection. Go's goroutines handle thousands of concurrent connections
+efficiently. :::
 
 Go has emerged as one of the most powerful languages for building real-time,
 concurrent applications, making it an excellent choice for WebSocket
@@ -2796,3 +2827,42 @@ to evolve with better generics support and improved tooling, WebSocket
 applications will benefit from cleaner code and better type safety while
 maintaining the performance characteristics that make Go so attractive for
 network programming.
+
+## Frequently Asked Questions
+
+### What is the best Go WebSocket library?
+
+Gorilla WebSocket is the most popular and battle-tested choice. nhooyr/websocket
+is a newer alternative with a simpler API and better context support. Both are
+production-ready. Gorilla has more examples and community resources.
+
+### How do I handle concurrent WebSocket connections in Go?
+
+Use one goroutine per connection for reading and one for writing. Protect shared
+state with `sync.Mutex` or use channels to coordinate. Go goroutines are
+lightweight, so thousands of concurrent connections are practical.
+
+### Is Go good for WebSocket servers?
+
+Yes, Go is excellent for WebSocket servers. Goroutines handle thousands of
+concurrent connections efficiently without thread overhead. Static binaries
+deploy easily, and Go's standard library has built-in HTTP upgrade support.
+
+### How do I add WebSocket support to an existing Go HTTP server?
+
+Use `gorilla/websocket` Upgrader to upgrade HTTP connections. Create an Upgrader
+instance, call `Upgrade()` in your HTTP handler, then read and write messages on
+the returned Conn. The upgrade happens on your existing HTTP server and port.
+
+## Related Content
+
+- [WebSocket Protocol: RFC 6455 Handshake, Frames & More](/guides/websocket-protocol/) -
+  The protocol Go WebSocket libraries implement
+- [Python WebSocket Guide](/guides/languages/python/) - Compare Go's approach
+  with Python's asyncio WebSocket patterns
+- [WebSocket Libraries, Tools & Specs](/resources/websocket-resources/) - Full
+  list of Go WebSocket libraries including Melody and Centrifugo
+- [WebSockets at Scale](/guides/websockets-at-scale/) - Architecture patterns
+  that complement Go's concurrency model
+- [WebSocket Security](/guides/security/) - Securing Go WebSocket servers with
+  TLS and authentication

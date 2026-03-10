@@ -1,29 +1,69 @@
 ---
-title: WebSocket Security Hardening Guide
+title: 'WebSocket Security: Auth, TLS, CSWSH & Rate Limiting'
 description:
-  Comprehensive guide to securing WebSocket connections including CSWSH
-  prevention, authentication strategies, TLS configuration, compression
-  vulnerabilities, rate limiting, and input validation
+  'Secure your WebSocket connections. Covers authentication (JWT,
+  token), TLS/WSS setup, CSWSH prevention, rate limiting, input
+  validation, and OWASP best practices.'
 keywords:
-  [
-    websocket security,
-    websocket authentication,
-    CSWSH,
-    websocket TLS,
-    websocket vulnerabilities,
-    websocket rate limiting,
-    websocket CSRF,
-  ]
+  - websocket security
+  - websocket authentication
+  - CSWSH
+  - websocket TLS
+  - websocket vulnerabilities
+  - websocket rate limiting
+  - websocket CSRF
 sidebar:
   order: 7
   label: Security
 author: Matthew O'Riordan
-role: Co-founder & CEO, Ably
+authorRole: Co-founder & CEO, Ably
 date: 2025-09-01
+lastUpdated: 2026-03-10
+category: guide
+seo:
+  keywords:
+    - websocket security
+    - websocket authentication
+    - websocket TLS
+    - CSWSH prevention
+    - websocket rate limiting
+    - websocket CSRF
+    - wss secure websocket
+    - websocket OWASP
+faq:
+  - q: 'What is Cross-Site WebSocket Hijacking (CSWSH)?'
+    a: 'CSWSH is an attack where a malicious website opens a WebSocket
+      connection to a target server using the victim browser cookies.
+      Prevent it by validating the Origin header during the handshake
+      and using CSRF tokens or custom headers that cross-origin
+      requests cannot set.'
+  - q: 'Should I use WSS (WebSocket Secure) in production?'
+    a: 'Yes, always. WSS encrypts the connection with TLS, preventing
+      eavesdropping and man-in-the-middle attacks. Most browsers and
+      proxies handle WSS more reliably than plain WS. Configure TLS
+      1.2+ with strong cipher suites.'
+  - q: 'How do I authenticate WebSocket connections?'
+    a: 'Pass a JWT or session token during the initial HTTP upgrade
+      handshake, either as a query parameter or in cookies. Validate
+      the token server-side before accepting the connection. For
+      long-lived connections, implement token refresh over the
+      WebSocket itself.'
+  - q: 'How do I rate limit WebSocket connections?'
+    a: 'Limit both new connections and messages per connection. Track
+      connection counts per IP and per authenticated user. Implement
+      a token bucket or sliding window algorithm for message rate
+      limiting. Disconnect clients that exceed limits.'
 ---
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 import { Card, CardGrid } from '@astrojs/starlight/components';
+
+:::note[Quick Answer]
+Always use **WSS** (TLS) in production. Validate the **Origin header**
+during the handshake to prevent CSWSH. Authenticate with **JWT tokens**
+passed as a query parameter or cookie during the upgrade request.
+Rate limit both connections and messages per client.
+:::
 
 WebSocket connections face unique security challenges that differ from
 traditional HTTP requests. This comprehensive guide covers all aspects of
@@ -262,7 +302,9 @@ async function testCSWSH() {
 
 ## Authentication Strategies
 
-For a comprehensive overview of WebSocket authentication methods and best practices, see [this essential guide to WebSocket authentication](https://ably.com/blog/websocket-authentication).
+For a comprehensive overview of WebSocket authentication methods and
+best practices, see
+[this essential guide to WebSocket authentication](https://ably.com/blog/websocket-authentication).
 
 ### JWT Token Authentication
 
@@ -1656,10 +1698,54 @@ async function runSecurityTests() {
 14. **Have an incident response plan** for security breaches
 15. **Regular security audits** and penetration testing
 
+## Frequently Asked Questions
+
+### What is Cross-Site WebSocket Hijacking (CSWSH)?
+
+CSWSH is an attack where a malicious website opens a WebSocket
+connection to a target server using the victim's browser cookies.
+Prevent it by validating the Origin header during the handshake and
+using CSRF tokens or custom headers that cross-origin requests
+cannot set.
+
+### Should I use WSS (WebSocket Secure) in production?
+
+Yes, always. WSS encrypts the connection with TLS, preventing
+eavesdropping and man-in-the-middle attacks. Most browsers and
+proxies handle WSS more reliably than plain WS. Configure TLS 1.2+
+with strong cipher suites.
+
+### How do I authenticate WebSocket connections?
+
+Pass a JWT or session token during the initial HTTP upgrade
+handshake, either as a query parameter or in cookies. Validate the
+token server-side before accepting the connection. For long-lived
+connections, implement token refresh over the WebSocket itself.
+
+### How do I rate limit WebSocket connections?
+
+Limit both new connections and messages per connection. Track
+connection counts per IP and per authenticated user. Implement a
+token bucket or sliding window algorithm for message rate limiting.
+Disconnect clients that exceed limits.
+
 ## Further Reading
 
 - [RFC 6455: The WebSocket Protocol](https://tools.ietf.org/html/rfc6455)
 - [OWASP WebSocket Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/WebSocket_Security_Cheat_Sheet.html)
-- [WebSocket API Reference](/reference/api)
-- [WebSocket Close Codes Reference](/reference/close-codes)
-- [Autobahn TestSuite Guide](/guides/testing/autobahn)
+- [WebSocket API Reference](/reference/websocket-api/)
+- [WebSocket Close Codes Reference](/reference/close-codes/)
+- [Autobahn TestSuite Guide](/guides/testing/autobahn/)
+
+## Related Content
+
+- [WebSocket Protocol: RFC 6455](/guides/websocket-protocol/) -
+  Protocol details including the security-relevant handshake
+- [Nginx WebSocket Proxy](/guides/infrastructure/nginx/) -
+  TLS termination and proxy security configuration
+- [Kubernetes WebSocket Ingress](/guides/infrastructure/kubernetes/) -
+  Network policies and TLS for WebSocket workloads
+- [WebSocket Close Codes](/reference/close-codes/) -
+  Understanding close codes for security event handling
+- [WebSockets at Scale](/guides/websockets-at-scale/) -
+  Rate limiting and connection management at scale

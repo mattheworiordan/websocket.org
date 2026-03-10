@@ -1,11 +1,21 @@
 ---
-title: Kubernetes Ingress WebSocket Configuration
-description: Configure NGINX, Traefik, and HAProxy Ingress controllers for WebSocket applications in Kubernetes with service mesh integration
+title: 'Kubernetes WebSocket Ingress: NGINX, Traefik & HAProxy'
+description:
+  'Configure Kubernetes Ingress for WebSockets. Covers NGINX, Traefik, and
+  HAProxy controllers with sticky sessions, timeouts, TLS, and Istio service
+  mesh integration.'
 author: Matthew O'Riordan
 authorRole: Co-founder & CEO, Ably
 publishedDate: 2025-09-01T00:00:00.000Z
 updatedDate: 2025-09-01T00:00:00.000Z
+lastUpdated: 2026-03-10
 category: infrastructure
+keywords:
+  - kubernetes websocket
+  - k8s websocket ingress
+  - nginx ingress websocket
+  - traefik websocket
+  - haproxy ingress websocket
 tags:
   - kubernetes
   - ingress
@@ -16,8 +26,6 @@ tags:
   - service-mesh
   - istio
 seo:
-  title: 'Kubernetes WebSocket Ingress: NGINX, Traefik & HAProxy Configuration'
-  description: Complete guide to configuring Kubernetes Ingress controllers for WebSocket applications including NGINX, Traefik, HAProxy, and service mesh integration.
   keywords:
     - kubernetes websocket
     - ingress websocket
@@ -26,17 +34,47 @@ seo:
     - haproxy ingress
     - istio websocket
     - k8s websocket
+    - kubernetes websocket sticky sessions
+faq:
+  - q: 'How do I enable WebSockets in Kubernetes NGINX Ingress?'
+    a:
+      'Add the annotation nginx.ingress.kubernetes.io/proxy-read-timeout to your
+      Ingress resource with a value like 3600 for one hour. NGINX Ingress
+      supports WebSockets by default but needs extended timeouts since
+      connections are long-lived.'
+  - q: 'Do I need sticky sessions for WebSockets in Kubernetes?'
+    a:
+      'Yes, if you run multiple backend pods. WebSocket connections are
+      stateful, so reconnecting clients should reach the same pod. Use session
+      affinity annotations like nginx.ingress.kubernetes.io/affinity: cookie.'
+  - q: 'Which Kubernetes Ingress controller is best for WebSockets?'
+    a:
+      'NGINX Ingress is the most common and well-documented choice. Traefik
+      offers automatic service discovery and simpler config. HAProxy provides
+      enterprise-grade load balancing. All three support WebSockets with proper
+      configuration.'
+  - q: 'How do I configure WebSocket timeouts in Kubernetes?'
+    a:
+      'Set proxy-read-timeout and proxy-send-timeout annotations on your Ingress
+      resource. Default timeouts (60s) are too short for WebSockets. Use 3600 (1
+      hour) or higher depending on your application needs.'
 date: '2024-09-02'
 ---
-Kubernetes Ingress controllers can handle WebSocket connections with proper
-configuration, though they require specific settings to accommodate the unique
-characteristics of WebSocket protocols. Unlike traditional HTTP requests,
-WebSocket connections are long-lived, stateful, and require protocol upgrade
-handling. This comprehensive guide covers the most popular ingress controllers:
-NGINX, Traefik, and HAProxy, plus service mesh integration with Istio and
-Linkerd. We'll also explore deployment strategies, monitoring approaches, and
-troubleshooting techniques to ensure robust WebSocket implementations in
-production Kubernetes environments.
+
+:::note[Quick Answer] Add
+`nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"` and
+`proxy-send-timeout: "3600"` annotations to your Ingress resource. NGINX Ingress
+supports WebSockets by default but needs extended timeouts for long-lived
+connections. Use sticky sessions if you run multiple pods. ::: Kubernetes
+Ingress controllers can handle WebSocket connections with proper configuration,
+though they require specific settings to accommodate the unique characteristics
+of WebSocket protocols. Unlike traditional HTTP requests, WebSocket connections
+are long-lived, stateful, and require protocol upgrade handling. This
+comprehensive guide covers the most popular ingress controllers: NGINX, Traefik,
+and HAProxy, plus service mesh integration with Istio and Linkerd. We'll also
+explore deployment strategies, monitoring approaches, and troubleshooting
+techniques to ensure robust WebSocket implementations in production Kubernetes
+environments.
 
 ## Quick Start: NGINX Ingress
 
@@ -69,11 +107,11 @@ spec:
 ## NGINX Ingress Controller
 
 NGINX Ingress Controller is the most widely adopted solution for WebSocket
-routing in Kubernetes environments. It provides excellent performance,
-extensive configuration options, and robust support for WebSocket protocol
-upgrades. The controller automatically detects WebSocket upgrade requests and
-handles the protocol switching seamlessly, making it an ideal choice for
-production deployments where reliability and performance are critical.
+routing in Kubernetes environments. It provides excellent performance, extensive
+configuration options, and robust support for WebSocket protocol upgrades. The
+controller automatically detects WebSocket upgrade requests and handles the
+protocol switching seamlessly, making it an ideal choice for production
+deployments where reliability and performance are critical.
 
 ### Installation
 
@@ -250,8 +288,8 @@ automatic service discovery and excellent WebSocket support. One of Traefik's
 key advantages is its ability to automatically detect WebSocket connections
 without requiring explicit configuration, making it particularly suitable for
 dynamic environments where services are frequently added or modified. Traefik's
-middleware system provides powerful traffic shaping, circuit breaker, and
-rate limiting capabilities specifically designed for long-lived WebSocket
+middleware system provides powerful traffic shaping, circuit breaker, and rate
+limiting capabilities specifically designed for long-lived WebSocket
 connections.
 
 ### Installation
@@ -367,9 +405,9 @@ spec:
 ## HAProxy Ingress Controller
 
 HAProxy Ingress Controller brings enterprise-grade load balancing capabilities
-to Kubernetes with exceptional WebSocket support and advanced traffic
-management features. HAProxy excels in scenarios requiring precise control over
-connection distribution, sophisticated health checking, and enterprise security
+to Kubernetes with exceptional WebSocket support and advanced traffic management
+features. HAProxy excels in scenarios requiring precise control over connection
+distribution, sophisticated health checking, and enterprise security
 requirements. Its mature connection pooling algorithms and configurable timeout
 settings make it particularly well-suited for applications with varying
 WebSocket traffic patterns and strict performance requirements.
@@ -503,12 +541,12 @@ data:
 
 Service mesh technologies like Istio and Linkerd provide sophisticated traffic
 management, security, and observability features that complement WebSocket
-deployments in Kubernetes. These platforms offer advanced capabilities
-including mutual TLS encryption, traffic splitting for A/B testing, circuit
-breaking, and comprehensive metrics collection. When properly configured,
-service meshes can significantly enhance the reliability and security of
-WebSocket applications while providing detailed visibility into connection
-patterns and performance characteristics.
+deployments in Kubernetes. These platforms offer advanced capabilities including
+mutual TLS encryption, traffic splitting for A/B testing, circuit breaking, and
+comprehensive metrics collection. When properly configured, service meshes can
+significantly enhance the reliability and security of WebSocket applications
+while providing detailed visibility into connection patterns and performance
+characteristics.
 
 ### Istio Configuration
 
@@ -656,8 +694,8 @@ spec:
 
 ## WebSocket Service and Deployment
 
-Deploying WebSocket applications in Kubernetes requires careful consideration
-of pod distribution, resource allocation, and connection handling strategies.
+Deploying WebSocket applications in Kubernetes requires careful consideration of
+pod distribution, resource allocation, and connection handling strategies.
 Unlike stateless HTTP services, WebSocket applications maintain persistent
 connections that can span hours or days, requiring specialized deployment
 configurations to ensure high availability and graceful scaling. The following
@@ -776,13 +814,13 @@ spec:
 
 ## Horizontal Pod Autoscaling
 
-Scaling WebSocket applications presents unique challenges compared to traditional
-stateless services. Since WebSocket connections are bound to specific pods,
-scaling decisions must account for connection distribution and avoid
-disrupting active sessions. Effective autoscaling strategies balance resource
-utilization with connection stability, using custom metrics that reflect the
-actual load characteristics of WebSocket traffic rather than relying solely
-on CPU and memory metrics.
+Scaling WebSocket applications presents unique challenges compared to
+traditional stateless services. Since WebSocket connections are bound to
+specific pods, scaling decisions must account for connection distribution and
+avoid disrupting active sessions. Effective autoscaling strategies balance
+resource utilization with connection stability, using custom metrics that
+reflect the actual load characteristics of WebSocket traffic rather than relying
+solely on CPU and memory metrics.
 
 ### HPA Configuration for WebSocket Applications
 
@@ -941,9 +979,9 @@ data:
 
 ## Network Policies
 
-Network security for WebSocket applications requires careful policy design
-to balance security with operational requirements. Unlike HTTP applications
-that typically handle short-lived requests, WebSocket applications maintain
+Network security for WebSocket applications requires careful policy design to
+balance security with operational requirements. Unlike HTTP applications that
+typically handle short-lived requests, WebSocket applications maintain
 persistent connections that traverse network boundaries for extended periods.
 Effective network policies must account for these long-lived connections while
 restricting unnecessary traffic and preventing lateral movement in case of
@@ -1002,12 +1040,12 @@ spec:
 ## TLS/SSL Configuration
 
 Securing WebSocket connections with TLS encryption is essential for production
-deployments, particularly when handling sensitive data or operating in
-regulated environments. Certificate management in Kubernetes environments
-requires automation to handle certificate renewals and distribution across
-multiple ingress points. The cert-manager project provides robust certificate
-lifecycle management with support for various certificate authorities and
-automated renewal processes.
+deployments, particularly when handling sensitive data or operating in regulated
+environments. Certificate management in Kubernetes environments requires
+automation to handle certificate renewals and distribution across multiple
+ingress points. The cert-manager project provides robust certificate lifecycle
+management with support for various certificate authorities and automated
+renewal processes.
 
 ### Certificate Management with cert-manager
 
@@ -1046,12 +1084,12 @@ spec:
 ## Testing WebSocket Connections
 
 Comprehensive testing of WebSocket deployments in Kubernetes requires both
-functional and performance validation to ensure applications can handle
-expected loads while maintaining connection stability. Testing strategies
-should cover connection establishment, message throughput, failover scenarios,
-and scaling behavior under various load conditions. Automated testing
-frameworks help validate deployment configurations and detect regressions
-before they impact production environments.
+functional and performance validation to ensure applications can handle expected
+loads while maintaining connection stability. Testing strategies should cover
+connection establishment, message throughput, failover scenarios, and scaling
+behavior under various load conditions. Automated testing frameworks help
+validate deployment configurations and detect regressions before they impact
+production environments.
 
 ### Test Pod for WebSocket
 
@@ -1127,8 +1165,8 @@ Diagnosing WebSocket issues in Kubernetes environments requires understanding
 both the application-level WebSocket protocol behavior and the underlying
 Kubernetes networking stack. Common problems often stem from misconfigurations
 in timeout settings, session affinity, or ingress controller annotations.
-Systematic troubleshooting approaches help isolate whether issues originate
-from the application code, Kubernetes configuration, or network infrastructure.
+Systematic troubleshooting approaches help isolate whether issues originate from
+the application code, Kubernetes configuration, or network infrastructure.
 
 ### Common Issues and Solutions
 
@@ -1201,16 +1239,55 @@ kubectl -n ingress-nginx get deployment nginx-ingress-controller -o jsonpath='{.
 
 ## Best Practices
 
-1. **Use appropriate ingress controller**: NGINX for simplicity and performance, Traefik for automatic service discovery and dynamic configuration, or HAProxy for enterprise-grade load balancing requirements
-2. **Configure session affinity**: Essential for stateful WebSocket connections to ensure clients reconnect to the same backend pods and maintain application state consistency
-3. **Set proper timeouts**: Configure extended timeout values appropriate for WebSocket connections, which can remain active for hours or days depending on application requirements
-4. **Implement health checks**: Ensure pods are ready and healthy before receiving traffic, with checks that validate WebSocket endpoint availability rather than just basic HTTP responses
-5. **Use HPA carefully**: WebSocket connections are stateful and bound to specific pods, so scale gradually and consider connection distribution when scaling policies trigger
-6. **Monitor connection metrics**: Track active connections, connection rates, message throughput, and resource usage patterns specific to WebSocket workloads for informed scaling decisions
-7. **Implement graceful shutdown**: Allow adequate time for existing connections to close cleanly during pod termination to prevent data loss and client reconnection storms
-8. **Use network policies**: Restrict traffic to necessary ports and sources while allowing for the long-lived nature of WebSocket connections across network boundaries
-9. **Enable TLS/SSL**: Always use WSS (WebSocket Secure) in production environments to protect data in transit and maintain client trust and regulatory compliance
-10. **Test failover scenarios**: Regularly validate behavior during pod restarts, network partitions, and ingress controller updates to ensure application resilience and recovery capabilities
+1. **Use appropriate ingress controller**: NGINX for simplicity and performance,
+   Traefik for automatic service discovery, or HAProxy for enterprise-grade load
+   balancing
+2. **Configure session affinity**: Essential for stateful WebSocket connections
+   to ensure clients reconnect to the same backend pods
+3. **Set proper timeouts**: Configure extended timeout values for WebSocket
+   connections, which can remain active for hours or days
+4. **Implement health checks**: Ensure pods are ready before receiving traffic,
+   with checks that validate WebSocket endpoint availability
+5. **Use HPA carefully**: WebSocket connections are stateful and bound to
+   specific pods, so scale gradually and consider connection distribution
+6. **Monitor connection metrics**: Track active connections, connection rates,
+   message throughput, and resource usage patterns
+7. **Implement graceful shutdown**: Allow adequate time for existing connections
+   to close cleanly during pod termination
+8. **Use network policies**: Restrict traffic to necessary ports and sources
+   while allowing for long-lived WebSocket connections
+9. **Enable TLS/SSL**: Always use WSS in production to protect data in transit
+   and maintain client trust
+10. **Test failover scenarios**: Regularly validate behavior during pod
+    restarts, network partitions, and ingress controller updates
+
+## Frequently Asked Questions
+
+### How do I enable WebSockets in Kubernetes NGINX Ingress?
+
+Add the annotation `nginx.ingress.kubernetes.io/proxy-read-timeout` to your
+Ingress resource with a value like 3600 for one hour. NGINX Ingress supports
+WebSockets by default but needs extended timeouts since connections are
+long-lived.
+
+### Do I need sticky sessions for WebSockets in Kubernetes?
+
+Yes, if you run multiple backend pods. WebSocket connections are stateful, so
+reconnecting clients should reach the same pod. Use session affinity annotations
+like `nginx.ingress.kubernetes.io/affinity: cookie`.
+
+### Which Kubernetes Ingress controller is best for WebSockets?
+
+NGINX Ingress is the most common and well-documented choice. Traefik offers
+automatic service discovery and simpler config. HAProxy provides
+enterprise-grade load balancing. All three support WebSockets with proper
+configuration.
+
+### How do I configure WebSocket timeouts in Kubernetes?
+
+Set `proxy-read-timeout` and `proxy-send-timeout` annotations on your Ingress
+resource. Default timeouts (60s) are too short for WebSockets. Use 3600 (1 hour)
+or higher depending on your application needs.
 
 ## Additional Resources
 
@@ -1220,10 +1297,15 @@ kubectl -n ingress-nginx get deployment nginx-ingress-controller -o jsonpath='{.
 - [Istio WebSocket Support](https://istio.io/latest/docs/ops/configuration/traffic-management/protocol-selection/)
 - [Kubernetes Networking](https://kubernetes.io/docs/concepts/services-networking/)
 
----
+## Related Content
 
-_This guide is maintained by
-[Matthew O'Riordan](https://twitter.com/mattyoriordan), Co-founder & CEO of
-[Ably](https://ably.com), the real-time data platform. For corrections or
-suggestions, please
-[open an issue](https://github.com/websockets/websocket.org/issues)._
+- [Nginx WebSocket Proxy](/guides/infrastructure/nginx/) - Standalone NGINX
+  WebSocket proxy configuration
+- [Cloudflare WebSockets](/guides/infrastructure/cloudflare/) - CDN and edge
+  WebSocket support
+- [WebSockets at Scale](/guides/websockets-at-scale/) - Architecture patterns
+  for millions of connections
+- [WebSocket Security](/guides/security/) - Securing WebSocket connections with
+  TLS and authentication
+- [WebSocket Protocol](/guides/websocket-protocol/) - Understanding the protocol
+  your Ingress controllers proxy
