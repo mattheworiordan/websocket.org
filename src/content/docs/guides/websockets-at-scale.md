@@ -1,33 +1,62 @@
 ---
-title: WebSockets at Scale - Production Architecture and Best Practices
+title: 'WebSockets at Scale: Architecture for Millions of Connections'
 description:
-  Overview of the numerous engineering decisions and technical trade-offs
-  involved in building a system at scale. Specifically, a system that is capable
-  of handling thousands or even millions of concurrent end-user devices as they
-  connect, consume, and send messages over WebSockets.
+  'How to scale WebSocket servers to millions of concurrent connections: load
+  balancing, horizontal scaling, connection limits, message fanout, and
+  production architecture patterns.'
 author: Matthew O'Riordan
 date: '2024-09-02'
+lastUpdated: 2026-03-10
 category: guide
 seo:
   keywords:
-    - websocket
-    - tutorial
-    - guide
-    - how-to
-    - websockets
-    - scale
-    - production
-    - real-time
-    - websocket implementation
+    - websocket scaling
+    - websocket architecture
+    - websocket load balancing
+    - websocket million connections
+    - websocket horizontal scaling
+    - websocket production
+    - scale websocket server
 tags:
   - websocket
-  - guide
-  - tutorial
-  - how-to
   - scaling
   - performance
   - architecture
+  - production
+faq:
+  - q: 'How many WebSocket connections can a single server handle?'
+    a:
+      'A single server can handle hundreds of thousands of concurrent WebSocket
+      connections with proper tuning. The main limits are file descriptors (one
+      per connection), memory (each connection uses roughly 2-10 KB), and CPU
+      for message processing. With 16 GB RAM and tuned OS limits, 500K+ idle
+      connections are achievable.'
+  - q: 'How do you load balance WebSocket connections?'
+    a:
+      'Use Layer 4 (TCP) or Layer 7 (HTTP) load balancing with sticky sessions.
+      WebSocket connections are long-lived and stateful, so all frames must
+      reach the same backend. Use IP hash, cookie-based affinity, or a
+      connection-aware load balancer. Avoid round-robin for established
+      connections.'
+  - q: 'How do you horizontally scale WebSocket servers?'
+    a:
+      'Add a pub/sub backplane (Redis, Kafka, NATS, or a message broker) between
+      your WebSocket servers. When a message needs to reach clients on other
+      servers, publish it to the backplane and let each server fan out to its
+      local connections. This decouples servers from each other.'
+  - q: 'Should I build WebSocket infrastructure or use a managed service?'
+    a:
+      'Building is viable for simple use cases with moderate scale. For
+      production systems needing high availability, global distribution,
+      guaranteed delivery, and connection management at scale, a managed service
+      like Ably, Pusher, or PubNub handles the hard infrastructure problems so
+      you can focus on application logic.'
 ---
+
+:::note[Quick Answer] Scaling WebSockets requires horizontal server scaling with
+a pub/sub backplane (Redis, Kafka, or NATS), sticky-session load balancing, OS
+tuning for file descriptor and memory limits, and connection state management. A
+single server can handle 500K+ idle connections with proper tuning. :::
 
 This article covers the main aspects to consider when you set out to build a
 system at scale. By this, I mean a system to handle thousands or even millions
@@ -74,7 +103,7 @@ Vertical Scaling (Scale Up)          Horizontal Scaling (Scale Out)
                                          sharing workload
 ```
 
-_Figure 5.1: Vertical and horizontal scaling_
+Figure 5.1: Vertical and horizontal scaling
 
 At first glance, vertical scaling seems attractive, as it's easier to implement
 and maintain than horizontal scaling. You might even ask yourself: how many
@@ -208,7 +237,7 @@ them.
      Backend Server Farm
 ```
 
-_Figure 5.2: Load balancing_
+Figure 5.2: Load balancing
 
 Load balancers detect the health of backend resources and do not send traffic to
 servers that cannot deal with additional load. If a server goes down, the load
@@ -623,3 +652,47 @@ const connection = new ResilientConnection('https://api.example.com');
 Another example is SockJS, which supports a large number of streaming and
 polling fallbacks, including xhr-polling (long-polling using cross-domain XHR)
 and eventsource (Server-Sent Events).
+
+## FAQ
+
+### How many WebSocket connections can a single server handle?
+
+A single server can handle hundreds of thousands of concurrent WebSocket
+connections with proper tuning. The main limits are file descriptors (one per
+connection), memory (each connection uses roughly 2-10 KB), and CPU for message
+processing. With 16 GB RAM and tuned OS limits, 500K+ idle connections are
+achievable.
+
+### How do you load balance WebSocket connections?
+
+Use Layer 4 (TCP) or Layer 7 (HTTP) load balancing with sticky sessions.
+WebSocket connections are long-lived and stateful, so all frames must reach the
+same backend. Use IP hash, cookie-based affinity, or a connection-aware load
+balancer. Avoid round-robin for established connections.
+
+### How do you horizontally scale WebSocket servers?
+
+Add a pub/sub backplane (Redis, Kafka, NATS, or a message broker) between your
+WebSocket servers. When a message needs to reach clients on other servers,
+publish it to the backplane and let each server fan out to its local
+connections. This decouples servers from each other.
+
+### Should I build or use a managed service?
+
+Building is viable for simple use cases with moderate scale. For production
+systems needing high availability, global distribution, guaranteed delivery, and
+connection management at scale, a managed service like Ably, Pusher, or PubNub
+handles the hard infrastructure problems so you can focus on application logic.
+
+## Related Content
+
+- [WebSocket Protocol Guide](/guides/websocket-protocol/) - How the protocol
+  works under the hood
+- [Nginx WebSocket Proxy Guide](/guides/infrastructure/nginx/) - Production
+  Nginx configuration for WebSocket proxying
+- [Kubernetes WebSocket Guide](/guides/infrastructure/kubernetes/) - Running
+  WebSocket servers in Kubernetes
+- [Cloudflare WebSocket Guide](/guides/infrastructure/cloudflare/) - Edge
+  WebSocket handling with Cloudflare
+- [WebSocket Security Guide](/guides/security/) - Authentication, encryption,
+  and common vulnerabilities

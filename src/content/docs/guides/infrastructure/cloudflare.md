@@ -1,10 +1,14 @@
 ---
-title: Cloudflare WebSocket Configuration Guide
-description: Configure Cloudflare CDN, Workers, and Durable Objects for WebSocket applications with DDoS protection and global distribution
+title: 'Cloudflare WebSockets: CDN, Workers & Durable Objects'
+description:
+  'How to proxy WebSocket connections through Cloudflare CDN, build edge
+  WebSocket handlers with Workers, and manage stateful connections with Durable
+  Objects.'
 author: Matthew O'Riordan
 authorRole: Co-founder & CEO, Ably
 publishedDate: 2025-09-01T00:00:00.000Z
 updatedDate: 2025-09-01T00:00:00.000Z
+lastUpdated: 2026-03-10
 category: infrastructure
 tags:
   - cloudflare
@@ -12,20 +16,48 @@ tags:
   - cdn
   - workers
   - durable-objects
-  - ddos
-  - edge-computing
 seo:
-  title: 'Cloudflare WebSocket Configuration: CDN, Workers & Durable Objects'
-  description: Complete guide to using Cloudflare for WebSocket applications including CDN proxy setup, Workers implementation, Durable Objects patterns, and DDoS protection.
   keywords:
     - cloudflare websocket
     - cloudflare workers websocket
     - durable objects websocket
-    - cloudflare cdn websocket
+    - cloudflare websocket proxy
+    - cloudflare websocket support
     - websocket ddos protection
-    - edge websocket
+    - cloudflare edge websocket
 date: '2024-09-02'
+faq:
+  - q: 'Does Cloudflare support WebSocket connections?'
+    a:
+      'Yes. Cloudflare proxies WebSocket connections on all plans, including
+      Free. Enable the orange cloud (proxy) for your DNS record and WebSocket
+      traffic passes through automatically with DDoS protection. No special
+      configuration is needed for basic proxying.'
+  - q: 'How do Cloudflare Workers handle WebSockets?'
+    a:
+      'Workers can accept WebSocket upgrade requests at the edge using the
+      WebSocket API. A Worker calls new WebSocketPair() to create a
+      server/client pair, processes messages in the fetch handler, and responds
+      with HTTP 101. For persistent state, pair Workers with Durable Objects.'
+  - q: 'What are Durable Objects and why use them for WebSockets?'
+    a:
+      'Durable Objects provide single-threaded, stateful JavaScript execution at
+      the edge. Each object has a unique ID, persistent storage, and guaranteed
+      single-instance execution. This makes them ideal for WebSocket use cases
+      like chat rooms or collaborative editing where state must be consistent.'
+  - q: 'What are the Cloudflare WebSocket connection limits?'
+    a:
+      'Free and Pro plans allow WebSocket connections with a 100-second idle
+      timeout. Business and Enterprise plans have higher limits and configurable
+      timeouts. Cloudflare does not charge per WebSocket connection, only per
+      Worker invocation if you use Workers.'
 ---
+
+:::note[Quick Answer] Cloudflare supports WebSocket proxying on all plans,
+including Free. Just enable the proxy (orange cloud) on your DNS record. For
+edge WebSocket logic, use Workers. For stateful connections (chat,
+collaboration), use Durable Objects. :::
+
 Cloudflare provides multiple ways to handle WebSocket connections: through their
 CDN proxy service, Workers for edge computing, and Durable Objects for stateful
 WebSocket applications. This guide covers all three approaches with production
@@ -975,6 +1007,49 @@ artillery quick --count 100 --num 10 wss://ws.example.com/socket
 - [Durable Objects Documentation](https://developers.cloudflare.com/workers/runtime-apis/durable-objects/)
 - [Workers Pricing](https://developers.cloudflare.com/workers/platform/pricing/)
 - [Cloudflare Network Map](https://www.cloudflare.com/network/)
+
+## FAQ
+
+### Does Cloudflare support WebSocket connections?
+
+Yes. Cloudflare proxies WebSocket connections on all plans, including Free.
+Enable the orange cloud (proxy) for your DNS record and WebSocket traffic passes
+through automatically with DDoS protection. No special configuration is needed
+for basic proxying.
+
+### How do Cloudflare Workers handle WebSockets?
+
+Workers can accept WebSocket upgrade requests at the edge using the WebSocket
+API. A Worker calls `new WebSocketPair()` to create a server/client pair,
+processes messages in the fetch handler, and responds with HTTP 101. For
+persistent state, pair Workers with Durable Objects.
+
+### What are Durable Objects and why use them for WebSockets?
+
+Durable Objects provide single-threaded, stateful JavaScript execution at the
+edge. Each object has a unique ID, persistent storage, and guaranteed
+single-instance execution. This makes them ideal for WebSocket use cases like
+chat rooms or collaborative editing where state must be consistent.
+
+### What are the Cloudflare WebSocket connection limits?
+
+Free and Pro plans allow WebSocket connections with a 100-second idle timeout.
+Business and Enterprise plans have higher limits and configurable timeouts.
+Cloudflare does not charge per WebSocket connection, only per Worker invocation
+if you use Workers.
+
+## Related Content
+
+- [Nginx WebSocket Proxy Guide](/guides/infrastructure/nginx/) - Configure Nginx
+  as a WebSocket reverse proxy
+- [AWS ALB WebSocket Guide](/guides/infrastructure/aws/alb/) - WebSocket
+  configuration for AWS load balancers
+- [WebSockets at Scale](/guides/websockets-at-scale/) - Architecture patterns
+  for millions of connections
+- [WebSocket Security Guide](/guides/security/) - Authentication, encryption,
+  and common vulnerabilities
+- [Kubernetes WebSocket Guide](/guides/infrastructure/kubernetes/) - Running
+  WebSocket servers in Kubernetes
 
 ---
 

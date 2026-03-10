@@ -1,32 +1,55 @@
 ---
-title: WebSocket Resources
+title: 'WebSocket Libraries, Tools & Specs by Language'
 description:
-  Comprehensive collection of WebSocket resources, libraries, and tools for
-  developers. A comprehensive collection of WebSocket specifications,
-  documentation, ...
+  'Curated list of WebSocket libraries for JavaScript, Python, Go, Java, Rust,
+  C#, and PHP. Plus testing tools, RFCs, browser APIs, and managed services.'
 author: Matthew O'Riordan
 authorRole: Co-founder & CEO, Ably
 date: 2025-09-01T00:00:00.000Z
+lastUpdated: 2026-03-10
 keywords:
-  - websocket resources
   - websocket libraries
-  - websocket documentation
-  - websocket specifications
+  - websocket resources
   - websocket tools
+  - websocket library javascript
+  - websocket library python
+  - websocket specifications
 category: resource
 seo:
   keywords:
-    - websocket
-    - resources
-    - javascript
-    - nodejs
-    - python
-    - go
-    - golang
-    - rust
-    - php
-    - java
+    - websocket library
+    - websocket libraries
+    - websocket tools
+    - websocket framework
+    - best websocket library
+    - websocket npm
+    - python websocket library
+    - go websocket library
+faq:
+  - q: 'What is the best WebSocket library for JavaScript?'
+    a:
+      'For Node.js servers, ws is the most popular and performant WebSocket
+      library. For browsers, the native WebSocket API is sufficient for most use
+      cases. Socket.IO adds automatic reconnection, rooms, and fallback
+      transports if you need them.'
+  - q: 'What is the best WebSocket library for Python?'
+    a:
+      'The websockets library is the most popular choice for async Python
+      WebSocket applications. It supports asyncio natively, handles the protocol
+      correctly, and has good documentation. For Django, use Django Channels.
+      For sync code, consider python-socketio.'
+  - q: 'Is there a standard WebSocket specification?'
+    a:
+      'Yes. RFC 6455 defines the WebSocket protocol. The WHATWG HTML Living
+      Standard defines the browser WebSocket API (the JavaScript interface). RFC
+      7692 defines the compression extension. RFC 8441 and RFC 9220 define
+      WebSocket over HTTP/2 and HTTP/3 respectively.'
 ---
+
+:::note[Quick Answer] The most popular WebSocket libraries by language:
+**JavaScript** - ws (Node.js) + native browser API. **Python** - websockets.
+**Go** - gorilla/websocket. **Java** - Tyrus, Jetty. **C#** - SignalR.
+**Rust** - tokio-tungstenite. **PHP** - Ratchet. :::
 
 ## Official Specifications & Standards
 
@@ -329,3 +352,39 @@ ws.onclose = (event) => {
   forum
 - [Real-time Web Technologies Guide](https://www.ably.io/periodic-table-of-realtime) -
   Periodic table of real-time tech
+
+## Frequently Asked Questions
+
+### What is the best WebSocket library for JavaScript?
+
+For Node.js servers, ws is the most popular and performant WebSocket library.
+For browsers, the native WebSocket API is sufficient for most use cases.
+Socket.IO adds automatic reconnection, rooms, and fallback transports if you
+need them.
+
+### What is the best WebSocket library for Python?
+
+The websockets library is the most popular choice for async Python WebSocket
+applications. It supports asyncio natively, handles the protocol correctly, and
+has good documentation. For Django, use Django Channels. For sync code, consider
+python-socketio.
+
+### Is there a standard WebSocket specification?
+
+Yes. RFC 6455 defines the WebSocket protocol. The WHATWG HTML Living Standard
+defines the browser WebSocket API (the JavaScript interface). RFC 7692 defines
+the compression extension. RFC 8441 and RFC 9220 define WebSocket over HTTP/2
+and HTTP/3 respectively.
+
+## Related Content
+
+- [WebSocket Protocol: RFC 6455 Handshake, Frames & More](/guides/websocket-protocol/) -
+  Deep dive into the protocol these libraries implement
+- [WebSocket API: Events, Methods & Properties](/reference/websocket-api/) -
+  Browser API reference for client-side development
+- [Python WebSocket Guide](/guides/languages/python/) - Complete Python
+  WebSocket implementation tutorial
+- [WebSocket vs SSE: Which One Should You Use?](/comparisons/sse/) - Compare
+  WebSockets with Server-Sent Events
+- [WebSockets at Scale](/guides/websockets-at-scale/) - Architecture patterns
+  for scaling WebSocket connections

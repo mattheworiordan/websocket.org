@@ -5,82 +5,131 @@
 WebSocket.org is the canonical resource for WebSocket protocol implementation.
 This is an Astro-based static site with strict quality standards.
 
-## MANDATORY: Pre-Commit Requirements
+## MANDATORY: Pre-Commit Workflow
 
-### 🚨 CRITICAL: ALL Changes MUST Pass These Checks
+### The Pre-Commit Hook
 
-**These commands MUST ALL pass with ZERO errors before ANY task is complete:**
+The `.husky/pre-commit` hook runs on ALL staged files:
 
-```bash
-# Run in this EXACT order:
-npm run lint:fix    # 1. Auto-fix linting issues
-npm run lint        # 2. Verify linting passes (MUST show zero errors)
-npm run format      # 3. Format all code with Prettier (MUST complete without errors)
-npm run lint        # 4. Run lint again to ensure formatting didn't break anything
-```
+1. **markdownlint** on staged `.md` and `.mdx` files
+2. **prettier --check** on staged code files (`.js`, `.jsx`, `.ts`, `.tsx`,
+   `.astro`, `.css`, `.md`, `.mdx`)
+3. **astro check** (TypeScript)
 
-### ⛔ NEVER Consider Work Complete If
+If ANY check fails, the commit is rejected. There is no way to bypass this.
 
-- `npm run lint` shows ANY errors
-- `npm run format` shows ANY errors
-- The pre-commit hook would fail
-- You haven't run ALL the above commands
+### The Workflow You MUST Follow
 
-### Common Issues That Block Commits
-
-1. **Linting Errors (MD013, MD009, MD047)**
-   - Lines over 120 characters
-   - Trailing spaces
-   - Missing newline at end of file
-
-2. **Formatting Issues**
-   - Prettier formatting not applied
-   - Inconsistent indentation
-   - Improper line breaks
-
-### The Final Check Before Completion
+**After every edit, before staging or claiming work is done:**
 
 ```bash
-# This sequence MUST succeed completely:
-npm run lint:fix && npm run format && npm run lint
-# If ANY command fails, fix the issues and run the entire sequence again
+# Step 1: Auto-fix what can be auto-fixed
+npm run lint:fix
+
+# Step 2: Verify ZERO errors remain (auto-fix cannot fix everything)
+npm run lint
+# If errors remain, FIX THEM MANUALLY, then re-run lint:fix && lint
+
+# Step 3: Format with prettier
+npm run format
+
+# Step 4: Verify lint still passes after formatting
+npm run lint
+# If errors, repeat from step 1
 ```
 
-### Testing Infrastructure Guides
+### "Pre-Existing" Errors Are YOUR Problem
 
-When creating or modifying infrastructure guides:
+The pre-commit hook runs on ALL staged files, not just the lines you changed. If
+you touch a file that has pre-existing lint errors, those errors WILL block your
+commit. You MUST fix them. Do not dismiss errors as "pre-existing" - if they're
+in a file you're staging, they're your responsibility.
 
-1. **Run prettier on all files:**
-   `npx prettier --write "src/content/docs/guides/infrastructure/**/*.md"`
-2. **Run markdownlint:**
-   `npx markdownlint src/content/docs/guides/infrastructure/**/*.md --fix`
-3. **Verify navigation:** Check astro.config.mjs includes new guides in sidebar
-4. **Test in dev server:** Ensure all pages load correctly and navigation works
-5. **Check code blocks:** Verify all code examples have proper language
-   specifiers
+### NEVER Consider Work Complete If
 
-## Known Issues & Solutions
+- `npm run lint` shows ANY errors (not warnings - errors)
+- `npm run format` produces changes you haven't re-linted
+- You haven't run the full 4-step workflow above
+- You only ran checks on the files you edited (run the full `npm run lint` which
+  checks ALL files)
 
-### 1. ASCII Diagrams
+## Known Lint Rules That Bite
 
-- **Issue**: Alignment problems in sequence diagrams
-- **Solution**: Count exact character positions. Vertical lines must align
-  precisely at consistent column positions
-- **Testing**: View raw markdown to verify alignment, not just rendered output
+### MD036: Emphasis as Heading
 
-### 2. Markdown Linting (MD040, MD036)
+Standalone italic or bold lines are treated as headings. This WILL fail:
 
-- **Issue**: Fenced code blocks need language specifiers
-- **Solution**: Always use ` ```text ` for ASCII art, ` ```javascript ` for code
-- **Issue**: Bold text interpreted as headings
-- **Solution**: Use proper heading levels (####) instead of **bold** for section
-  titles
+```markdown
+_Figure 1: My diagram_
+```
 
-### 3. Content Updates
+Fix: Remove the emphasis markup:
 
-- **Always verify**: RFC numbers (use RFC 9220 for HTTP/3, not drafts)
-- **Always include**: Author attribution to Matthew O'Riordan where appropriate
-- **Always test**: Code examples with actual WebSocket connections
+```markdown
+Figure 1: My diagram
+```
+
+### MD013: Line Length
+
+- Max 120 characters for prose, 80 for headings
+- Code blocks and tables are exempt
+- FAQ body text in content sections often exceeds this - wrap to stay under
+
+### MD037: Spaces Inside Emphasis
+
+`{/* prettier-ignore */}` triggers this because `*` inside emphasis markers. Do
+NOT use JSX comments in markdown files for prettier control.
+
+### MD033: HTML in Markdown
+
+Only these HTML/JSX elements are allowed: `div`, `span`, `a`, `img`, `br`,
+`script`, `style`, `details`, `summary`, `sup`, `sub`, `p`, `strong`, `h2`,
+`pre`, `AuthorBio`, `SEOMetadata`, `CardGrid`, `Card`, `LinkCard`, `Tabs`,
+`TabItem`.
+
+## Prettier + MDX: Known Incompatibility
+
+Prettier's `proseWrap: "always"` collapses multi-line code inside `<Tabs>` and
+`<TabItem>` JSX components in MDX files. MDX files are excluded from prettier
+via `.prettierignore`. Do NOT remove this exclusion.
+
+If you need to ignore prettier for a specific block in a `.md` file, use an HTML
+comment:
+
+```markdown
+<!-- prettier-ignore -->
+```
+
+Do NOT use JSX-style comments (`{/* */}`) - they trigger MD037.
+
+## CTR Optimization Task Pattern
+
+When doing "Fix CTR" tasks from the content strategy, each page needs:
+
+### Frontmatter Changes
+
+- **title**: 50-60 characters, keyword-front-loaded
+- **description**: 120-160 characters, compelling with keyword
+- **lastUpdated**: Bare date format `2026-03-10` (no quotes needed, Starlight
+  handles it)
+- **keywords**: Top-level array of targeted search terms
+- **seo.keywords**: Array of SEO-specific keywords
+- **faq**: Array of `{q, a}` objects for JSON-LD FAQPage schema
+- **authorRole**: Add `Co-founder & CEO, Ably` if missing
+
+### Content Additions
+
+- **Quick Answer callout**: Immediately after frontmatter, using
+  `:::note[Quick Answer]` syntax
+- **FAQ body section**: `## Frequently Asked Questions` with `### Question`
+  subheadings matching the frontmatter FAQ entries
+- **Related Content**: `## Related Content` with 5 internal cross-links
+
+### Schema Support
+
+FAQPage JSON-LD is auto-generated from frontmatter `faq` array by
+`src/components/head.astro`. The `faq` field is defined in
+`src/content/config.ts`.
 
 ## Repository Structure
 
@@ -89,26 +138,12 @@ src/
 ├── content/docs/     # Main documentation (Markdown/MDX)
 │   ├── guides/       # How-to guides and tutorials
 │   ├── reference/    # API and protocol references
+│   ├── comparisons/  # Protocol comparisons
+│   ├── resources/    # Resource lists
 │   └── tools/        # Interactive tools documentation
 ├── assets/           # Images and static files
-└── components/       # Astro components
+└── components/       # Astro components (head.astro has JSON-LD)
 ```
-
-## Task Completion Protocol
-
-1. Read existing code/content first
-2. Make minimal, focused changes
-3. Run linting and formatting
-4. Verify changes work as intended
-5. Check rendered output matches expectations
-6. Commit with clear, concise message
-
-## WebSocket-Specific Standards
-
-- Use `wss://echo.websocket.org` for examples (working echo server)
-- Reference RFC 6455 (base), RFC 8441 (HTTP/2), RFC 9220 (HTTP/3)
-- Include error handling and reconnection patterns in examples
-- Document browser compatibility accurately
 
 ## Content Guidelines
 
@@ -117,20 +152,6 @@ src/
 - **IMPORTANT**: Never add a top-level heading (`# Title`) in content pages
 - The page title is automatically generated from the frontmatter `title` field
 - Start content directly after frontmatter or with `## H2` sections
-- Example:
-
-  ```markdown
-  ---
-  title: Your Page Title
-  description: Page description
-  ---
-
-  Start content here without # heading.
-
-  ## First Section
-
-  Content...
-  ```
 
 ### Writing Standards
 
@@ -138,40 +159,36 @@ src/
 - Include infrastructure configs (Nginx, AWS ALB, etc.)
 - Provide language-specific implementations
 - Focus on real-world deployment challenges
+- Wrap prose at 80 characters (prettier enforces this for markdown)
 
-## Quality Gates
+## WebSocket-Specific Standards
 
-Before marking complete:
+- Use `wss://echo.websocket.org` for examples (working echo server)
+- Reference RFC 6455 (base), RFC 8441 (HTTP/2), RFC 9220 (HTTP/3)
+- Include error handling and reconnection patterns in examples
+- Document browser compatibility accurately
 
-- [ ] Linting passes
-- [ ] Formatting applied
-- [ ] Links verified
-- [ ] Code examples tested
-- [ ] ASCII diagrams aligned
-- [ ] SEO metadata present
+## ASCII Diagrams
 
-## Common Pitfalls
+- Count exact character positions for alignment
+- Vertical lines must align precisely at consistent column positions
+- View raw markdown to verify alignment, not rendered output
+- Always use ` ```text ` fence for ASCII art
 
-- Don't assume auto-fix will handle all linting issues
-- Don't trust visual rendering for ASCII alignment
-- Don't use outdated draft specifications
-- Don't skip the pre-commit checklist
-- Don't create new files unless absolutely necessary
+## Staging & Commit Messages
+
+- Only stage the websocket.org repo (not websocket.org-tools)
+- Commit messages must describe ALL staged files, not just the last one edited
+- Use conventional commit format: `feat:`, `fix:`, `docs:`, `chore:`
+- Keep first line under 72 characters
 
 ## Key Documentation Files
-
-### Public Documentation
-
-- `/src/content/docs/` - All public documentation
-- `/src/content/docs/guides/` - Implementation guides
-- `/src/content/docs/reference/` - API and protocol references
-
-### Development Documentation
 
 - `/docs/content-style-guide.md` - Writing standards and style guidelines
 - `/docs/development-setup.md` - Development environment setup
 - `/docs/redirect-management.md` - URL redirect configuration
-- `package.json` - Available npm scripts
+- `package.json` - Available npm scripts (`lint`, `lint:fix`, `format`,
+  `format:check`)
 
 Remember: This site aims to be the #1 canonical WebSocket resource. Quality over
 speed.

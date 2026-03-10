@@ -1,36 +1,65 @@
 ---
-title: Python WebSocket Implementation
+title: 'Python WebSocket: asyncio Client & Server Guide'
 description:
-  Learn how to implement WebSockets with production-ready code examples, best
-  practices, and real-world patterns. Complete guide to WebSocket clients and
-  serve...
+  'Build Python WebSocket apps with asyncio. Covers the websockets library,
+  FastAPI integration, reconnection, rooms, testing, and production deployment
+  patterns.'
 sidebar:
   order: 2
 author: Matthew O'Riordan
+authorRole: Co-founder & CEO, Ably
 date: '2024-09-02'
+lastUpdated: 2026-03-10
 category: guide
+keywords:
+  - python websocket
+  - python websocket server
+  - python websocket client
+  - websockets library python
+  - asyncio websocket
+  - fastapi websocket
 seo:
   keywords:
-    - websocket
-    - tutorial
-    - guide
-    - how-to
-    - python
-    - implementation
-    - real-time
-    - websocket implementation
-tags:
-  - websocket
-  - python
-  - asyncio
-  - websockets
-  - websocket-python
-  - programming
-  - tutorial
-  - implementation
-  - guide
-  - how-to
+    - python websocket
+    - python websocket server
+    - python websocket client
+    - websockets library
+    - asyncio websocket
+    - fastapi websocket
+    - django channels websocket
+    - python realtime
+faq:
+  - q: 'What is the best Python WebSocket library?'
+    a:
+      'The websockets library is the most popular choice for async Python
+      WebSocket applications. It supports asyncio natively and handles the
+      protocol correctly. For Django, use Django Channels. For FastAPI, use its
+      built-in WebSocket support.'
+  - q: 'How do I handle reconnection in a Python WebSocket client?'
+    a:
+      'Implement a reconnection loop with exponential backoff. Catch
+      ConnectionClosed exceptions, wait with increasing delays, then call
+      connect() again. Queue messages during disconnection so they can be sent
+      once the connection is restored.'
+  - q: 'Can Python handle thousands of WebSocket connections?'
+    a:
+      'Yes. Python asyncio can handle thousands of concurrent WebSocket
+      connections in a single process because WebSocket workloads are I/O-bound.
+      The event loop efficiently multiplexes connections without needing one
+      thread per connection.'
+  - q: 'How do I add WebSockets to a Django application?'
+    a:
+      'Use Django Channels, which extends Django to handle WebSockets and other
+      async protocols. It adds a channel layer (typically backed by Redis) for
+      message routing between consumers. Install channels, configure ASGI, and
+      create WebSocket consumers.'
 ---
+
+:::note[Quick Answer] Use the **websockets** library for async Python WebSocket
+apps. Install with `pip install websockets`, create a server with
+`websockets.serve()`, and connect from clients with `websockets.connect()`. For
+Django, use **Django Channels**. For FastAPI, use its built-in WebSocket
+support. :::
 
 ## Introduction to WebSockets in Python
 
@@ -613,3 +642,45 @@ constant influx of developers familiar with the language. This talent
 availability is a significant consideration for organizations building real-time
 applications, as it affects both initial development and long-term maintenance
 costs.
+
+## Frequently Asked Questions
+
+### What is the best Python WebSocket library?
+
+The websockets library is the most popular choice for async Python WebSocket
+applications. It supports asyncio natively and handles the protocol correctly.
+For Django, use Django Channels. For FastAPI, use its built-in WebSocket
+support.
+
+### How do I handle reconnection in a Python WebSocket client?
+
+Implement a reconnection loop with exponential backoff. Catch ConnectionClosed
+exceptions, wait with increasing delays, then call connect() again. Queue
+messages during disconnection so they can be sent once the connection is
+restored.
+
+### Can Python handle thousands of WebSocket connections?
+
+Yes. Python asyncio can handle thousands of concurrent WebSocket connections in
+a single process because WebSocket workloads are I/O-bound. The event loop
+efficiently multiplexes connections without needing one thread per connection.
+
+### How do I add WebSockets to a Django application?
+
+Use Django Channels, which extends Django to handle WebSockets and other async
+protocols. It adds a channel layer (typically backed by Redis) for message
+routing between consumers. Install channels, configure ASGI, and create
+WebSocket consumers.
+
+## Related Content
+
+- [WebSocket Protocol: RFC 6455 Handshake, Frames & More](/guides/websocket-protocol/) -
+  The protocol underlying all WebSocket libraries
+- [WebSocket API: Events, Methods & Properties](/reference/websocket-api/) -
+  Browser API reference for client-side WebSocket code
+- [WebSocket Libraries, Tools & Specs by Language](/resources/websocket-resources/) -
+  Curated list of libraries across all languages
+- [WebSockets at Scale](/guides/websockets-at-scale/) - Architecture patterns
+  for scaling Python WebSocket servers
+- [WebSocket Close Codes](/reference/close-codes/) - Understanding close codes
+  for error handling
