@@ -1,24 +1,57 @@
 ---
-title: WebSocket Implementation in Rust
+title: 'Rust WebSocket: tokio-tungstenite & actix-web Guide'
 description:
-  Complete guide to WebSocket implementation in Rust with production-ready
-  examples using tokio-tungstenite and actix-web. Learn async patterns, error
-  handling, performance optimization, and scaling strategies.
+  'Build Rust WebSocket servers with tokio-tungstenite and actix-web. Covers
+  async patterns, connection management, error handling, performance
+  optimization, and production deployment.'
 sidebar:
   order: 4
 author: Matthew O'Riordan
+authorRole: Co-founder & CEO, Ably
 date: '2024-09-02'
+lastUpdated: 2026-03-10
 category: guide
+keywords:
+  - rust websocket
+  - tokio-tungstenite
+  - actix websocket
+  - rust websocket server
+  - async websocket rust
 seo:
   keywords:
-    - websocket rust
-    - rust websocket server
+    - rust websocket
     - tokio-tungstenite
     - actix websocket
-    - rust real-time
-    - async websocket rust
+    - rust websocket server
     - rust websocket client
-    - websocket implementation
+    - async websocket rust
+    - warp websocket
+    - rust realtime
+faq:
+  - q: 'What is the best Rust WebSocket library?'
+    a:
+      'tokio-tungstenite is the most popular choice for async Rust WebSocket
+      applications. It integrates with the tokio runtime and provides both
+      client and server support. actix-web has built-in WebSocket support if you
+      already use that framework.'
+  - q: 'Is Rust good for WebSocket servers?'
+    a:
+      'Yes, Rust is excellent for high-performance WebSocket servers. Zero-cost
+      abstractions, no garbage collection pauses, and memory safety without
+      runtime overhead make Rust ideal for low-latency, high-throughput
+      WebSocket applications.'
+  - q: 'How do I handle multiple WebSocket connections in Rust?'
+    a:
+      'Use tokio async tasks - spawn one task per connection. Rust async tasks
+      are lightweight like goroutines. Share state between connections using Arc
+      and Mutex or channels (mpsc, broadcast). The borrow checker prevents data
+      races at compile time.'
+  - q: 'How does Rust WebSocket performance compare to other languages?'
+    a:
+      'Rust WebSocket servers typically have the lowest latency and highest
+      throughput. No garbage collection means consistent 99th percentile
+      latencies. Memory usage is predictable and low. Rust matches or exceeds
+      C/C++ performance with memory safety guarantees.'
 tags:
   - websocket
   - rust
@@ -31,6 +64,11 @@ tags:
   - guide
   - how-to
 ---
+
+:::note[Quick Answer] Use **tokio-tungstenite** for async WebSocket support in
+Rust. Add it with `cargo add tokio-tungstenite tokio`, accept connections with
+`accept_async()`, and read/write with `StreamExt` and `SinkExt` traits. For the
+actix-web framework, use its built-in WebSocket support. :::
 
 ## Introduction to WebSockets in Rust
 
@@ -554,3 +592,46 @@ languages where memory usage can spike unpredictably, Rust applications maintain
 steady memory consumption even under varying loads. This predictability extends
 to CPU usage as well, with Rust's efficient async runtime ensuring that system
 resources are utilized optimally without unexpected overhead.
+
+## Frequently Asked Questions
+
+### What is the best Rust WebSocket library?
+
+tokio-tungstenite is the most popular choice for async Rust WebSocket
+applications. It integrates with the tokio runtime and provides both client and
+server support. actix-web has built-in WebSocket support if you already use that
+framework.
+
+### Is Rust good for WebSocket servers?
+
+Yes, Rust is excellent for high-performance WebSocket servers. Zero-cost
+abstractions, no garbage collection pauses, and memory safety without runtime
+overhead make Rust ideal for low-latency, high-throughput WebSocket
+applications.
+
+### How do I handle multiple WebSocket connections in Rust?
+
+Use tokio async tasks - spawn one task per connection. Rust async tasks are
+lightweight like goroutines. Share state between connections using
+`Arc<Mutex<T>>` or channels (mpsc, broadcast). The borrow checker prevents data
+races at compile time.
+
+### How does Rust WebSocket performance compare to other languages?
+
+Rust WebSocket servers typically have the lowest latency and highest throughput.
+No garbage collection means consistent 99th percentile latencies. Memory usage
+is predictable and low. Rust matches or exceeds C/C++ performance with memory
+safety guarantees.
+
+## Related Content
+
+- [Go WebSocket Guide](/guides/languages/go/) - Compare Rust's approach with
+  Go's goroutine-based concurrency
+- [WebSocket Protocol: RFC 6455](/guides/websocket-protocol/) - The protocol
+  Rust WebSocket libraries implement
+- [WebSocket Libraries, Tools & Specs](/resources/websocket-resources/) - Full
+  list including tokio-tungstenite, actix-web, and warp
+- [WebSockets at Scale](/guides/websockets-at-scale/) - Architecture patterns
+  that complement Rust's performance
+- [WebSocket Security](/guides/security/) - Securing Rust WebSocket servers with
+  TLS

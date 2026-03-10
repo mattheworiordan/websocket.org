@@ -1,29 +1,58 @@
 ---
-title: Building a Web App with WebSockets
+title: 'Build a WebSocket App: Node.js Cursor Sharing Tutorial'
 description:
-  Detailed, step-by-step instructions on building a realtime web app with
-  WebSockets and Node.js - an interactive cursor position-sharing demo
+  'Step-by-step tutorial to build a real-time cursor sharing app with WebSockets
+  and Node.js. Covers server setup, client connection, broadcasting, and scaling
+  considerations.'
 author: Matthew O'Riordan
+authorRole: Co-founder & CEO, Ably
 date: '2024-09-02'
+lastUpdated: 2026-03-10
 category: guide
+keywords:
+  - build websocket app
+  - websocket tutorial
+  - nodejs websocket example
+  - websocket cursor sharing
 seo:
   keywords:
-    - websocket
-    - tutorial
-    - guide
-    - how-to
-    - building
-    - websockets
-    - javascript
-    - nodejs
-    - java
-    - real-time
+    - build websocket app
+    - websocket tutorial
+    - nodejs websocket example
+    - websocket app tutorial
+    - real-time web app
+    - websocket node.js
+    - websocket project
+    - websocket demo
+faq:
+  - q: 'How do I build a WebSocket app with Node.js?'
+    a:
+      'Install the ws library with npm, create an HTTP server, and attach a
+      WebSocketServer to it. Handle connection, message, and close events. On
+      the client side, use the native WebSocket API to connect and exchange
+      messages.'
+  - q: 'How do I broadcast messages to all WebSocket clients?'
+    a:
+      'Keep a Set of connected clients. On each message, iterate over the set
+      and call ws.send() for each client. Skip the sender if you do not want
+      echo. Remove clients from the set on disconnect.'
+  - q: 'How do I scale a WebSocket app beyond one server?'
+    a:
+      'Use a pub/sub backplane like Redis to relay messages between server
+      instances. Each server publishes incoming messages to Redis and subscribes
+      for messages from other servers. A load balancer with sticky sessions
+      routes clients to servers.'
 tags:
   - websocket
   - guide
   - tutorial
   - how-to
 ---
+
+:::note[Quick Answer] Install `ws` with npm, create a `WebSocketServer`, and
+handle `connection` and `message` events. On the client, use
+`new WebSocket("ws://localhost:8080")` and listen for `onmessage`. This tutorial
+builds a real-time cursor sharing demo from scratch. :::
 
 This post provides detailed, step-by-step instructions on building a realtime
 web app with WebSockets and Node.js - an interactive cursor position-sharing
@@ -268,8 +297,42 @@ your infrastructure, and is yet another moving part that makes
 [scaling WebSockets](https://ably.com/topic/the-challenge-of-scaling-websockets)
 difficult.
 
-See [WebSockets at Scale](/websockets-at-scale/) for a more in-depth read about
-the engineering challenges involved in scaling WebSockets. For production
+See [WebSockets at Scale](/guides/websockets-at-scale/) for a more in-depth read
+about the engineering challenges involved in scaling WebSockets. For production
 applications, you might want to consider using a realtime platform like
 [Ably](https://ably.com/) that is
 [architected for scaling WebSockets](https://ably.com/docs/platform/architecture/platform-scalability).
+
+## Frequently Asked Questions
+
+### How do I build a WebSocket app with Node.js?
+
+Install the ws library with npm, create an HTTP server, and attach a
+WebSocketServer to it. Handle connection, message, and close events. On the
+client side, use the native WebSocket API to connect and exchange messages.
+
+### How do I broadcast messages to all WebSocket clients?
+
+Keep a Set of connected clients. On each message, iterate over the set and call
+`ws.send()` for each client. Skip the sender if you do not want echo. Remove
+clients from the set on disconnect.
+
+### How do I scale a WebSocket app beyond one server?
+
+Use a pub/sub backplane like Redis to relay messages between server instances.
+Each server publishes incoming messages to Redis and subscribes for messages
+from other servers. A load balancer with sticky sessions routes clients to
+servers.
+
+## Related Content
+
+- [JavaScript WebSocket Guide](/guides/languages/javascript/) - Complete
+  JavaScript WebSocket reference
+- [WebSocket API Reference](/reference/websocket-api/) - Browser API used in the
+  client-side code
+- [WebSockets at Scale](/guides/websockets-at-scale/) - Scaling beyond the
+  single-server demo
+- [WebSocket Protocol: RFC 6455](/guides/websocket-protocol/) - Understanding
+  the protocol behind your app
+- [WebSocket Close Codes](/reference/close-codes/) - Handling disconnections
+  gracefully

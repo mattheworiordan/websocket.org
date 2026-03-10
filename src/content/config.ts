@@ -18,6 +18,7 @@ export const collections = {
             'resource',
             'tool',
             'infrastructure',
+            'comparison',
           ])
           .optional(),
         tags: z.array(z.string()).optional(),

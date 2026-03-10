@@ -1,24 +1,73 @@
 ---
-title: "WebSockets vs Long Polling: From Legacy to Real-Time"
-description: "Compare WebSockets with long polling techniques. Understand the evolution from polling to persistent connections, performance implications, and when legacy approaches might still be relevant."
+title: 'WebSocket vs Long Polling: Performance & When to Use'
+description:
+  'Compare WebSockets with long polling. WebSockets provide persistent
+  bidirectional connections with lower latency and overhead. Long
+  polling is a legacy fallback using repeated HTTP requests.'
 author: "Matthew O'Riordan"
-authorRole: "Co-founder & CEO, Ably"
+authorRole: 'Co-founder & CEO, Ably'
 date: 2025-01-07
-keywords: ["websocket vs long polling", "websocket vs polling",
-  "real-time polling", "ajax long polling", "comet vs websocket",
-  "polling vs websocket performance"]
+lastUpdated: 2026-03-10
+category: comparison
+keywords:
+  - websocket vs long polling
+  - websocket vs polling
+  - long polling vs websocket
+  - ajax long polling
+  - comet vs websocket
+seo:
+  keywords:
+    - websocket vs long polling
+    - websocket vs polling
+    - long polling vs websocket
+    - ajax long polling
+    - comet vs websocket
+    - polling vs websocket performance
+    - real-time polling
+faq:
+  - q: 'What is the difference between WebSockets and long polling?'
+    a: 'WebSockets maintain a persistent, full-duplex TCP connection
+      for real-time bidirectional communication. Long polling uses
+      repeated HTTP requests where the server holds each request open
+      until data is available. WebSockets are more efficient with
+      lower latency and less overhead.'
+  - q: 'When should I use long polling instead of WebSockets?'
+    a: 'Use long polling only as a fallback when WebSockets are
+      unavailable, such as behind restrictive firewalls or proxies
+      that block WebSocket upgrades. For new projects, WebSockets
+      should be the default choice since they have 99%+ browser
+      support.'
+  - q: 'Is long polling still used?'
+    a: 'Rarely as a primary transport. Some libraries like Socket.IO
+      use it as an automatic fallback when WebSockets fail. A few
+      legacy systems still rely on it. For new projects, there is
+      almost no reason to choose long polling over WebSockets.'
 ---
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
+:::note[Quick Answer]
+Use **WebSockets** over long polling for any new project. WebSockets
+provide persistent bidirectional connections with lower latency, less
+overhead, and better scaling. Long polling is a legacy technique that
+simulates real-time via repeated HTTP requests - only use it as a
+fallback.
+:::
+
 ## Quick Summary
 
-Long polling was the original hack for real-time web communication before WebSockets existed. While it simulates real-time updates through clever use of HTTP requests, WebSockets provide true bidirectional, persistent connections with significantly better performance and resource efficiency. Today, long polling primarily serves as a fallback mechanism for environments where WebSockets aren't available.
+Long polling was the original hack for real-time web communication
+before WebSockets existed. While it simulates real-time updates
+through clever use of HTTP requests, WebSockets provide true
+bidirectional, persistent connections with significantly better
+performance and resource efficiency. Today, long polling primarily
+serves as a fallback mechanism for environments where WebSockets
+are not available.
 
 ## At a Glance Comparison
 
 | Feature | Long Polling | WebSockets |
-|---------|--------------|------------|
+| ------- | ------------ | ---------- |
 | **Connection Type** | HTTP Request/Response cycles | Persistent TCP connection |
 | **Direction** | Client-initiated only | True bidirectional |
 | **Real-time** | Simulated (polling delays) | Native real-time |
@@ -34,7 +83,8 @@ Long polling was the original hack for real-time web communication before WebSoc
 
 ## How Long Polling Works
 
-Long polling extends the traditional request-response model by holding HTTP connections open until the server has data to send:
+Long polling extends the traditional request-response model by
+holding HTTP connections open until the server has data to send:
 
 1. **Client makes request**: Opens standard HTTP connection
 2. **Server holds connection**: Doesn't respond immediately
@@ -422,9 +472,14 @@ connection.connect();
 
 ### Historical Context
 
-Long polling emerged in the early 2000s as a clever workaround for the web's request-response limitations. Technologies like Comet, BOSH, and Bayeux all used variations of long polling to simulate real-time communication.
+Long polling emerged in the early 2000s as a clever workaround for
+the web's request-response limitations. Technologies like Comet,
+BOSH, and Bayeux all used variations of long polling to simulate
+real-time communication.
 
-WebSockets, standardized in 2011, provided what developers actually needed: a proper bidirectional communication protocol designed for real-time from the ground up.
+WebSockets, standardized in 2011, provided what developers actually
+needed: a proper bidirectional communication protocol designed for
+real-time from the ground up.
 
 ### Technical Advantages of WebSockets
 
@@ -436,11 +491,14 @@ WebSockets, standardized in 2011, provided what developers actually needed: a pr
 
 ### Modern Reality
 
-Today, WebSockets are supported by 99%+ of browsers and all major server platforms. The reasons to use long polling have largely disappeared except for specific edge cases or as a fallback mechanism.
+Today, WebSockets are supported by 99%+ of browsers and all major
+server platforms. The reasons to use long polling have largely
+disappeared except for specific edge cases or as a fallback mechanism.
 
 ## Working with WebSocket Providers
 
-While raw WebSocket implementation is straightforward, production deployments benefit from using established protocols and services:
+While raw WebSocket implementation is straightforward, production
+deployments benefit from using established protocols and services:
 
 **Open Source Solutions** like Socket.IO provide:
 
@@ -457,11 +515,19 @@ While raw WebSocket implementation is straightforward, production deployments be
 - Message ordering guarantees
 - Multiple protocol support
 
-These solutions abstract away the complexities of managing WebSocket infrastructure while providing robust handling of edge cases and failure scenarios. For most applications, using a WebSocket-based service or library is recommended over implementing raw WebSocket protocols.
+These solutions abstract away the complexities of managing WebSocket
+infrastructure while providing robust handling of edge cases and
+failure scenarios. For most applications, using a WebSocket-based
+service or library is recommended over implementing raw WebSocket
+protocols.
 
 ## Conclusion
 
-Long polling served its purpose in the evolution of real-time web technologies, but WebSockets have definitively superseded it for modern applications. The efficiency, simplicity, and performance benefits of WebSockets make them the clear choice for real-time communication.
+Long polling served its purpose in the evolution of real-time web
+technologies, but WebSockets have definitively superseded it for
+modern applications. The efficiency, simplicity, and performance
+benefits of WebSockets make them the clear choice for real-time
+communication.
 
 **Key Takeaways:**
 
@@ -471,7 +537,46 @@ Long polling served its purpose in the evolution of real-time web technologies, 
 4. **Using WebSocket providers** simplifies implementation and improves reliability
 5. **The complexity** of long polling isn't worth it for new projects
 
-For new projects requiring real-time features, WebSockets should be your default choice. The ecosystem is mature, support is universal, and the performance benefits are significant.
+For new projects requiring real-time features, WebSockets should be
+your default choice. The ecosystem is mature, support is universal,
+and the performance benefits are significant.
+
+## Frequently Asked Questions
+
+### What is the difference between WebSockets and long polling?
+
+WebSockets maintain a persistent, full-duplex TCP connection for
+real-time bidirectional communication. Long polling uses repeated
+HTTP requests where the server holds each request open until data is
+available. WebSockets are more efficient with lower latency and less
+overhead.
+
+### When should I use long polling instead of WebSockets?
+
+Use long polling only as a fallback when WebSockets are unavailable,
+such as behind restrictive firewalls or proxies that block WebSocket
+upgrades. For new projects, WebSockets should be the default choice
+since they have 99%+ browser support.
+
+### Is long polling still used?
+
+Rarely as a primary transport. Some libraries like Socket.IO use it
+as an automatic fallback when WebSockets fail. A few legacy systems
+still rely on it. For new projects, there is almost no reason to
+choose long polling over WebSockets.
+
+## Related Content
+
+- [The Road to WebSockets](/guides/road-to-websockets/) -
+  The full history from HTTP polling to WebSockets
+- [WebSocket vs SSE](/comparisons/sse/) -
+  Compare WebSockets with Server-Sent Events
+- [WebSocket vs WebTransport](/comparisons/webtransport/) -
+  The next evolution beyond WebSockets
+- [WebSocket Protocol: RFC 6455](/guides/websocket-protocol/) -
+  The protocol that replaced long polling
+- [Building a WebSocket App](/guides/building-a-websocket-app/) -
+  Hands-on tutorial to build your first WebSocket app
 
 ## Further Reading
 
@@ -479,9 +584,3 @@ For new projects requiring real-time features, WebSockets should be your default
 - [Building a WebSocket Application](/guides/building-a-websocket-app/)
 - [WebSocket Security Guide](/guides/security/)
 - [The Road to WebSockets](/guides/road-to-websockets/)
-
-For production-ready WebSocket infrastructure with automatic fallbacks and global scale, explore [Ably's platform](https://ably.com/?utm_source=websocket-org&utm_medium=long-polling-comparison).
-
----
-
-*Written by [Matthew O'Riordan](/author/matthew-oriordan/), Co-founder & CEO of Ably, with experience building real-time systems reaching 2 billion+ devices monthly.*
