@@ -1,15 +1,26 @@
 ---
-title: "Real-Time Protocol Decision Guide"
-description: "Interactive decision framework for choosing between WebSockets, SSE, WebTransport, MQTT, WebRTC, gRPC, and other real-time protocols."
+title: 'Real-Time Protocol Decision Guide'
+description:
+  'Interactive decision framework for choosing between WebSockets, SSE,
+  WebTransport, MQTT, WebRTC, gRPC, and other real-time protocols.'
 author: "Matthew O'Riordan"
-authorRole: "Co-founder & CEO, Ably"
+authorRole: 'Co-founder & CEO, Ably'
 date: 2025-01-07
-keywords: ["protocol selection", "websocket decision guide", "real-time technology comparison", "protocol decision matrix", "choosing websockets"]
+keywords:
+  [
+    'protocol selection',
+    'websocket decision guide',
+    'real-time technology comparison',
+    'protocol decision matrix',
+    'choosing websockets',
+  ]
 ---
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-Choosing the right real-time protocol is crucial for your application's success. This comprehensive guide helps you navigate the decision based on your specific requirements, constraints, and use cases.
+Choosing the right real-time protocol is crucial for your application's success.
+This comprehensive guide helps you navigate the decision based on your specific
+requirements, constraints, and use cases.
 
 ## Quick Decision Framework
 
@@ -33,15 +44,15 @@ Choosing the right real-time protocol is crucial for your application's success.
 
 ## Protocol Comparison Matrix
 
-| Protocol | Bidirectional | Latency | Complexity | Browser Support | Best For |
-|----------|--------------|---------|------------|-----------------|----------|
-| **WebSockets** | ✅ Yes | Low | Medium | 99%+ | Real-time apps, chat, gaming |
-| **SSE** | ❌ No | Low | Simple | 98%+ | News feeds, notifications |
-| **Long Polling** | ⚠️ Simulated | High | Simple | 100% | Legacy support, simple updates |
-| **WebTransport** | ✅ Yes | Very Low | Complex | Limited | Next-gen apps, gaming |
-| **MQTT** | ✅ Yes | Low | Medium | Via bridge | IoT, messaging |
-| **WebRTC** | ✅ Yes | Ultra Low | Complex | 95%+ | Video/audio, P2P |
-| **gRPC** | ✅ Yes | Low | Complex | Via proxy | Microservices |
+| Protocol         | Bidirectional | Latency   | Complexity | Browser Support | Best For                       |
+| ---------------- | ------------- | --------- | ---------- | --------------- | ------------------------------ |
+| **WebSockets**   | ✅ Yes        | Low       | Medium     | 99%+            | Real-time apps, chat, gaming   |
+| **SSE**          | ❌ No         | Low       | Simple     | 98%+            | News feeds, notifications      |
+| **Long Polling** | ⚠️ Simulated  | High      | Simple     | 100%            | Legacy support, simple updates |
+| **WebTransport** | ✅ Yes        | Very Low  | Complex    | Limited         | Next-gen apps, gaming          |
+| **MQTT**         | ✅ Yes        | Low       | Medium     | Via bridge      | IoT, messaging                 |
+| **WebRTC**       | ✅ Yes        | Ultra Low | Complex    | 95%+            | Video/audio, P2P               |
+| **gRPC**         | ✅ Yes        | Low       | Complex    | Via proxy       | Microservices                  |
 
 ## Decision Tree
 
@@ -84,42 +95,54 @@ Start Here
 ## Use Case Recommendations
 
 ### Chat Applications
-**Recommended: WebSockets**
+
+#### Recommended: WebSockets
+
 - Bidirectional messaging
 - Presence detection
 - Typing indicators
 - Message delivery confirmation
 
-*Alternative: Consider WebTransport for next-generation apps*
+Note: _Consider WebTransport for next-generation apps_
 
 ### Live Dashboards
-**Recommended: WebSockets or SSE**
+
+#### Recommended: WebSockets or SSE
+
 - WebSockets for interactive dashboards
 - SSE for read-only displays
 - Consider update frequency and data volume
 
 ### Gaming
-**Recommended: WebSockets or WebTransport**
+
+#### Recommended: WebSockets or WebTransport
+
 - WebSockets for turn-based and casual games
 - WebTransport for high-performance requirements
 - WebRTC for P2P gaming
 
 ### IoT Applications
-**Recommended: MQTT**
+
+#### Recommended: MQTT
+
 - Designed for constrained devices
 - Efficient binary protocol
 - Built-in QoS levels
 - Bridge to WebSockets for web clients
 
 ### Video/Audio Streaming
-**Recommended: WebRTC**
+
+#### Recommended: WebRTC
+
 - Ultra-low latency
 - P2P capabilities
 - Built-in media handling
 - NAT traversal
 
 ### Financial Trading
-**Recommended: WebSockets**
+
+#### Recommended: WebSockets
+
 - Reliable bidirectional communication
 - Wide infrastructure support
 - Can be secured with TLS
@@ -128,37 +151,44 @@ Start Here
 ## Implementation Complexity
 
 ### Simple to Implement
+
 1. **Long Polling** - Basic HTTP knowledge sufficient
 2. **SSE** - Simple server push, minimal client code
 3. **WebSockets** (with libraries) - Well-documented, many tools
 
 ### Medium Complexity
-4. **WebSockets** (raw) - Connection management, reconnection logic
-5. **MQTT** - Broker setup, topic design
-6. **gRPC-Web** - Protocol buffers, code generation
+
+1. **WebSockets** (raw) - Connection management, reconnection logic
+2. **MQTT** - Broker setup, topic design
+3. **gRPC-Web** - Protocol buffers, code generation
 
 ### Complex Implementation
-7. **WebTransport** - Limited documentation, evolving spec
-8. **WebRTC** - Signaling servers, ICE/STUN/TURN setup
+
+1. **WebTransport** - Limited documentation, evolving spec
+2. **WebRTC** - Signaling servers, ICE/STUN/TURN setup
 
 ## Infrastructure Considerations
 
 ### WebSockets
+
 - Most CDNs and proxies support WebSockets
 - Load balancing requires sticky sessions
 - Horizontal scaling needs careful planning
 
 ### SSE
+
 - Works through most proxies
 - Simple to cache and scale
 - No special infrastructure requirements
 
 ### WebTransport
+
 - Requires HTTP/3 support
 - Limited CDN support currently
 - Firewall traversal can be challenging
 
 ### MQTT
+
 - Requires MQTT broker deployment
 - Many cloud-hosted options available
 - Bridge needed for web clients
@@ -166,6 +196,7 @@ Start Here
 ## Security Considerations
 
 All protocols can be secured:
+
 - **WebSockets**: Use WSS (WebSocket Secure)
 - **SSE**: Use HTTPS
 - **WebTransport**: Built on QUIC (always encrypted)
@@ -175,14 +206,16 @@ All protocols can be secured:
 
 ## Making Your Decision
 
-### Choose WebSockets when:
+### Choose WebSockets when
+
 - You need bidirectional real-time communication
 - Browser compatibility is crucial (99%+ support)
 - You want proven, stable technology
 - Your team has JavaScript/web expertise
 - You need extensive library ecosystem
 
-### Consider alternatives when:
+### Consider alternatives when
+
 - **SSE**: Unidirectional updates are sufficient
 - **WebTransport**: You need cutting-edge performance
 - **MQTT**: Building IoT or message-centric systems
@@ -192,12 +225,14 @@ All protocols can be secured:
 ## Implementation Resources
 
 ### Getting Started with WebSockets
+
 - Use established libraries (Socket.IO, Ably, Pusher)
 - Implement reconnection logic
 - Handle connection state properly
 - Plan for horizontal scaling
 
 ### Testing Your Choice
+
 1. Prototype with your specific use case
 2. Test under realistic network conditions
 3. Measure latency and throughput
@@ -206,7 +241,9 @@ All protocols can be secured:
 
 ## Conclusion
 
-WebSockets remain the most versatile and widely-supported option for real-time web applications. They offer the best balance of:
+WebSockets remain the most versatile and widely-supported option for real-time
+web applications. They offer the best balance of:
+
 - Broad compatibility (99%+ browsers)
 - Proven reliability at scale
 - Extensive tooling and libraries
@@ -214,13 +251,17 @@ WebSockets remain the most versatile and widely-supported option for real-time w
 - Strong community support
 
 However, specific use cases may benefit from alternatives:
+
 - Choose SSE for simple server-to-client streaming
 - Choose WebRTC for media or P2P requirements
 - Choose MQTT for IoT deployments
 - Consider WebTransport for future-proof applications
 
-The key is matching the protocol to your specific requirements rather than choosing based on novelty or theoretical performance alone.
+The key is matching the protocol to your specific requirements rather than
+choosing based on novelty or theoretical performance alone.
 
 ---
 
-*Written by [Matthew O'Riordan](/author/matthew-oriordan/), technical co-founder of Ably with 25+ years of experience building real-time systems powering billions of devices worldwide.*
+_Written by [Matthew O'Riordan](/author/matthew-oriordan/), technical co-founder
+of Ably with 25+ years of experience building real-time systems powering
+billions of devices worldwide._

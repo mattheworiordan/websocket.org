@@ -1,35 +1,51 @@
 ---
-title: "WebSockets vs gRPC: Client-Facing vs Microservice Communication"
-description: "Compare WebSockets with gRPC for real-time communication. Understand when to use gRPC's efficient RPC model for microservices versus WebSocket's flexibility for client applications."
+title: 'WebSockets vs gRPC: Client-Facing vs Microservice Communication'
+description:
+  "Compare WebSockets with gRPC for real-time communication. Understand when to
+  use gRPC's efficient RPC model for microservices versus WebSocket's
+  flexibility for client applications."
 author: "Matthew O'Riordan"
-authorRole: "Co-founder & CEO, Ably"
+authorRole: 'Co-founder & CEO, Ably'
 date: 2025-01-07
-keywords: ["websocket vs grpc", "grpc streaming vs websocket", "grpc vs websocket performance", "microservices real-time", "protobuf websocket", "grpc browser support"]
+keywords:
+  [
+    'websocket vs grpc',
+    'grpc streaming vs websocket',
+    'grpc vs websocket performance',
+    'microservices real-time',
+    'protobuf websocket',
+    'grpc browser support',
+  ]
 ---
 
 ## Quick Summary
 
-gRPC and WebSockets target different layers of real-time communication: gRPC excels at efficient service-to-service communication with its RPC model and Protocol Buffers, while WebSockets provide flexible client-facing real-time features for web and mobile applications. They serve complementary roles in modern architectures.
+gRPC and WebSockets target different layers of real-time communication: gRPC
+excels at efficient service-to-service communication with its RPC model and
+Protocol Buffers, while WebSockets provide flexible client-facing real-time
+features for web and mobile applications. They serve complementary roles in
+modern architectures.
 
 ## At a Glance Comparison
 
-| Feature | WebSockets | gRPC |
-|---------|------------|------|
-| **Primary Use** | Client-facing real-time | Service-to-service RPC |
-| **Protocol** | WebSocket over HTTP/1.1 | HTTP/2 based |
-| **Data Format** | Flexible (JSON, binary) | Protocol Buffers |
-| **Browser Support** | ✅ Native | ⚠️ gRPC-Web proxy needed |
-| **Streaming** | Bidirectional | Multiple modes (unary, streaming) |
-| **Type Safety** | ❌ Runtime validation | ✅ Compile-time types |
-| **Code Generation** | ❌ Manual | ✅ Automatic from proto |
-| **Connection Model** | Persistent | Request-based or streaming |
-| **Authentication** | Various (cookies, tokens) | mTLS, tokens |
-| **Multiplexing** | ❌ Single stream | ✅ Multiple streams |
-| **Complexity** | Medium | High |
+| Feature              | WebSockets                | gRPC                              |
+| -------------------- | ------------------------- | --------------------------------- |
+| **Primary Use**      | Client-facing real-time   | Service-to-service RPC            |
+| **Protocol**         | WebSocket over HTTP/1.1   | HTTP/2 based                      |
+| **Data Format**      | Flexible (JSON, binary)   | Protocol Buffers                  |
+| **Browser Support**  | ✅ Native                 | ⚠️ gRPC-Web proxy needed          |
+| **Streaming**        | Bidirectional             | Multiple modes (unary, streaming) |
+| **Type Safety**      | ❌ Runtime validation     | ✅ Compile-time types             |
+| **Code Generation**  | ❌ Manual                 | ✅ Automatic from proto           |
+| **Connection Model** | Persistent                | Request-based or streaming        |
+| **Authentication**   | Various (cookies, tokens) | mTLS, tokens                      |
+| **Multiplexing**     | ❌ Single stream          | ✅ Multiple streams               |
+| **Complexity**       | Medium                    | High                              |
 
 ## How gRPC Works
 
-gRPC is a high-performance RPC framework that uses HTTP/2 and Protocol Buffers for efficient service communication.
+gRPC is a high-performance RPC framework that uses HTTP/2 and Protocol Buffers
+for efficient service communication.
 
 ### Protocol Definition
 
@@ -40,10 +56,10 @@ syntax = "proto3";
 service ChatService {
   // Unary RPC
   rpc SendMessage(Message) returns (MessageResponse);
-  
+
   // Server streaming
   rpc SubscribeToMessages(SubscribeRequest) returns (stream Message);
-  
+
   // Bidirectional streaming
   rpc Chat(stream Message) returns (stream Message);
 }
@@ -81,27 +97,27 @@ const chatService = {
   sendMessage: (call, callback) => {
     const message = call.request;
     console.log('Received:', message);
-    
+
     callback(null, {
       success: true,
-      message_id: generateId()
+      message_id: generateId(),
     });
   },
 
   // Server streaming
   subscribeToMessages: (call) => {
     const userId = call.request.user_id;
-    
+
     // Send messages periodically
     const interval = setInterval(() => {
       call.write({
         id: generateId(),
         user_id: 'system',
         content: 'Server update',
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
     }, 1000);
-    
+
     call.on('cancelled', () => {
       clearInterval(interval);
     });
@@ -111,26 +127,27 @@ const chatService = {
   chat: (call) => {
     call.on('data', (message) => {
       console.log('Received:', message);
-      
+
       // Echo back
       call.write({
         id: generateId(),
         user_id: 'server',
         content: `Echo: ${message.content}`,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
     });
-    
+
     call.on('end', () => {
       call.end();
     });
-  }
+  },
 };
 
 // Start server
 const server = new grpc.Server();
 server.addService(chatProto.service, chatService);
-server.bindAsync('0.0.0.0:50051', 
+server.bindAsync(
+  '0.0.0.0:50051',
   grpc.ServerCredentials.createInsecure(),
   () => {
     console.log('gRPC server running on port 50051');
@@ -141,7 +158,8 @@ server.bindAsync('0.0.0.0:50051',
 
 ## How WebSockets Work
 
-WebSockets provide persistent, bidirectional connections between clients and servers, ideal for real-time web applications.
+WebSockets provide persistent, bidirectional connections between clients and
+servers, ideal for real-time web applications.
 
 ### WebSocket Implementation
 
@@ -152,24 +170,26 @@ const wss = new WebSocket.Server({ port: 8080 });
 
 wss.on('connection', (ws) => {
   console.log('Client connected');
-  
+
   ws.on('message', (data) => {
     const message = JSON.parse(data);
     console.log('Received:', message);
-    
+
     // Broadcast to all clients
-    wss.clients.forEach(client => {
+    wss.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify({
-          id: generateId(),
-          user_id: 'server',
-          content: `Echo: ${message.content}`,
-          timestamp: Date.now()
-        }));
+        client.send(
+          JSON.stringify({
+            id: generateId(),
+            user_id: 'server',
+            content: `Echo: ${message.content}`,
+            timestamp: Date.now(),
+          })
+        );
       }
     });
   });
-  
+
   ws.on('close', () => {
     console.log('Client disconnected');
   });
@@ -180,12 +200,14 @@ const ws = new WebSocket('ws://localhost:8080');
 
 ws.onopen = () => {
   console.log('Connected to server');
-  
-  ws.send(JSON.stringify({
-    user_id: 'client1',
-    content: 'Hello server!',
-    timestamp: Date.now()
-  }));
+
+  ws.send(
+    JSON.stringify({
+      user_id: 'client1',
+      content: 'Hello server!',
+      timestamp: Date.now(),
+    })
+  );
 };
 
 ws.onmessage = (event) => {
@@ -207,12 +229,14 @@ ws.onclose = () => {
 ### 1. Target Audience
 
 **gRPC**: Designed for backend microservices
+
 - Service-to-service communication
 - Internal APIs
 - Microservice architectures
 - Backend systems integration
 
 **WebSockets**: Built for client applications
+
 - Browser-based real-time features
 - Mobile app connections
 - IoT device communication
@@ -221,12 +245,14 @@ ws.onclose = () => {
 ### 2. Protocol Efficiency
 
 **gRPC**: Highly optimized with Protocol Buffers
+
 - Binary serialization
 - Smaller message size
 - Schema enforcement
 - Type safety
 
 **WebSockets**: Flexible but less efficient
+
 - Text or binary frames
 - JSON commonly used
 - No built-in schema
@@ -235,12 +261,14 @@ ws.onclose = () => {
 ### 3. Browser Support
 
 **gRPC**: Limited browser support
+
 - Requires gRPC-Web proxy
 - Converts to HTTP/1.1
 - Additional infrastructure needed
 - Not native to browsers
 
 **WebSockets**: Native browser support
+
 - Direct browser API
 - No proxy required
 - Works everywhere
@@ -249,12 +277,14 @@ ws.onclose = () => {
 ### 4. Streaming Capabilities
 
 **gRPC**: Four streaming modes
+
 - Unary (request-response)
 - Server streaming
 - Client streaming
 - Bidirectional streaming
 
 **WebSockets**: Single bidirectional stream
+
 - Always bidirectional
 - No structured RPC patterns
 - Manual request-response correlation
@@ -265,6 +295,7 @@ ws.onclose = () => {
 ### When to Use gRPC
 
 ✅ **Perfect for:**
+
 - Microservice communication
 - Internal service APIs
 - High-throughput systems
@@ -273,6 +304,7 @@ ws.onclose = () => {
 - CPU-constrained services
 
 **Example scenarios:**
+
 - Service mesh communication
 - Backend data pipelines
 - Internal API gateways
@@ -282,6 +314,7 @@ ws.onclose = () => {
 ### When to Use WebSockets
 
 ✅ **Perfect for:**
+
 - Real-time web applications
 - Browser-based features
 - Chat and messaging
@@ -290,6 +323,7 @@ ws.onclose = () => {
 - Gaming and interactive apps
 
 **Example scenarios:**
+
 - Chat applications
 - Live sports scores
 - Stock tickers
@@ -306,6 +340,7 @@ Browser/Mobile App <--WebSocket--> API Gateway <--gRPC--> Microservices
 ```
 
 This architecture leverages:
+
 - WebSockets for client connections
 - gRPC for backend efficiency
 - API Gateway for protocol translation
@@ -316,6 +351,7 @@ This architecture leverages:
 ### gRPC Complexity
 
 **Setup Requirements:**
+
 1. Proto file definitions
 2. Code generation setup
 3. Build tool integration
@@ -323,6 +359,7 @@ This architecture leverages:
 5. Load balancing configuration
 
 **Operational Challenges:**
+
 - Debugging binary protocols
 - Browser proxy setup
 - Version management
@@ -331,6 +368,7 @@ This architecture leverages:
 ### WebSocket Complexity
 
 **Setup Requirements:**
+
 1. Connection management
 2. Reconnection logic
 3. Message framing
@@ -338,6 +376,7 @@ This architecture leverages:
 5. Scaling considerations
 
 **Operational Challenges:**
+
 - Connection state management
 - Horizontal scaling
 - Message ordering
@@ -363,16 +402,25 @@ This architecture leverages:
 
 ## Conclusion
 
-gRPC and WebSockets serve different purposes in modern architectures. gRPC excels at efficient backend service communication with its RPC model and Protocol Buffers, while WebSockets provide the flexibility and browser support needed for client-facing real-time features.
+gRPC and WebSockets serve different purposes in modern architectures. gRPC
+excels at efficient backend service communication with its RPC model and
+Protocol Buffers, while WebSockets provide the flexibility and browser support
+needed for client-facing real-time features.
 
 **Key Takeaways:**
+
 1. **Use gRPC** for microservice communication and internal APIs
 2. **Use WebSockets** for browser and mobile real-time features
 3. **Consider both** in a hybrid architecture
 4. **gRPC-Web** exists but has limitations
 5. **Protocol choice** depends on your specific layer needs
 
-While raw WebSocket or gRPC implementation requires significant effort, production applications often benefit from using established libraries or services that handle protocol complexities, connection management, and scaling challenges. For WebSockets specifically, libraries like Socket.IO or commercial services provide robust protocols on top of WebSockets with features like automatic reconnection, message queueing, and horizontal scaling support.
+While raw WebSocket or gRPC implementation requires significant effort,
+production applications often benefit from using established libraries or
+services that handle protocol complexities, connection management, and scaling
+challenges. For WebSockets specifically, libraries like Socket.IO or commercial
+services provide robust protocols on top of WebSockets with features like
+automatic reconnection, message queueing, and horizontal scaling support.
 
 ## Further Reading
 
@@ -383,4 +431,6 @@ While raw WebSocket or gRPC implementation requires significant effort, producti
 
 ---
 
-*Written by [Matthew O'Riordan](/author/matthew-oriordan/), Co-founder & CEO of Ably, with experience building real-time systems reaching 2 billion+ devices monthly.*
+_Written by [Matthew O'Riordan](/author/matthew-oriordan/), Co-founder & CEO of
+Ably, with experience building real-time systems reaching 2 billion+ devices
+monthly._
