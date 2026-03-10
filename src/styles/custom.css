@@ -158,11 +158,19 @@ nav.sidebar {
   font-size: 0.9rem;
 }
 
-/* Active sidebar link */
+/* Sidebar link hover */
+nav.sidebar a:hover {
+  color: #0d9488 !important;
+}
+
+/* Active sidebar link — subtle left border, no full background fill */
+nav.sidebar a[aria-current='page'],
 [aria-current='page'] {
   font-weight: 600 !important;
   color: #0d9488 !important;
-  background: #f0fdfa !important;
+  background: transparent !important;
+  border-inline-start: 3px solid #0d9488;
+  padding-inline-start: 0.5em;
 }
 
 .sidebar-pane {
@@ -339,6 +347,31 @@ starlight-toc a:hover {
 starlight-toc a[aria-current='true'] {
   color: #0d9488 !important;
   font-weight: 500;
+}
+
+/* --- Asides / Callouts (:::note, :::tip, etc.) --- */
+.starlight-aside {
+  background: #f0fdfa !important;
+  border-color: #0d9488 !important;
+  border-radius: 8px;
+  padding: 1em 1.25em;
+}
+
+.starlight-aside--note {
+  --sl-color-asides-text-accent: #0d9488;
+}
+
+.starlight-aside .starlight-aside__title {
+  color: #0d9488 !important;
+}
+
+.starlight-aside .starlight-aside__icon svg {
+  color: #0d9488 !important;
+  fill: #0d9488;
+}
+
+.starlight-aside .starlight-aside__content {
+  color: #374151;
 }
 
 /* --- Smooth scrolling & force light mode --- */
