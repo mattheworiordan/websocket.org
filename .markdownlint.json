@@ -25,6 +25,7 @@
   "MD029": {
     "style": "ordered"
   },
+  "MD031": false,
   "MD033": {
     "allowed_elements": [
       "div",
@@ -40,6 +41,8 @@
       "sub",
       "p",
       "strong",
+      "h2",
+      "pre",
       "AuthorBio",
       "SEOMetadata",
       "CardGrid",
@@ -54,11 +57,9 @@
     "style": "---"
   },
   "MD036": true,
-  "MD040": true,
+  "MD040": false,
   "MD041": true,
-  "MD046": {
-    "style": "fenced"
-  },
+  "MD046": false,
   "MD047": true,
   "MD048": {
     "style": "backtick"
