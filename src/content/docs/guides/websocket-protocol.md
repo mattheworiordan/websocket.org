@@ -1,34 +1,69 @@
 ---
-title: The Websocket Protocol
+title: 'WebSocket Protocol: RFC 6455 Handshake, Frames & More'
 description:
-  Key considerations related to the WebSocket protocol. You'll find out how to
-  establish a WebSocket connection and exchange messages, what kind of data can
-  be sent over WebSockets, what types of extensions and subprotocols you can use
-  to augment WebSockets
+  'How the WebSocket protocol works under the hood: the opening handshake, data
+  framing, masking, ping/pong, close codes, extensions, and security. Covers
+  HTTP/1.1, HTTP/2, and HTTP/3.'
 author: Matthew O'Riordan
 date: '2024-09-02'
+lastUpdated: 2026-03-10
 category: guide
 seo:
   keywords:
-    - websocket
-    - tutorial
-    - guide
-    - how-to
-    - protocol
-    - javascript
-    - nodejs
-    - python
-    - go
-    - golang
+    - websocket protocol
+    - rfc 6455
+    - websocket handshake
+    - websocket frame format
+    - websocket data framing
+    - websocket extensions
+    - websocket subprotocols
+    - websocket security
+    - wss protocol
+    - websocket over http2
 tags:
   - websocket
-  - guide
-  - tutorial
-  - how-to
   - protocol
   - rfc6455
   - specification
+  - handshake
+  - framing
+faq:
+  - q: 'What is the WebSocket protocol?'
+    a:
+      'The WebSocket protocol (RFC 6455) provides full-duplex, bidirectional
+      communication over a single TCP connection. It starts with an HTTP upgrade
+      handshake, then switches to a lightweight framed messaging format that
+      supports text, binary, and control frames.'
+  - q: 'How does the WebSocket handshake work?'
+    a:
+      'The client sends an HTTP GET request with Upgrade: websocket and a random
+      Sec-WebSocket-Key. The server responds with HTTP 101 Switching Protocols
+      and a Sec-WebSocket-Accept hash derived from that key. After this
+      exchange, both sides communicate using WebSocket frames instead of HTTP.'
+  - q: 'What is the difference between ws and wss?'
+    a:
+      'ws:// is unencrypted WebSocket traffic (default port 80), while wss:// is
+      WebSocket over TLS (default port 443). Always use wss:// in production to
+      protect data in transit and avoid issues with proxies that block
+      unencrypted WebSocket connections.'
+  - q: 'Do WebSockets work over HTTP/2 and HTTP/3?'
+    a:
+      'Yes. RFC 8441 defines WebSocket bootstrapping over HTTP/2 using the
+      Extended CONNECT method, enabling multiple WebSocket connections over a
+      single TCP connection. RFC 9220 extends this to HTTP/3 and QUIC, adding
+      benefits like zero head-of-line blocking and 0-RTT resumption.'
+  - q: 'Why are WebSocket frames masked from client to server?'
+    a:
+      'Client-to-server masking uses a random 32-bit key XORed with the payload
+      to prevent cache-poisoning attacks on intermediary proxies.
+      Server-to-client frames are not masked because the attack vector only
+      applies to client-originated traffic.'
 ---
+
+:::note[Quick Answer] The WebSocket protocol (RFC 6455) upgrades an HTTP
+connection to a persistent, full-duplex channel. After a handshake, client and
+server exchange lightweight frames - text, binary, or control - with minimal
+overhead. It works over HTTP/1.1, HTTP/2, and HTTP/3. :::
 
 In December 2011, the Internet Engineering Task Force (IETF) standardized the
 WebSocket protocol through [RFC 6455](https://tools.ietf.org/html/rfc6455). In
@@ -702,3 +737,53 @@ across various programming languages. Some popular ones include:
 
 When choosing an implementation, consider factors like performance, feature
 completeness, active maintenance, and community support.
+
+## FAQ
+
+### What is the WebSocket protocol?
+
+The WebSocket protocol (RFC 6455) provides full-duplex, bidirectional
+communication over a single TCP connection. It starts with an HTTP upgrade
+handshake, then switches to a lightweight framed messaging format that supports
+text, binary, and control frames.
+
+### How does the WebSocket handshake work?
+
+The client sends an HTTP GET request with `Upgrade: websocket` and a random
+`Sec-WebSocket-Key`. The server responds with HTTP 101 Switching Protocols and a
+`Sec-WebSocket-Accept` hash derived from that key. After this exchange, both
+sides communicate using WebSocket frames instead of HTTP.
+
+### What is the difference between ws and wss?
+
+`ws://` is unencrypted WebSocket traffic (default port 80), while `wss://` is
+WebSocket over TLS (default port 443). Always use `wss://` in production to
+protect data in transit and avoid issues with proxies that block unencrypted
+WebSocket connections.
+
+### Do WebSockets work over HTTP/2 and HTTP/3?
+
+Yes. RFC 8441 defines WebSocket bootstrapping over HTTP/2 using the Extended
+CONNECT method, enabling multiple WebSocket connections over a single TCP
+connection. RFC 9220 extends this to HTTP/3 and QUIC, adding benefits like zero
+head-of-line blocking and 0-RTT resumption.
+
+### Why are WebSocket frames masked from client to server?
+
+Client-to-server masking uses a random 32-bit key XORed with the payload to
+prevent cache-poisoning attacks on intermediary proxies. Server-to-client frames
+are not masked because the attack vector only applies to client-originated
+traffic.
+
+## Related Content
+
+- [WebSocket API Reference](/reference/websocket-api/) - Complete browser API
+  for working with WebSockets
+- [WebSocket Close Codes](/reference/close-codes/) - All close status codes
+  explained
+- [WebSocket Security Guide](/guides/security/) - Authentication, encryption,
+  and common vulnerabilities
+- [WebSockets vs SSE](/comparisons/sse/) - When to use WebSockets vs Server-Sent
+  Events
+- [Building a WebSocket App](/guides/building-a-websocket-app/) - Practical
+  guide to building your first WebSocket application

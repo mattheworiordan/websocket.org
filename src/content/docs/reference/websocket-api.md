@@ -1,9 +1,13 @@
 ---
-title: WebSocket API Reference
-description: Complete WebSocket API reference guide with events, methods, properties, and practical implementation patterns for building real-time applications
+title: 'WebSocket API: Events, Methods & Properties'
+description:
+  'Browser WebSocket API reference with code examples: constructor, onopen,
+  onmessage, onclose, onerror, send(), close(), readyState, bufferedAmount, and
+  binary types.'
 author: Matthew O'Riordan
 authorRole: Co-founder & CEO, Ably
 date: 2025-08-31T00:00:00.000Z
+lastUpdated: 2026-03-10
 category: reference
 tags:
   - websocket
@@ -12,20 +16,60 @@ tags:
   - real-time
   - browser
 seo:
-  title: WebSocket API Reference - Complete Guide with Examples | WebSocket.org
-  description: Master the WebSocket API with our comprehensive reference. Learn about events, methods, properties, error handling, reconnection strategies, and real-world implementation patterns.
   keywords:
     - websocket api
     - websocket javascript
     - websocket events
-    - websocket methods
-    - websocket properties
-    - real-time api
-    - browser websocket
-    - websocket reference
+    - websocket onmessage
+    - websocket onopen
+    - websocket send
+    - websocket close
+    - websocket readystate
+    - new websocket
+    - websocket constructor
   canonical: https://websocket.org/reference/websocket-api
-  ogImage: /images/websocket-api-reference.png
+faq:
+  - q: 'How do I create a WebSocket connection in JavaScript?'
+    a:
+      'Use the WebSocket constructor: const ws = new
+      WebSocket("wss://example.com"). The single required argument is the URL.
+      An optional second argument accepts one or more subprotocol strings. The
+      connection attempt begins immediately on construction.'
+  - q: 'What are the WebSocket readyState values?'
+    a:
+      'There are four readyState values: 0 (CONNECTING) means the connection is
+      not yet open, 1 (OPEN) means it is ready to send and receive, 2 (CLOSING)
+      means close() has been called, and 3 (CLOSED) means the connection is
+      closed or could not be opened.'
+  - q: 'How do I send binary data over a WebSocket?'
+    a:
+      'Set ws.binaryType to "arraybuffer" or "blob" before receiving, then call
+      ws.send() with an ArrayBuffer, Blob, or typed array (like Uint8Array). The
+      browser handles framing automatically. Check ws.bufferedAmount to monitor
+      the send queue.'
+  - q:
+      'What is the difference between onmessage and addEventListener for
+      WebSockets?'
+    a:
+      'onmessage sets a single handler that replaces any previous one.
+      addEventListener("message", fn) can attach multiple listeners. Use
+      addEventListener when you need multiple independent handlers or want to
+      use removeEventListener for cleanup.'
+  - q: 'How do I handle WebSocket reconnection?'
+    a:
+      'The browser WebSocket API has no built-in reconnection. Implement it
+      yourself in the onclose handler using exponential backoff: start with a
+      short delay (e.g., 1 second), double it on each retry, and cap at a
+      maximum (e.g., 30 seconds). Libraries like reconnecting-websocket automate
+      this.'
 ---
+
+:::note[Quick Answer] The browser WebSocket API lets you open a persistent
+connection with `new WebSocket(url)`, send data with `ws.send()`, receive
+messages via `ws.onmessage`, and close with `ws.close()`. It supports text and
+binary data, has four readyState values (CONNECTING, OPEN, CLOSING, CLOSED), and
+works in all modern browsers. :::
+
 ## Quick Reference
 
 ### Creating a Connection
@@ -2025,3 +2069,53 @@ class AdaptiveWebSocket {
 - [Socket.IO](https://socket.io/) - Real-time engine with fallbacks
 - [ws](https://github.com/websockets/ws) - Popular Node.js WebSocket library
 - [Ably](https://ably.com) - Enterprise-grade WebSocket infrastructure
+
+## FAQ
+
+### How do I create a WebSocket connection in JavaScript?
+
+Use the WebSocket constructor: `const ws = new WebSocket("wss://example.com")`.
+The single required argument is the URL. An optional second argument accepts one
+or more subprotocol strings. The connection attempt begins immediately on
+construction.
+
+### What are the WebSocket readyState values?
+
+There are four readyState values: `0` (CONNECTING) means the connection is not
+yet open, `1` (OPEN) means it is ready to send and receive, `2` (CLOSING) means
+`close()` has been called, and `3` (CLOSED) means the connection is closed or
+could not be opened.
+
+### How do I send binary data over a WebSocket?
+
+Set `ws.binaryType` to `"arraybuffer"` or `"blob"` before receiving, then call
+`ws.send()` with an ArrayBuffer, Blob, or typed array (like Uint8Array). The
+browser handles framing automatically. Check `ws.bufferedAmount` to monitor the
+send queue.
+
+### What is the difference between onmessage and addEventListener?
+
+`onmessage` sets a single handler that replaces any previous one.
+`addEventListener("message", fn)` can attach multiple listeners. Use
+`addEventListener` when you need multiple independent handlers or want to use
+`removeEventListener` for cleanup.
+
+### How do I handle WebSocket reconnection?
+
+The browser WebSocket API has no built-in reconnection. Implement it yourself in
+the `onclose` handler using exponential backoff: start with a short delay (e.g.,
+1 second), double it on each retry, and cap at a maximum (e.g., 30 seconds).
+Libraries like reconnecting-websocket automate this.
+
+## Related Content
+
+- [WebSocket Protocol Guide](/guides/websocket-protocol/) - How the protocol
+  works under the hood (handshake, framing, extensions)
+- [WebSocket Close Codes](/reference/close-codes/) - Complete reference for all
+  close status codes
+- [Building a WebSocket App](/guides/building-a-websocket-app/) - Step-by-step
+  guide to building your first app
+- [WebSocket Security Guide](/guides/security/) - Authentication, encryption,
+  and common vulnerabilities
+- [WebSocket Echo Server](/tools/websocket-echo-server/) - Test your WebSocket
+  code against a live echo server

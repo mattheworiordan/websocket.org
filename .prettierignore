@@ -1,0 +1,4 @@
+# MDX files use JSX components (Tabs, TabItem) that Prettier
+# reformats incorrectly, collapsing multi-line code blocks
+# inside components onto single lines.
+src/content/docs/**/*.mdx

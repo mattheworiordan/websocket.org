@@ -1,13 +1,14 @@
 ---
-title: Nginx WebSocket Configuration Guide
+title: 'Nginx WebSocket Proxy: Config, SSL & Load Balancing'
 description:
-  Production-ready Nginx configuration for WebSocket proxying, load balancing,
-  SSL/TLS termination, and optimization This comprehensive guide covers
-  everything...
+  'Copy-paste Nginx configs for WebSocket proxying with SSL/TLS termination,
+  sticky sessions, health checks, and timeouts. Covers HTTP/1.1, HTTP/2, and
+  HTTP/3.'
 author: Matthew O'Riordan
 authorRole: Co-founder & CEO, Ably
 publishedDate: 2025-09-01T00:00:00.000Z
 updatedDate: 2025-09-01T00:00:00.000Z
+lastUpdated: 2026-03-10
 category: infrastructure
 tags:
   - nginx
@@ -16,23 +17,46 @@ tags:
   - proxy
   - load-balancing
   - ssl
-  - http2
-  - http3
 seo:
-  title: 'Nginx WebSocket Configuration: Complete Production Guide'
-  description:
-    Learn how to configure Nginx for WebSocket applications with SSL/TLS, load
-    balancing, HTTP/2, HTTP/3, monitoring, and performance optimization.
   keywords:
     - nginx websocket
-    - websocket proxy
-    - nginx configuration
-    - websocket load balancing
-    - nginx ssl websocket
-    - http2 websocket
-    - http3 websocket
+    - nginx websocket proxy
+    - nginx websocket proxy pass
+    - nginx websocket configuration
+    - nginx websocket ssl
+    - nginx websocket load balancing
+    - nginx upgrade websocket
+    - proxy_set_header upgrade
 date: '2024-09-02'
+faq:
+  - q: 'How do I configure Nginx to proxy WebSocket connections?'
+    a:
+      'Add proxy_set_header Upgrade $http_upgrade and proxy_set_header
+      Connection "upgrade" to your location block, alongside proxy_pass pointing
+      to your backend. These headers tell Nginx to pass the HTTP Upgrade
+      handshake through to the upstream server.'
+  - q: 'Why do my WebSocket connections drop after 60 seconds through Nginx?'
+    a:
+      'Nginx defaults proxy_read_timeout to 60 seconds. Idle WebSocket
+      connections with no traffic will be closed. Increase it with
+      proxy_read_timeout 3600s and ensure your application sends ping/pong
+      frames to keep the connection alive.'
+  - q: 'How do I enable SSL/TLS for WebSockets behind Nginx?'
+    a:
+      'Configure a standard ssl server block with your certificate and key, then
+      proxy_pass to your backend over plain ws://. Nginx handles TLS termination
+      so clients connect via wss:// while your backend avoids the TLS overhead.'
+  - q: 'Do I need sticky sessions for WebSocket load balancing in Nginx?'
+    a:
+      'Yes. WebSocket connections are stateful and long-lived, so all frames for
+      a session must reach the same backend. Use ip_hash or the sticky directive
+      (Nginx Plus) in your upstream block to ensure session affinity.'
 ---
+
+:::note[Quick Answer] Add `proxy_set_header Upgrade $http_upgrade` and
+`proxy_set_header Connection "upgrade"` to your Nginx location block to proxy
+WebSocket connections. Set `proxy_read_timeout` to a high value (e.g. 3600s) to
+prevent idle connection drops. :::
 
 Nginx is one of the most popular web servers and reverse proxies for WebSocket
 applications. This comprehensive guide covers production-ready configurations
@@ -752,6 +776,46 @@ wscat -c wss://ws.example.com/ws
 - [Nginx WebSocket Module](http://nginx.org/en/docs/http/websocket.html)
 - [RFC 6455 - The WebSocket Protocol](https://tools.ietf.org/html/rfc6455)
 - [RFC 8441 - Bootstrapping WebSockets with HTTP/2](https://tools.ietf.org/html/rfc8441)
+
+## FAQ
+
+### How do I configure Nginx to proxy WebSocket connections?
+
+Add `proxy_set_header Upgrade $http_upgrade` and
+`proxy_set_header Connection "upgrade"` to your location block, alongside
+`proxy_pass` pointing to your backend. These headers tell Nginx to pass the HTTP
+Upgrade handshake through to the upstream server.
+
+### Why do my WebSocket connections drop after 60 seconds?
+
+Nginx defaults `proxy_read_timeout` to 60 seconds. Idle WebSocket connections
+with no traffic will be closed. Increase it with `proxy_read_timeout 3600s` and
+ensure your application sends ping/pong frames to keep the connection alive.
+
+### How do I enable SSL/TLS for WebSockets behind Nginx?
+
+Configure a standard `ssl` server block with your certificate and key, then
+`proxy_pass` to your backend over plain `ws://`. Nginx handles TLS termination
+so clients connect via `wss://` while your backend avoids the TLS overhead.
+
+### Do I need sticky sessions for WebSocket load balancing?
+
+Yes. WebSocket connections are stateful and long-lived, so all frames for a
+session must reach the same backend. Use `ip_hash` or the `sticky` directive
+(Nginx Plus) in your upstream block to ensure session affinity.
+
+## Related Content
+
+- [WebSocket Protocol Guide](/guides/websocket-protocol/) - How the handshake
+  and framing work under the hood
+- [WebSockets at Scale](/guides/websockets-at-scale/) - Architecture patterns
+  for handling millions of connections
+- [AWS ALB WebSocket Guide](/guides/infrastructure/aws/alb/) - WebSocket
+  configuration for AWS Application Load Balancer
+- [Cloudflare WebSocket Guide](/guides/infrastructure/cloudflare/) - Proxying
+  WebSockets through Cloudflare
+- [WebSocket Security Guide](/guides/security/) - Authentication, encryption,
+  and common vulnerabilities
 
 ---
 

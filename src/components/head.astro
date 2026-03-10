@@ -18,6 +18,9 @@ if (frontmatter.category && ['guide', 'reference', 'tutorial'].includes(frontmat
   const datePublished = frontmatter.date
     ? new Date(frontmatter.date).toISOString()
     : new Date().toISOString();
+  const dateModified = frontmatter.lastUpdated
+    ? new Date(frontmatter.lastUpdated).toISOString()
+    : datePublished;
 
   jsonLd = {
     '@context': 'https://schema.org',
@@ -29,6 +32,7 @@ if (frontmatter.category && ['guide', 'reference', 'tutorial'].includes(frontmat
       name: author,
     },
     datePublished: datePublished,
+    dateModified: dateModified,
     publisher: {
       '@type': 'Organization',
       name: 'WebSocket.org',
@@ -43,6 +47,23 @@ if (frontmatter.category && ['guide', 'reference', 'tutorial'].includes(frontmat
     },
   };
 }
+
+// Generate FAQPage JSON-LD when FAQ data is present in frontmatter
+let faqJsonLd = null;
+if (frontmatter.faq && Array.isArray(frontmatter.faq) && frontmatter.faq.length > 0) {
+  faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: frontmatter.faq.map((item: { q: string; a: string }) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.a,
+      },
+    })),
+  };
+}
 ---
 
 <script is:inline>
@@ -53,3 +74,4 @@ if (frontmatter.category && ['guide', 'reference', 'tutorial'].includes(frontmat
 <Default {...Astro.props}><slot /></Default>
 <GA4 {...Astro.props} />
 {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+{faqJsonLd && <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />}

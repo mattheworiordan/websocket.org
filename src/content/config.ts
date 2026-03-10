@@ -21,6 +21,14 @@ export const collections = {
           ])
           .optional(),
         tags: z.array(z.string()).optional(),
+        faq: z
+          .array(
+            z.object({
+              q: z.string(),
+              a: z.string(),
+            })
+          )
+          .optional(),
         seo: z
           .object({
             title: z.string().optional(),

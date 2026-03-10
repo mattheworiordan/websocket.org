@@ -1,18 +1,19 @@
 ---
-title: WebSocket Close Codes Reference
+title: 'WebSocket Close Codes: 1000, 1001, 1006 & All Others'
 description:
-  Complete reference for WebSocket close codes including standard codes,
-  reserved ranges, troubleshooting guides, and implementation examples in
-  multiple languages
+  'Every WebSocket close code explained: 1000 normal, 1001 going away, 1006
+  abnormal, 1008 policy, 1011 internal error. With troubleshooting steps and
+  code examples.'
 keywords:
   [
     websocket close codes,
+    websocket 1006,
+    websocket close code 1006,
     websocket error codes,
     websocket 1000,
     websocket 1001,
-    websocket 1006,
     websocket connection closed,
-    websocket error handling,
+    websocket close reason,
   ]
 sidebar:
   order: 2
@@ -20,9 +21,44 @@ sidebar:
 author: Matthew O'Riordan
 role: Co-founder & CEO, Ably
 date: 2025-09-01
+lastUpdated: 2026-03-10
+category: reference
+faq:
+  - q: 'What does WebSocket close code 1006 mean?'
+    a:
+      'Close code 1006 means the connection was closed abnormally - without a
+      proper close frame. This typically happens when the network drops, the
+      server crashes, or a proxy times out the idle connection. It is never sent
+      in a close frame; the browser sets it locally when the TCP connection
+      disappears.'
+  - q: 'What is the difference between close codes 1000 and 1001?'
+    a:
+      'Code 1000 (Normal Closure) means the connection completed its purpose and
+      was closed cleanly by either side. Code 1001 (Going Away) means the
+      endpoint is going away - the server is shutting down for maintenance, or
+      the user is navigating away from the page.'
+  - q: 'Can I define custom WebSocket close codes?'
+    a:
+      'Yes. Codes 4000-4999 are reserved for application use. You can send any
+      code in this range with ws.close(4001, "Session expired"). Codes 0-999 are
+      unused, 1000-2999 are reserved by the protocol, and 3000-3999 are for
+      libraries and frameworks.'
+  - q: 'Why do I get close code 1008 (Policy Violation)?'
+    a:
+      'Code 1008 is sent when a message violates the server policy - for
+      example, an oversized message, an unauthorized request, or content that
+      fails validation. It is a catch-all for application-level rejections that
+      do not fit a more specific code.'
 ---
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+:::note[Quick Answer]
+WebSocket close code **1000** = normal closure. **1001** = server
+shutting down or user navigating away. **1006** = abnormal close
+(network drop, no close frame received). **1008** = policy
+violation. Codes 4000-4999 are available for your application.
+:::
 
 WebSocket connections can close for various reasons, each identified by a
 specific close code. Understanding these codes is crucial for debugging
@@ -642,5 +678,49 @@ only set by the browser/runtime.
 - [RFC 6455 Section 7.4: Status Codes](https://tools.ietf.org/html/rfc6455#section-7.4)
 - [WebSocket API Specification](https://websockets.spec.whatwg.org/)
 - [IANA WebSocket Close Code Registry](https://www.iana.org/assignments/websocket/websocket.xml#close-code-number)
-- [WebSocket Protocol Guide](/guides/protocol)
-- [WebSocket Security Best Practices](/guides/security)
+- [WebSocket Protocol Guide](/guides/websocket-protocol/)
+- [WebSocket Security Guide](/guides/security/)
+
+## FAQ
+
+### What does WebSocket close code 1006 mean?
+
+Close code 1006 means the connection was closed abnormally - without a
+proper close frame. This typically happens when the network drops, the
+server crashes, or a proxy times out the idle connection. It is never
+sent in a close frame; the browser sets it locally when the TCP
+connection disappears.
+
+### What is the difference between close codes 1000 and 1001?
+
+Code 1000 (Normal Closure) means the connection completed its purpose
+and was closed cleanly by either side. Code 1001 (Going Away) means
+the endpoint is going away - the server is shutting down for
+maintenance, or the user is navigating away from the page.
+
+### Can I define custom WebSocket close codes?
+
+Yes. Codes 4000-4999 are reserved for application use. You can send
+any code in this range with `ws.close(4001, "Session expired")`.
+Codes 0-999 are unused, 1000-2999 are reserved by the protocol, and
+3000-3999 are for libraries and frameworks.
+
+### Why do I get close code 1008 (Policy Violation)?
+
+Code 1008 is sent when a message violates the server policy - for
+example, an oversized message, an unauthorized request, or content
+that fails validation. It is a catch-all for application-level
+rejections that do not fit a more specific code.
+
+## Related Content
+
+- [WebSocket API Reference](/reference/websocket-api/) - Complete
+  browser API including the close() method and CloseEvent
+- [WebSocket Protocol Guide](/guides/websocket-protocol/) - How the
+  closing handshake works at the protocol level
+- [WebSocket Security Guide](/guides/security/) - Authentication,
+  encryption, and common vulnerabilities
+- [WebSockets vs SSE](/comparisons/sse/) - When to use WebSocket vs
+  Server-Sent Events
+- [WebSocket Echo Server](/tools/websocket-echo-server/) - Test close
+  codes against a live server

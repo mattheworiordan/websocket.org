@@ -1,25 +1,58 @@
 ---
-title:
-  'WebSockets vs Server-Sent Events (SSE): Choosing Your Real-Time Protocol'
+title: 'WebSocket vs SSE: Which One Should You Use?'
 description:
-  "In-depth comparison of WebSockets and Server-Sent Events. Learn when to use
-  SSE's simple server-push model vs WebSocket's bidirectional communication,
-  with code examples and production insights."
+  'WebSocket gives you bidirectional messaging. SSE gives you simple server push
+  over HTTP. Side-by-side comparison with code examples, performance benchmarks,
+  and a decision guide.'
 author: "Matthew O'Riordan"
 authorRole: 'Co-founder & CEO, Ably'
 date: 2025-01-07
+lastUpdated: 2026-03-10
+category: guide
 keywords:
   [
-    'websocket vs server sent events',
     'websocket vs sse',
-    'eventsource api',
-    'server push technology',
-    'real-time streaming',
+    'sse vs websocket',
+    'server sent events vs websocket',
+    'websocket or sse',
+    'eventsource vs websocket',
     'sse vs websocket performance',
   ]
+faq:
+  - q: 'What is the difference between WebSocket and SSE?'
+    a:
+      'WebSocket provides full-duplex bidirectional communication over a single
+      TCP connection. SSE (Server-Sent Events) is unidirectional - server to
+      client only - and runs over standard HTTP. SSE has built-in reconnection
+      and is simpler to implement, but WebSocket is needed when the client must
+      also send data to the server.'
+  - q: 'When should I use SSE instead of WebSocket?'
+    a:
+      'Use SSE when you only need server-to-client streaming, like live feeds,
+      notifications, or real-time dashboards. SSE is simpler, works with HTTP/2
+      multiplexing, reconnects automatically, and works through most proxies and
+      firewalls without special configuration.'
+  - q: 'Can SSE handle as many connections as WebSocket?'
+    a:
+      'Under HTTP/1.1, browsers limit SSE to 6 connections per domain. HTTP/2
+      removes this limit by multiplexing streams. WebSocket has no
+      browser-imposed connection limit under either protocol version, making it
+      better suited for applications that need many concurrent connections.'
+  - q: 'Is SSE or WebSocket better for AI/LLM token streaming?'
+    a:
+      'SSE is the most common choice for AI token streaming because the data
+      flows in one direction (server to client) and SSE is simpler to implement.
+      OpenAI, Anthropic, and most LLM APIs use SSE for streaming responses.
+      WebSocket is better if you need bidirectional interaction during
+      generation.'
 ---
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+:::note[Quick Answer] Use **SSE** for simple server-to-client streaming
+(notifications, live feeds, AI token streaming) - it auto-reconnects and works
+over HTTP. Use **WebSocket** when you need bidirectional communication (chat,
+gaming, collaborative editing). SSE is simpler; WebSocket is more capable. :::
 
 ## Quick Summary
 
@@ -1009,6 +1042,50 @@ While raw SSE or WebSocket implementation is straightforward, production
 applications often benefit from using established libraries like Socket.IO or
 commercial services that provide automatic protocol selection, handle
 reconnection logic, and manage scaling complexities.
+
+## FAQ
+
+### What is the difference between WebSocket and SSE?
+
+WebSocket provides full-duplex bidirectional communication over a single TCP
+connection. SSE (Server-Sent Events) is unidirectional, streaming only from
+server to client, and runs over standard HTTP. SSE has built-in reconnection and
+is simpler to implement, but WebSocket is needed when the client must also send
+data to the server.
+
+### When should I use SSE instead of WebSocket?
+
+Use SSE when you only need server-to-client streaming, like live feeds,
+notifications, or real-time dashboards. SSE is simpler, works with HTTP/2
+multiplexing, reconnects automatically, and works through most proxies and
+firewalls without special configuration.
+
+### Can SSE handle as many connections as WebSocket?
+
+Under HTTP/1.1, browsers limit SSE to 6 connections per domain. HTTP/2 removes
+this limit by multiplexing streams. WebSocket has no browser-imposed connection
+limit under either protocol version, making it better suited for applications
+that need many concurrent connections.
+
+### Is SSE or WebSocket better for AI/LLM token streaming?
+
+SSE is the most common choice for AI token streaming because the data flows in
+one direction (server to client) and SSE is simpler to implement. OpenAI,
+Anthropic, and most LLM APIs use SSE for streaming responses. WebSocket is
+better if you need bidirectional interaction during generation.
+
+## Related Content
+
+- [WebSocket vs HTTP](/comparisons/http/) - How WebSocket compares to
+  traditional HTTP request/response
+- [WebSocket vs Long Polling](/comparisons/long-polling/) - Why WebSocket
+  replaced Comet-style polling
+- [WebSocket Protocol Guide](/guides/websocket-protocol/) - How the WebSocket
+  protocol works under the hood
+- [WebSocket vs WebTransport](/comparisons/webtransport/) - The next-generation
+  alternative to both SSE and WebSocket
+- [Protocol Decision Guide](/comparisons/decision-guide/) - Interactive guide to
+  choosing the right protocol
 
 ---
 
