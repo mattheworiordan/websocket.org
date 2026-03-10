@@ -1,34 +1,61 @@
 ---
-title: WebSocket Standards Tracker
+title: 'WebSocket Standards: RFC 6455, Extensions & Browser Support'
 description:
-  Live tracking of WebSocket specifications, browser implementations, and
-  standards updates. Stay current with the latest WebSocket protocol
-  developments and future roadmap.
+  'Track WebSocket specifications including RFC 6455, RFC 7692
+  compression, HTTP/2 and HTTP/3 bootstrapping, and browser
+  implementation status. Updated reference for developers.'
 keywords:
-  [
-    websocket standards,
-    websocket RFC,
-    websocket specifications,
-    WHATWG,
-    W3C,
-    IETF,
-    browser support,
-    websocket updates,
-  ]
+  - websocket rfc 6455
+  - websocket standards
+  - websocket browser support
+  - websocket specifications
 sidebar:
   order: 1
   label: Standards Tracker
-author: Matthew O'Riordan
-role: Co-founder & CEO, Ably
+author: "Matthew O'Riordan"
+authorRole: 'Co-founder & CEO, Ably'
 date: 2025-09-01
+lastUpdated: 2026-03-10
+seo:
+  keywords:
+    - websocket rfc 6455
+    - websocket standards
+    - websocket specifications
+    - websocket browser support
+    - websocket compression rfc 7692
+    - websocket http2
+faq:
+  - q: 'What RFC defines the WebSocket protocol?'
+    a: 'RFC 6455 defines the WebSocket protocol. Published in December
+      2011 by the IETF, it specifies the opening handshake, data
+      framing, closing handshake, and security considerations. It is
+      an Internet Standard (STD 34).'
+  - q: 'Do all browsers support WebSockets?'
+    a: 'Yes. All modern browsers have supported WebSockets since 2012.
+      Current support is 99%+ globally including Chrome, Firefox,
+      Safari, Edge, and mobile browsers. The WebSocket API is defined
+      in the WHATWG HTML Living Standard.'
+  - q: 'What WebSocket extensions are standardized?'
+    a: 'RFC 7692 defines per-message compression using the deflate
+      algorithm. RFC 8441 adds WebSocket bootstrapping over HTTP/2,
+      and RFC 9220 extends this to HTTP/3. These extensions are
+      optional and negotiated during the handshake.'
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-Stay up-to-date with the evolving WebSocket ecosystem. This page tracks all
-WebSocket-related specifications, their current status, browser implementations,
-and upcoming changes that may affect your applications.
+:::note[Quick Answer]
+The WebSocket protocol is defined by **RFC 6455** (Internet Standard).
+Key extensions include **RFC 7692** (compression), **RFC 8441**
+(HTTP/2 bootstrapping), and **RFC 9220** (HTTP/3 bootstrapping).
+All modern browsers support WebSockets (99%+ globally).
+:::
+
+Stay up-to-date with the evolving WebSocket ecosystem. This page
+tracks all WebSocket-related specifications, their current status,
+browser implementations, and upcoming changes that may affect your
+applications.
 
 ## Current Standards Status
 
@@ -548,3 +575,39 @@ docker run -it --rm \
 - [Future of WebSockets](/guides/future)
 - [Autobahn TestSuite Guide](/guides/testing/autobahn)
 - [WebSocket API Reference](/reference/api)
+
+## Frequently Asked Questions
+
+### What RFC defines the WebSocket protocol?
+
+RFC 6455 defines the WebSocket protocol. Published in December 2011 by
+the IETF, it specifies the opening handshake, data framing, closing
+handshake, and security considerations. It is an Internet Standard
+(STD 34).
+
+### Do all browsers support WebSockets?
+
+Yes. All modern browsers have supported WebSockets since 2012. Current
+support is 99%+ globally including Chrome, Firefox, Safari, Edge, and
+mobile browsers. The WebSocket API is defined in the WHATWG HTML Living
+Standard.
+
+### What WebSocket extensions are standardized?
+
+RFC 7692 defines per-message compression using the deflate algorithm.
+RFC 8441 adds WebSocket bootstrapping over HTTP/2, and RFC 9220
+extends this to HTTP/3. These extensions are optional and negotiated
+during the handshake.
+
+## Related Content
+
+- [The Road to WebSockets](/guides/road-to-websockets/) — history from
+  HTTP polling to RFC 6455
+- [Future of WebSockets](/guides/future-of-websockets/) — HTTP/3,
+  WebTransport, and what comes next
+- [Autobahn TestSuite Guide](/guides/testing/autobahn/) — test your
+  implementation against RFC 6455
+- [WebSocket vs WebTransport](/comparisons/webtransport/) — comparing
+  WebSockets with the next-gen transport
+- [WebSocket Libraries & Tools](/resources/websocket-resources/) —
+  implementations across languages

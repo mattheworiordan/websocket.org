@@ -1,43 +1,55 @@
 ---
-title: C# and .NET WebSocket Implementation
+title: 'C# WebSocket: ASP.NET Core, SignalR & ClientWebSocket'
 description:
-  Learn how to implement WebSockets with production-ready code examples, best
-  practices, and real-world patterns. Complete guide to WebSocket clients and
-  servers in C#/.NET using ClientWebSocket, ASP.NET Core, SignalR, Unity,
-  performance optimization, security, testing, and production deployment
-  strategies.
+  'Build C# WebSocket apps with ASP.NET Core middleware, ClientWebSocket, and
+  SignalR. Covers .NET 6+, Unity integration, production deployment, and
+  enterprise patterns.'
 sidebar:
   order: 6
-author: Matthew O'Riordan
+author: "Matthew O'Riordan"
+authorRole: 'Co-founder & CEO, Ably'
 date: '2024-09-02'
+lastUpdated: 2026-03-10
 category: guide
+keywords:
+  - csharp websocket
+  - aspnet core websocket
+  - signalr vs websocket
+  - clientwebsocket
 seo:
   keywords:
-    - websocket
-    - tutorial
-    - guide
-    - how-to
-    - implementation
-    - csharp
-    - dotnet
-    - real-time
-    - websocket implementation
+    - csharp websocket
     - aspnet core websocket
-    - signalr
+    - signalr vs websocket
     - clientwebsocket
+    - dotnet websocket
     - unity websocket
-tags:
-  - websocket
-  - csharp
-  - dotnet
-  - aspnet
-  - websocket-csharp
-  - programming
-  - tutorial
-  - implementation
-  - guide
-  - how-to
+faq:
+  - q: 'How do I use WebSockets in C# .NET?'
+    a:
+      'Use ClientWebSocket for clients and ASP.NET Core WebSocket middleware for
+      servers. ASP.NET Core has built-in WebSocket support via UseWebSockets()
+      middleware. For higher-level abstractions, use SignalR which adds
+      automatic reconnection and hub-based messaging on top of WebSockets.'
+  - q: 'What is the difference between SignalR and WebSockets?'
+    a:
+      'WebSockets are a raw protocol for bidirectional communication. SignalR is
+      a Microsoft library built on top of WebSockets that adds features like
+      automatic reconnection, fallback transports, hub-based routing, and
+      strongly typed messages. SignalR uses WebSockets when available and falls
+      back to other transports.'
+  - q: 'Can I use WebSockets in Unity with C#?'
+    a:
+      'Yes. Use the ClientWebSocket class from System.Net.WebSockets or
+      third-party libraries like NativeWebSocket. Unity supports WebSocket
+      connections for multiplayer games, real-time data sync, and server
+      communication across all platforms.'
 ---
+
+:::note[Quick Answer] Use **ASP.NET Core WebSocket middleware** for raw
+WebSocket servers. Use **ClientWebSocket** for .NET clients. Use **SignalR**
+when you want automatic reconnection, hub-based routing, and fallback
+transports. SignalR uses WebSockets under the hood when available. :::
 
 C# and .NET provide one of the most comprehensive and mature ecosystems for
 WebSocket development, offering everything from low-level `ClientWebSocket` APIs
@@ -2645,3 +2657,40 @@ invested in the Microsoft ecosystem, these integrations reduce development time
 and operational complexity significantly. The ability to use the same identity
 provider, monitoring solution, and deployment pipeline for both traditional web
 applications and WebSocket services simplifies the overall architecture.
+
+## Frequently Asked Questions
+
+### How do I use WebSockets in C# .NET?
+
+Use `ClientWebSocket` for clients and ASP.NET Core WebSocket middleware for
+servers. ASP.NET Core has built-in WebSocket support via `UseWebSockets()`
+middleware. For higher-level abstractions, use SignalR which adds automatic
+reconnection and hub-based messaging on top of WebSockets.
+
+### What is the difference between SignalR and WebSockets?
+
+WebSockets are a raw protocol for bidirectional communication. SignalR is a
+Microsoft library built on top of WebSockets that adds features like automatic
+reconnection, fallback transports, hub-based routing, and strongly typed
+messages. SignalR uses WebSockets when available and falls back to other
+transports.
+
+### Can I use WebSockets in Unity with C#?
+
+Yes. Use the `ClientWebSocket` class from `System.Net.WebSockets` or third-party
+libraries like NativeWebSocket. Unity supports WebSocket connections for
+multiplayer games, real-time data sync, and server communication across all
+platforms.
+
+## Related Content
+
+- [Java WebSocket Guide](/guides/languages/java/) — Spring Boot and Jakarta EE
+  WebSocket implementation
+- [JavaScript WebSocket Guide](/guides/languages/javascript/) — browser API and
+  Node.js patterns
+- [Building a WebSocket Application](/guides/building-a-websocket-app/) —
+  hands-on tutorial with cursor sharing
+- [WebSocket Security Guide](/guides/security/) — authentication, TLS, and
+  protection patterns
+- [WebSockets at Scale](/guides/websockets-at-scale/) — architecture for
+  millions of concurrent connections

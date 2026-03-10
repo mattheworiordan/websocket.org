@@ -1,36 +1,55 @@
 ---
-title: 'WebSockets and AI: Real-Time Communication for AI Applications'
+title: 'WebSockets and AI: Why LLMs Are Moving Beyond SSE'
 description:
-  How WebSockets are becoming the dominant transport for AI applications that
-  need bidirectional, stateful communication. Covers the shift from SSE, the
-  rise of durable sessions, and why the AI era is driving WebSocket adoption.
-author: Matthew O'Riordan
+  'WebSockets are replacing SSE for AI streaming. Bidirectional
+  connections enable tool calls, interrupts, and multi-turn agents.
+  Covers the SSE-to-WebSocket shift and durable sessions.'
+author: "Matthew O'Riordan"
+authorRole: 'Co-founder & CEO, Ably'
 date: '2026-03-10'
+lastUpdated: 2026-03-10
 category: guide
+keywords:
+  - websocket ai streaming
+  - llm websocket
+  - ai real-time communication
+  - sse vs websocket ai
 seo:
   keywords:
-    - websocket
-    - ai
-    - llm
-    - streaming
-    - durable sessions
-    - server-sent events
-    - sse
-    - ai agents
-    - realtime ai
-    - websocket ai
-tags:
-  - websocket
-  - guide
-  - ai
-  - llm
-  - streaming
-  - durable-sessions
+    - websocket ai streaming
+    - llm websocket
+    - ai real-time communication
+    - sse vs websocket ai
+    - ai agents websocket
+    - durable sessions ai
+faq:
+  - q: 'Why are AI applications switching from SSE to WebSockets?'
+    a: 'SSE only supports server-to-client streaming. AI agents need
+      bidirectional communication for tool calls, user interrupts,
+      context updates, and multi-turn conversations. WebSockets
+      provide full-duplex connections that support these patterns.'
+  - q: 'What are durable sessions for AI?'
+    a: 'Durable sessions add connection resilience on top of
+      WebSockets. If a connection drops during an AI response, the
+      session resumes without losing context or repeating work. This
+      is critical for long-running AI agent tasks.'
+  - q: 'Should I use SSE or WebSockets for LLM token streaming?'
+    a: 'Use SSE for simple one-way token streaming where the user
+      sends a prompt and waits for a response. Use WebSockets when
+      you need tool use, interrupts, multi-turn agents, or
+      collaborative AI features that require bidirectional messaging.'
 ---
 
-WebSockets are having a moment in AI. Not because they're new, but because the
-AI industry is rediscovering that persistent, bidirectional connections are the
-right primitive for complex real-time interactions.
+:::note[Quick Answer]
+AI applications are moving from **SSE** (one-way streaming) to
+**WebSockets** (bidirectional) because agents need tool calls, user
+interrupts, and multi-turn conversations. **Durable sessions** add
+connection resilience on top of WebSockets for long-running AI tasks.
+:::
+
+WebSockets are having a moment in AI. Not because they're new, but
+because the AI industry is rediscovering that persistent, bidirectional
+connections are the right primitive for complex real-time interactions.
 
 The story is worth understanding. It starts with SSE, runs into walls, and lands
 on WebSockets, with an emerging infrastructure layer called Durable Sessions
@@ -330,20 +349,50 @@ A protocol standardized in 2011 is turning out to be exactly the right fit for
 one of the most demanding categories of software being built today. That's a
 good sign for WebSockets.
 
+## Frequently Asked Questions
+
+### Why are AI applications switching from SSE to WebSockets?
+
+SSE only supports server-to-client streaming. AI agents need
+bidirectional communication for tool calls, user interrupts, context
+updates, and multi-turn conversations. WebSockets provide full-duplex
+connections that support these patterns.
+
+### What are durable sessions for AI?
+
+Durable sessions add connection resilience on top of WebSockets. If a
+connection drops during an AI response, the session resumes without
+losing context or repeating work. This is critical for long-running AI
+agent tasks.
+
+### Should I use SSE or WebSockets for LLM token streaming?
+
+Use SSE for simple one-way token streaming where the user sends a
+prompt and waits for a response. Use WebSockets when you need tool
+use, interrupts, multi-turn agents, or collaborative AI features that
+require bidirectional messaging.
+
+## Related Content
+
+- [WebSocket vs Long Polling](/comparisons/long-polling/) — polling
+  approaches compared to persistent connections
+- [WebSocket vs WebTransport](/comparisons/webtransport/) — the
+  next-gen transport built on HTTP/3
+- [Future of WebSockets](/guides/future-of-websockets/) — HTTP/3,
+  WebTransport, and what comes next
+- [WebSockets at Scale](/guides/websockets-at-scale/) — production
+  architecture for high-concurrency applications
+- [Building a WebSocket Application](/guides/building-a-websocket-app/)
+  — hands-on tutorial with cursor sharing
+
 ## Further Reading
 
-- [WebSockets vs SSE](/comparisons/sse/) - detailed protocol comparison
-- [The Future of WebSockets](/guides/future-of-websockets/) - HTTP/3 and
-  WebTransport evolution
-- [WebSockets at Scale](/guides/websockets-at-scale/) - production architecture
-  for high-concurrency applications
-- [Durable Sessions](https://durablesessions.ai/) - the emerging infrastructure
-  category
-- [Building a WebSocket App](/guides/building-a-websocket-app/) - hands-on
-  tutorial
+- [Durable Sessions](https://durablesessions.ai/) — the emerging
+  infrastructure category
+- [WebSocket Protocol RFC 6455](https://datatracker.ietf.org/doc/html/rfc6455)
 
 ---
 
-_Written by [Matthew O'Riordan](/author/matthew-oriordan/), Co-founder & CEO of
-Ably, with experience building real-time systems reaching 2 billion+ devices
-monthly._
+Written by [Matthew O'Riordan](/author/matthew-oriordan/), Co-founder
+& CEO of Ably, with experience building real-time systems reaching 2
+billion+ devices monthly.

@@ -1,11 +1,46 @@
 ---
-title: Autobahn TestSuite Guide
+title: 'Autobahn TestSuite: WebSocket RFC 6455 Compliance Testing'
 description:
-  Complete guide to testing WebSocket implementations with Autobahn TestSuite
-  for protocol compliance
+  'Test WebSocket servers and clients for RFC 6455 compliance with
+  Autobahn TestSuite. 500+ test cases covering framing, UTF-8,
+  close codes, compression, and performance.'
 sidebar:
   order: 1
   label: Autobahn TestSuite
+author: "Matthew O'Riordan"
+authorRole: 'Co-founder & CEO, Ably'
+date: 2025-01-07
+lastUpdated: 2026-03-10
+category: guide
+keywords:
+  - autobahn testsuite
+  - websocket testing
+  - rfc 6455 compliance
+  - websocket protocol testing
+seo:
+  keywords:
+    - autobahn testsuite
+    - websocket testing
+    - rfc 6455 compliance
+    - websocket protocol testing
+    - websocket test tool
+    - websocket conformance
+faq:
+  - q: 'What is the Autobahn TestSuite?'
+    a: 'Autobahn TestSuite is the industry-standard tool for testing
+      WebSocket implementations against RFC 6455. It includes over 500
+      test cases covering protocol framing, UTF-8 handling, close
+      codes, and the permessage-deflate compression extension.'
+  - q: 'How do I run Autobahn TestSuite?'
+    a: 'The easiest way is via Docker: docker run -it
+      crossbario/autobahn-testsuite. Configure a JSON file specifying
+      your server URL and which test cases to run. Results are output
+      as detailed HTML reports with pass/fail status for each case.'
+  - q: 'Does my WebSocket library pass Autobahn tests?'
+    a: 'Most popular libraries pass 100% of Autobahn tests. Chrome,
+      Firefox, Safari, Node.js ws, and Python websockets all achieve
+      517/517. Check your library documentation or run the suite
+      yourself to verify compliance.'
 ---
 
 import {
@@ -16,9 +51,16 @@ import {
   TabItem,
 } from '@astrojs/starlight/components';
 
+:::note[Quick Answer]
+Autobahn TestSuite runs **500+ test cases** against your WebSocket
+server or client to verify **RFC 6455 compliance**. Run it via Docker
+with `docker run crossbario/autobahn-testsuite`. Most popular
+libraries achieve 100% pass rate.
+:::
+
 The Autobahn TestSuite is the industry standard for WebSocket protocol
-compliance testing. This guide shows you how to use it to ensure your WebSocket
-implementation follows RFC 6455 correctly.
+compliance testing. This guide shows you how to use it to ensure your
+WebSocket implementation follows RFC 6455 correctly.
 
 ## What is Autobahn TestSuite
 
@@ -363,6 +405,42 @@ Ensure write permissions for the output directory.
   ]
 }
 ```
+
+## Frequently Asked Questions
+
+### What is the Autobahn TestSuite?
+
+Autobahn TestSuite is the industry-standard tool for testing WebSocket
+implementations against RFC 6455. It includes over 500 test cases
+covering protocol framing, UTF-8 handling, close codes, and the
+permessage-deflate compression extension.
+
+### How do I run Autobahn TestSuite?
+
+The easiest way is via Docker:
+`docker run -it crossbario/autobahn-testsuite`. Configure a JSON file
+specifying your server URL and which test cases to run. Results are
+output as detailed HTML reports with pass/fail status for each case.
+
+### Does my WebSocket library pass Autobahn tests?
+
+Most popular libraries pass 100% of Autobahn tests. Chrome, Firefox,
+Safari, Node.js ws, and Python websockets all achieve 517/517. Check
+your library's documentation or run the suite yourself to verify
+compliance.
+
+## Related Content
+
+- [WebSocket Standards Tracker](/standards/) — RFC 6455 and all
+  WebSocket specifications
+- [WebSocket Libraries & Tools](/resources/websocket-resources/) —
+  implementations across languages
+- [WebSocket Security Guide](/guides/security/) — securing your
+  WebSocket implementation
+- [Building a WebSocket Application](/guides/building-a-websocket-app/)
+  — hands-on tutorial with cursor sharing
+- [Future of WebSockets](/guides/future-of-websockets/) — HTTP/3,
+  WebTransport, and upcoming standards
 
 ## Resources
 

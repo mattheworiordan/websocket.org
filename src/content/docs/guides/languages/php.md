@@ -1,35 +1,54 @@
 ---
-title: PHP WebSocket Implementation
+title: 'PHP WebSocket: Ratchet, Swoole & ReactPHP Guide'
 description:
-  Learn how to implement WebSockets with production-ready code examples, best
-  practices, and real-world patterns. Complete guide to WebSocket servers and
-  clien...
+  'Build PHP WebSocket servers with Ratchet, Swoole, and ReactPHP. Covers event
+  loops, persistent connections, chat apps, and production deployment with
+  Supervisor and Docker.'
 sidebar:
   order: 7
-author: Matthew O'Riordan
+author: "Matthew O'Riordan"
+authorRole: 'Co-founder & CEO, Ably'
 date: '2024-09-02'
+lastUpdated: 2026-03-10
 category: guide
+keywords:
+  - php websocket
+  - ratchet websocket
+  - swoole websocket
+  - reactphp websocket
 seo:
   keywords:
-    - websocket
-    - tutorial
-    - guide
-    - how-to
-    - implementation
-    - php
-    - real-time
-    - websocket implementation
-tags:
-  - websocket
-  - php
-  - ratchet
-  - websocket-php
-  - programming
-  - tutorial
-  - implementation
-  - guide
-  - how-to
+    - php websocket
+    - ratchet websocket
+    - swoole websocket
+    - reactphp websocket
+    - php websocket server
+    - php real-time
+faq:
+  - q: 'How do I create a WebSocket server in PHP?'
+    a:
+      'Use Ratchet, the most popular PHP WebSocket library. Install via
+      Composer, create a class implementing MessageComponentInterface, and run
+      it with ReactPHP event loop. Swoole is another option offering higher
+      performance through a C extension.'
+  - q: 'Can PHP handle WebSocket connections?'
+    a:
+      'Yes. While PHP traditional request-response model does not natively
+      support persistent connections, libraries like Ratchet (built on ReactPHP)
+      and Swoole run PHP as a long-lived process with an event loop, enabling
+      WebSocket support.'
+  - q: 'Which PHP WebSocket library should I use?'
+    a:
+      'Use Ratchet for most projects - it is well-documented and built on
+      ReactPHP. Use Swoole for high-performance needs (it is a C extension). Use
+      Laravel WebSockets or Laravel Reverb if you are already in the Laravel
+      ecosystem.'
 ---
+
+:::note[Quick Answer] Use **Ratchet** (built on ReactPHP) for most PHP WebSocket
+projects. Use **Swoole** for high-performance needs. PHP's traditional
+request-response model requires an event loop library to support persistent
+WebSocket connections. :::
 
 ## Introduction to WebSockets in PHP
 
@@ -772,3 +791,37 @@ community knowledge, position PHP as a viable choice for real-time applications.
 For organizations with existing PHP infrastructure and expertise, the ability to
 add WebSocket capabilities without switching technology stacks represents
 significant value.
+
+## Frequently Asked Questions
+
+### How do I create a WebSocket server in PHP?
+
+Use Ratchet, the most popular PHP WebSocket library. Install via Composer,
+create a class implementing `MessageComponentInterface`, and run it with
+ReactPHP's event loop. Swoole is another option offering higher performance
+through a C extension.
+
+### Can PHP handle WebSocket connections?
+
+Yes. While PHP's traditional request-response model does not natively support
+persistent connections, libraries like Ratchet (built on ReactPHP) and Swoole
+run PHP as a long-lived process with an event loop, enabling WebSocket support.
+
+### Which PHP WebSocket library should I use?
+
+Use Ratchet for most projects — it is well-documented and built on ReactPHP. Use
+Swoole for high-performance needs (it is a C extension). Use Laravel WebSockets
+or Laravel Reverb if you are already in the Laravel ecosystem.
+
+## Related Content
+
+- [JavaScript WebSocket Guide](/guides/languages/javascript/) — browser and
+  Node.js WebSocket implementation
+- [Python WebSocket Guide](/guides/languages/python/) — asyncio-based WebSocket
+  server and client
+- [Building a WebSocket Application](/guides/building-a-websocket-app/) —
+  hands-on tutorial with cursor sharing
+- [WebSocket Security Guide](/guides/security/) — authentication, TLS, and CSWSH
+  protection
+- [WebSockets at Scale](/guides/websockets-at-scale/) — architecture for
+  millions of concurrent connections

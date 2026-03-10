@@ -1,9 +1,48 @@
 ---
-title: WebSocket Community
+title: 'WebSocket Community: Forums, Chat & Contributing'
 description:
-  Join the WebSocket community - find discussions, resources, and ways to
-  contribute
+  'Join the WebSocket community on Stack Overflow, Reddit, and Discord.
+  Contribute to websocket.org via GitHub. Find discussions, learning resources,
+  and standards groups.'
+author: "Matthew O'Riordan"
+authorRole: 'Co-founder & CEO, Ably'
+date: 2024-09-02
+lastUpdated: 2026-03-10
+category: resource
+keywords:
+  - websocket community
+  - websocket forum
+  - websocket discord
+  - websocket contributing
+seo:
+  keywords:
+    - websocket community
+    - websocket forum
+    - websocket discord
+    - websocket stack overflow
+    - websocket contributing
+    - websocket developers
+faq:
+  - q: 'Where can I ask WebSocket questions?'
+    a:
+      'Stack Overflow with the websocket tag is the most active Q&A forum.
+      Reddit r/websocket and r/webdev have discussion threads. Discord Web Dev
+      Community has real-time chat channels for WebSocket help.'
+  - q: 'How can I contribute to websocket.org?'
+    a:
+      'Submit pull requests on GitHub at github.com/ably/websocket.org to fix
+      typos, improve docs, or add guides. Open issues for bugs or suggestions.
+      The project welcomes contributions from all developers.'
+  - q: 'Is websocket.org open source?'
+    a:
+      'Yes. websocket.org is an open-source project hosted on GitHub and
+      sponsored by Ably. All content is open for community contributions via
+      pull requests.'
 ---
+
+:::note[Quick Answer] Ask WebSocket questions on **Stack Overflow** (tag:
+`websocket`). Join discussions on **Reddit** and **Discord**. Contribute to
+websocket.org via **GitHub** pull requests. :::
 
 Welcome to the WebSocket community hub! This is your gateway to discussions,
 resources, and collaboration opportunities around WebSocket technology.
@@ -100,7 +139,39 @@ Have ideas for improving the WebSocket community resources?
 [Open an issue](https://github.com/ably/websocket.org/issues) or contribute
 directly via pull request.
 
+## Frequently Asked Questions
+
+### Where can I ask WebSocket questions?
+
+Stack Overflow with the `websocket` tag is the most active Q&A forum. Reddit
+r/websocket and r/webdev have discussion threads. Discord Web Dev Community has
+real-time chat channels for WebSocket help.
+
+### How can I contribute to websocket.org?
+
+Submit pull requests on GitHub at github.com/ably/websocket.org to fix typos,
+improve docs, or add guides. Open issues for bugs or suggestions. The project
+welcomes contributions from all developers.
+
+### Is websocket.org open source?
+
+Yes. websocket.org is an open-source project hosted on GitHub and sponsored by
+Ably. All content is open for community contributions via pull requests.
+
+## Related Content
+
+- [WebSocket Libraries & Tools](/resources/websocket-resources/) —
+  implementations and tools by language
+- [WebSocket Echo Server](/tools/websocket-echo-server/) — free testing endpoint
+  at echo.websocket.org
+- [Building a WebSocket Application](/guides/building-a-websocket-app/) —
+  hands-on tutorial with cursor sharing
+- [WebSocket Standards Tracker](/standards/) — RFC 6455 and all WebSocket
+  specifications
+- [The Road to WebSockets](/guides/road-to-websockets/) — history of the
+  WebSocket protocol
+
 ---
 
-_WebSocket.org is an open-source project sponsored by [Ably](https://ably.com) -
-the platform for real-time digital experiences._
+WebSocket.org is an open-source project sponsored by [Ably](https://ably.com) —
+the platform for real-time digital experiences.
