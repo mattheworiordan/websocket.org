@@ -1,16 +1,18 @@
 ---
-title: The Canonical WebSocket Reference
-description: Everything you need to know about WebSockets, in one place.
+title: WebSocket.org
+description:
+  The comprehensive, independent reference for WebSocket technology. Guides,
+  protocol comparisons, API docs, and real-world patterns.
 template: splash
 hero:
   tagline:
-    WebSockets revolutionized the web, turning clunky, slow real-time
-    interactions into sleek, low-latency experiences. Your comprehensive guide
-    to mastering WebSocket technology.
+    The independent reference for everything WebSocket. Protocol deep dives,
+    production patterns, and honest comparisons — built by practitioners, not
+    vendors.
   image:
     file: ../../assets/websocket-logo.png
   actions:
-    - text: Get Started
+    - text: Start Reading
       link: /guides/road-to-websockets/
       icon: right-arrow
       variant: primary
@@ -22,159 +24,130 @@ hero:
 
 import { LinkCard, CardGrid, Card } from '@astrojs/starlight/components';
 
-## 🚀 Quick Start
+## Understand the Protocol
 
 <CardGrid>
   <LinkCard
-    title="Learn the Basics"
-    icon="open-book"
+    title="The Road to WebSockets"
     href="/guides/road-to-websockets/"
-  >
-    Understand the evolution and fundamentals of WebSocket technology
-  </LinkCard>
+    description="How we got from polling to persistent connections, and why it matters."
+  />
   <LinkCard
-    title="Build Your First App"
-    icon="rocket"
-    href="/guides/building-a-websocket-app/"
-  >
-    Step-by-step guide to creating real-time applications
-  </LinkCard>
-  <LinkCard
-    title="Security Best Practices"
-    icon="shield"
-    href="/guides/security/"
-  >
-    Protect your WebSocket connections from common vulnerabilities
-  </LinkCard>
-  <LinkCard
-    title="Test Your Implementation"
-    icon="magnifier"
-    href="/guides/testing/autobahn/"
-  >
-    Ensure compliance with the WebSocket protocol using Autobahn TestSuite
-  </LinkCard>
-</CardGrid>
-
-## 📚 Essential References
-
-<CardGrid>
+    title="WebSocket Protocol"
+    href="/guides/websocket-protocol/"
+    description="Frames, handshakes, opcodes, and the wire format — the full picture."
+  />
   <LinkCard
     title="WebSocket API"
-    icon="document"
     href="/reference/websocket-api/"
-  >
-    Complete API reference with events, methods, and properties
-  </LinkCard>
+    description="The browser API: events, methods, readyState, and binary data."
+  />
   <LinkCard
-    title="Close Codes Reference"
-    icon="warning"
+    title="Close Codes"
     href="/reference/close-codes/"
-  >
-    Comprehensive guide to WebSocket close codes and error handling
-  </LinkCard>
-  <LinkCard title="Standards Tracker" icon="information" href="/standards/">
-    Stay updated with the latest WebSocket specifications and browser support
-  </LinkCard>
-  <LinkCard
-    title="Protocol Deep Dive"
-    icon="puzzle"
-    href="/guides/websocket-protocol/"
-  >
-    Understanding frames, handshakes, and the wire protocol
-  </LinkCard>
+    description="What 1006 actually means, and every other close code explained."
+  />
 </CardGrid>
 
-## 🛠️ Tools & Resources
+## Build Something
 
 <CardGrid>
   <LinkCard
-    title="Echo Server"
-    icon="setting"
-    href="/tools/websocket-echo-server/"
-  >
-    Test your WebSocket connections with our public echo server
-  </LinkCard>
+    title="Build Your First App"
+    href="/guides/building-a-websocket-app/"
+    description="A hands-on walkthrough from connection to production."
+  />
   <LinkCard
-    title="WebSocket Resources"
-    icon="external"
-    href="/resources/websocket-resources/"
-  >
-    Curated collection of libraries, frameworks, and learning materials
-  </LinkCard>
-  <LinkCard title="Security Hardening" icon="shield" href="/guides/security/">
-    Comprehensive security guide including CSWSH prevention and authentication
-  </LinkCard>
-  <LinkCard
-    title="Scale WebSockets"
-    icon="graph"
+    title="WebSockets at Scale"
     href="/guides/websockets-at-scale/"
-  >
-    Learn how to handle millions of concurrent connections
-  </LinkCard>
+    description="Connection management, load balancing, and handling millions of clients."
+  />
+  <LinkCard
+    title="Security Hardening"
+    href="/guides/security/"
+    description="CSWSH, authentication, rate limiting, and the attacks people forget about."
+  />
+  <LinkCard
+    title="Testing with Autobahn"
+    href="/guides/testing/autobahn/"
+    description="Verify your implementation against the protocol spec."
+  />
 </CardGrid>
 
-## 🎯 Implementation Guides
+## Compare Protocols
 
-<CardGrid stagger>
-  <Card title="By Use Case" icon="rocket">
-    - Real-time chat applications - Live collaboration tools - Gaming and
-    multiplayer - Financial trading platforms - IoT device communication
-  </Card>
-  <Card title="By Platform" icon="laptop">
-    - Browser WebSocket API - Node.js implementations - Mobile app integration -
-    Serverless WebSockets - Edge computing
-  </Card>
-  <Card title="By Language" icon="code">
-    - JavaScript/TypeScript - Python - Go - Rust - Java
-  </Card>
+Not everything needs a WebSocket. These comparisons help you pick the right
+tool.
+
+<CardGrid>
+  <LinkCard
+    title="WebSockets vs SSE"
+    href="/comparisons/sse/"
+    description="The most common choice in AI streaming — and where SSE falls short."
+  />
+  <LinkCard
+    title="WebSockets vs HTTP"
+    href="/comparisons/http/"
+    description="When a persistent connection beats request-response."
+  />
+  <LinkCard
+    title="WebSockets vs WebTransport"
+    href="/comparisons/webtransport/"
+    description="The next-gen contender built on HTTP/3 and QUIC."
+  />
+  <LinkCard
+    title="All Comparisons"
+    href="/comparisons/"
+    description="MQTT, gRPC, WebRTC, long polling, and the decision matrix."
+  />
 </CardGrid>
 
-## 📈 What's New
+## What's New
 
-<Card title="Recently Added" icon="star">
-
-### New: WebSockets and AI
-
-- **[WebSockets and AI Guide](/guides/websockets-and-ai/)** - How AI
-  applications are driving WebSocket adoption, the shift from SSE, and the
-  rise of Durable Sessions
-
-### Phase 2 Content Released
-
-- **[Security Hardening Guide](/guides/security/)** - Comprehensive security
-  best practices
-- **[Close Codes Reference](/reference/close-codes/)** - Complete error code
-  documentation
-- **[Standards Tracker](/standards/)** - Live tracking of WebSocket
-  specifications
-- **[Autobahn TestSuite Guide](/guides/testing/autobahn/)** - Protocol
-  compliance testing
-
-### Coming Soon
-
-- Interactive Frame Inspector
-- Handshake Explorer Tool
-- Infrastructure Playbooks (Nginx, AWS, Cloudflare)
-- Language-specific implementation guides
-
+<Card title="WebSockets and AI" icon="star">
+  AI applications are driving a major shift from SSE to WebSockets.
+  Bidirectional communication, connection resilience, and the emerging Durable
+  Sessions category are changing how we build AI user experiences. [Read the
+  full guide](/guides/websockets-and-ai/).
 </Card>
 
-## 🌟 Why WebSocket.org?
+## By Language
+
+Production-ready patterns for your stack.
 
 <CardGrid>
-  <Card title="Authoritative" icon="approve-check">
-    Written and maintained by industry experts with over a decade of WebSocket
-    experience
-  </Card>
-  <Card title="Comprehensive" icon="open-book">
-    From protocol basics to production deployment, everything you need in one
-    place
-  </Card>
-  <Card title="Up-to-date" icon="rocket">
-    Constantly updated with the latest standards, browser support, and best
-    practices
-  </Card>
-  <Card title="Practical" icon="setting">
-    Real-world examples, production-ready code, and battle-tested patterns
-  </Card>
+  <LinkCard title="JavaScript & Node.js" href="/guides/languages/javascript/" />
+  <LinkCard title="Python" href="/guides/languages/python/" />
+  <LinkCard title="Go" href="/guides/languages/go/" />
+  <LinkCard title="Rust" href="/guides/languages/rust/" />
+  <LinkCard title="Java" href="/guides/languages/java/" />
+  <LinkCard title="C# & .NET" href="/guides/languages/csharp/" />
+</CardGrid>
+
+## Infrastructure
+
+Deploying WebSockets in production means configuring proxies, load balancers,
+and timeouts correctly. These guides cover the specifics.
+
+<CardGrid>
+  <LinkCard
+    title="Nginx"
+    href="/guides/infrastructure/nginx/"
+    description="Proxy pass, upstream keepalive, and timeout tuning."
+  />
+  <LinkCard
+    title="AWS ALB"
+    href="/guides/infrastructure/aws/alb/"
+    description="Target groups, sticky sessions, and idle timeout gotchas."
+  />
+  <LinkCard
+    title="Cloudflare"
+    href="/guides/infrastructure/cloudflare/"
+    description="WebSocket support through Cloudflare's proxy and Workers."
+  />
+  <LinkCard
+    title="Kubernetes"
+    href="/guides/infrastructure/kubernetes/"
+    description="Ingress controllers, session affinity, and scaling pods."
+  />
 </CardGrid>

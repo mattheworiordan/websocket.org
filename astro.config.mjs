@@ -9,6 +9,32 @@ export default defineConfig({
     sitemap(),
     starlight({
       title: 'WebSocket.org',
+      favicon: '/favicon.svg',
+      head: [
+        {
+          tag: 'link',
+          attrs: {
+            rel: 'icon',
+            type: 'image/svg+xml',
+            href: '/favicon.svg',
+          },
+        },
+        {
+          tag: 'link',
+          attrs: {
+            rel: 'apple-touch-icon',
+            href: '/apple-touch-icon.png',
+          },
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            name: 'theme-color',
+            content: '#0d9488',
+          },
+        },
+      ],
+      customCss: ['./src/styles/custom.css'],
       social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/ably/websocket.org' }],
       sidebar: [
         {
@@ -115,6 +141,7 @@ export default defineConfig({
         ContentPanel: './src/components/ContentWrapper.astro',
         PageFrame: './src/components/PageFrameWrapper.astro',
         PageTitle: './src/components/PageTitle.astro',
+        ThemeSelect: './src/components/ThemeSelect.astro',
       },
     }),
   ],

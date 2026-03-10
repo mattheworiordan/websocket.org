@@ -1,0 +1,11 @@
+---
+// Override Starlight's ThemeSelect to remove the dark/light toggle.
+// This is a content-focused site — light mode only for readability.
+---
+
+<script is:inline>
+  // Force light theme immediately (before any rendering)
+  document.documentElement.setAttribute('data-theme', 'light');
+  localStorage.removeItem('starlight-theme');
+  localStorage.setItem('starlight-theme', 'light');
+</script>

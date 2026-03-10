@@ -1,0 +1,398 @@
+/* ============================================================
+   websocket.org — Custom Theme (Light Only)
+   A content-focused site optimized for readability.
+   Accent: teal (connections, networks, real-time)
+
+   Starlight gray scale convention (light mode):
+     gray-1: light background
+     gray-2: dark text (sidebar links, secondary text)
+     gray-3: medium text (muted labels)
+     gray-4: lighter text (hints, captions)
+     gray-5: borders
+     gray-6: subtle background
+     gray-7: near-white page background
+   ============================================================ */
+
+:root,
+:root[data-theme='light'],
+:root[data-theme='dark'] {
+  /* Accent */
+  --sl-color-accent-low: #f0fdfa;
+  --sl-color-accent: #0d9488;
+  --sl-color-accent-high: #134e4a;
+
+  /* Page bg / foreground */
+  --sl-color-white: #ffffff;
+  --sl-color-black: #1e293b;
+
+  /* Gray scale — following Starlight's semantic convention */
+  --sl-color-gray-1: #eef0f3;
+  --sl-color-gray-2: #484f5e;
+  --sl-color-gray-3: #6b7280;
+  --sl-color-gray-4: #9ca3af;
+  --sl-color-gray-5: #d1d5db;
+  --sl-color-gray-6: #f3f4f6;
+  --sl-color-gray-7: #fafbfc;
+
+  /* Text */
+  --sl-color-text: #1f2937;
+  --sl-color-text-accent: #0d9488;
+
+  /* Typography */
+  --sl-font:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  --sl-font-mono: 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;
+
+  --sl-text-h1: 2rem;
+  --sl-text-h2: 1.45rem;
+  --sl-text-h3: 1.15rem;
+  --sl-line-height-headings: 1.3;
+
+  /* Backgrounds */
+  --sl-color-bg: #ffffff;
+  --sl-color-bg-nav: #ffffff;
+  --sl-color-bg-sidebar: #fafbfc;
+  --sl-color-hairline-light: #e5e7eb;
+  --sl-color-hairline: #d1d5db;
+}
+
+/* --- Typography --- */
+
+.sl-markdown-content {
+  line-height: 1.78;
+  color: #374151;
+}
+
+.sl-markdown-content p {
+  margin-block: 1.15em;
+}
+
+.sl-markdown-content h1 {
+  color: #111827;
+  letter-spacing: -0.02em;
+}
+
+.sl-markdown-content h2 {
+  color: #1f2937;
+  margin-top: 2.5em;
+  padding-bottom: 0.35em;
+  border-bottom: 1px solid #e5e7eb;
+  letter-spacing: -0.01em;
+}
+
+.sl-markdown-content h3 {
+  color: #374151;
+  margin-top: 1.8em;
+}
+
+/* --- Links --- */
+.sl-markdown-content a:not([class]) {
+  color: #0d9488;
+  text-decoration: underline;
+  text-decoration-color: #99f6e4;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+  transition:
+    text-decoration-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.sl-markdown-content a:not([class]):hover {
+  color: #0f766e;
+  text-decoration-color: #0d9488;
+}
+
+/* --- Code Blocks --- */
+.sl-markdown-content pre {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.875em;
+}
+
+.sl-markdown-content :not(pre) > code {
+  background: #f1f5f9;
+  color: #0f766e;
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+/* --- Tables --- */
+.sl-markdown-content table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.925em;
+}
+
+.sl-markdown-content th {
+  background: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+  text-align: left;
+}
+
+.sl-markdown-content th,
+.sl-markdown-content td {
+  padding: 0.65em 0.85em;
+  border: 1px solid #e5e7eb;
+}
+
+.sl-markdown-content tr:nth-child(even) {
+  background: #fafbfc;
+}
+
+/* --- Blockquotes --- */
+.sl-markdown-content blockquote {
+  border-left: 3px solid #0d9488;
+  background: #f0fdfa;
+  padding: 0.75em 1.25em;
+  border-radius: 0 6px 6px 0;
+  font-style: normal;
+  color: #374151;
+}
+
+/* --- Sidebar --- */
+nav.sidebar {
+  font-size: 0.9rem;
+}
+
+/* Active sidebar link */
+[aria-current='page'] {
+  font-weight: 600 !important;
+  color: #0d9488 !important;
+  background: #f0fdfa !important;
+}
+
+.sidebar-pane {
+  background: #fafbfc;
+}
+
+/* --- Site title — dark, not accent --- */
+.site-title {
+  color: #1f2937 !important;
+}
+
+.site-title:hover {
+  color: #111827 !important;
+}
+
+/* --- Header social/GitHub icon — neutral dark --- */
+.social-icons a {
+  color: #484f5e !important;
+}
+
+.social-icons a:hover {
+  color: #111827 !important;
+}
+
+/* --- Sidebar group labels --- */
+.top-level > li > details > summary,
+.top-level > li > details > summary span,
+nav.sidebar summary,
+nav.sidebar summary span,
+[data-scope='sidebar'] summary,
+[data-scope='sidebar'] summary span {
+  color: #1f2937 !important;
+  font-weight: 600 !important;
+}
+
+/* --- Header --- */
+header.header {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Remove divider next to social icons (was separating theme toggle, now removed) */
+.social-icons::before,
+.social-icons::after,
+.right-group > :last-child::before,
+.right-group > :last-child::after,
+header .sl-flex:has(> .social-icons)::after,
+header .sl-flex:has(> .social-icons)::before {
+  display: none !important;
+  content: none !important;
+  border: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* The divider is typically a border-inline-start on the social icons container */
+.social-icons {
+  border: none !important;
+  border-inline-start: none !important;
+  padding-inline-start: 0 !important;
+  margin-inline-start: 0 !important;
+}
+
+/* --- Cards (homepage) --- */
+
+/* Starlight Card component uses --sl-color-black as bg.
+   Override to light style for our light-only site. */
+article.card {
+  background: #f9fafb !important;
+  border: 1px solid #e5e7eb !important;
+  color: #374151 !important;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+article.card:hover {
+  border-color: #99f6e4 !important;
+  box-shadow: 0 2px 12px rgba(13, 148, 136, 0.08);
+}
+
+article.card .title,
+article.card .title span {
+  color: #1f2937 !important;
+}
+
+article.card .title svg {
+  color: #0d9488 !important;
+}
+
+/* LinkCard styling */
+.sl-link-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.sl-link-card:hover {
+  border-color: #99f6e4;
+  box-shadow: 0 2px 12px rgba(13, 148, 136, 0.08);
+}
+
+/* LinkCard text — Starlight uses --sl-color-white for title (dark mode).
+   With correct gray scale, description should be fine via gray-3/gray-4. */
+.sl-link-card .title {
+  color: #1f2937 !important;
+}
+
+.sl-link-card .description {
+  color: #6b7280 !important;
+}
+
+.sl-link-card:hover .title {
+  color: #0d9488 !important;
+}
+
+/* --- Hero (splash pages) --- */
+.hero {
+  padding-block: 3rem 2rem;
+  background: #ffffff !important;
+}
+
+.hero h1 {
+  color: #111827 !important;
+  letter-spacing: -0.025em;
+}
+
+.hero .tagline {
+  font-size: 1.15rem;
+  line-height: 1.65;
+  color: #4b5563 !important;
+  max-width: 44ch;
+}
+
+/* Hero buttons */
+.sl-link-button.primary {
+  background: #0d9488 !important;
+  border-color: #0d9488 !important;
+  color: #ffffff !important;
+}
+
+.sl-link-button.primary:hover {
+  background: #0f766e !important;
+  border-color: #0f766e !important;
+}
+
+.sl-link-button.secondary {
+  background: transparent !important;
+  border: 1px solid #d1d5db !important;
+  color: #374151 !important;
+}
+
+.sl-link-button.secondary:hover {
+  border-color: #0d9488 !important;
+  color: #0d9488 !important;
+}
+
+/* Splash page section headings — no bottom border */
+.hero ~ .sl-markdown-content h2 {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* --- TOC (right sidebar) --- */
+starlight-toc a {
+  color: #6b7280 !important;
+}
+
+starlight-toc a:hover {
+  color: #0d9488 !important;
+}
+
+starlight-toc a[aria-current='true'] {
+  color: #0d9488 !important;
+  font-weight: 500;
+}
+
+/* --- Smooth scrolling & force light mode --- */
+html {
+  scroll-behavior: smooth;
+  color-scheme: light;
+}
+
+/* --- Focus --- */
+:focus-visible {
+  outline: 2px solid #0d9488;
+  outline-offset: 2px;
+}
+
+/* --- Footer edit link area --- */
+.meta.sl-flex {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 1.5rem;
+  margin-top: 3rem;
+}
+
+/* --- Mobile navigation --- */
+starlight-menu-button button,
+button[aria-controls='starlight__sidebar'] {
+  color: #374151 !important;
+  background: #f3f4f6 !important;
+}
+
+.toggle,
+.dropdown {
+  background: #ffffff !important;
+  color: #374151 !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+/* --- Search bar --- */
+site-search button {
+  color: #6b7280 !important;
+  background: #f3f4f6 !important;
+  border-color: #e5e7eb !important;
+}
+
+site-search button:hover {
+  border-color: #d1d5db !important;
+}
+
+site-search button kbd {
+  background: #ffffff !important;
+  color: #9ca3af !important;
+  border-color: #e5e7eb !important;
+}
+
+/* --- Page title (uses --sl-color-white which is white in our theme) --- */
+.content-panel h1,
+.main-pane h1 {
+  color: #111827 !important;
+}

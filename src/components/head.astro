@@ -45,6 +45,11 @@ if (frontmatter.category && ['guide', 'reference', 'tutorial'].includes(frontmat
 }
 ---
 
+<script is:inline>
+  // Force light mode before any rendering to prevent dark mode flash
+  document.documentElement.setAttribute('data-theme', 'light');
+  localStorage.setItem('starlight-theme', 'light');
+</script>
 <Default {...Astro.props}><slot /></Default>
 <GA4 {...Astro.props} />
 {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
