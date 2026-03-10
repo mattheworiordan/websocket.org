@@ -1,25 +1,53 @@
 ---
-title: 'The Future of WebSockets: HTTP/3 and WebTransport'
+title: 'Future of WebSockets: HTTP/3, WebTransport & Beyond'
 description:
-  A deep dive into the evolution of WebSockets, exploring how HTTP/3 and
-  WebTransport are redefining realtime communication on the web. Learn about new
-  standards, implementation challenges, and what developers need to know going
-  forward.
+  'How WebSockets are evolving with HTTP/3 and WebTransport. Covers RFC 9220,
+  QUIC-based transports, unreliable datagrams, and what developers should adopt
+  today vs. wait for.'
 author: Matthew O'Riordan
+authorRole: Co-founder & CEO, Ably
 date: '2024-09-02'
+lastUpdated: 2026-03-10
 category: guide
+keywords:
+  - future of websockets
+  - websocket http3
+  - webtransport
+  - websocket vs webtransport
 seo:
   keywords:
-    - websocket
-    - tutorial
-    - guide
-    - how-to
-    - future
-    - websockets
-    - http3
-    - javascript
-    - nodejs
-    - python
+    - future of websockets
+    - websocket http3
+    - webtransport
+    - websocket vs webtransport
+    - RFC 9220
+    - quic websocket
+    - websocket evolution
+    - webtransport api
+faq:
+  - q: 'Will WebTransport replace WebSockets?'
+    a:
+      'Not entirely. WebTransport complements WebSockets by offering features
+      like unreliable datagrams and multiplexed streams over QUIC. WebSockets
+      remain the best choice for most real-time apps. WebTransport suits
+      advanced scenarios like gaming and media streaming.'
+  - q: 'Do WebSockets work over HTTP/3?'
+    a:
+      'Yes. RFC 9220 defines how to bootstrap WebSocket connections over HTTP/3.
+      Browser and server support is still rolling out. Most production
+      deployments still use WebSockets over HTTP/1.1 or HTTP/2 (RFC 8441).'
+  - q: 'Should I use WebSockets or WebTransport for my application?'
+    a:
+      'Use WebSockets for most applications - they have universal browser
+      support and mature tooling. Consider WebTransport only if you need
+      unreliable datagrams, multiplexed streams, or sub-millisecond latency.
+      WebTransport browser support is still limited.'
+  - q: 'What is RFC 9220?'
+    a:
+      'RFC 9220 defines how to bootstrap WebSocket connections over HTTP/3
+      (QUIC). It allows WebSocket connections to benefit from QUIC features like
+      reduced latency and better congestion control, without changing the
+      WebSocket API.'
 tags:
   - websocket
   - guide
@@ -29,6 +57,12 @@ tags:
   - webtransport
   - future
 ---
+
+:::note[Quick Answer] WebSockets remain the standard for real-time web apps.
+**HTTP/3** support (RFC 9220) is emerging but not yet widely deployed.
+**WebTransport** complements WebSockets for advanced use cases (unreliable
+datagrams, multiplexed streams) but has limited browser support. Stick with
+WebSockets for most applications today. :::
 
 WebSockets have revolutionized real-time web communication, enabling efficient,
 two-way messaging between clients and servers since their formal introduction in
@@ -461,3 +495,44 @@ insights and seamless integrations.
 The future of WebSockets is not about replacing a proven technology, but rather
 enriching the real-time web ecosystem with powerful new capabilities tailored
 for modern, demanding applications.
+
+## Frequently Asked Questions
+
+### Will WebTransport replace WebSockets?
+
+Not entirely. WebTransport complements WebSockets by offering features like
+unreliable datagrams and multiplexed streams over QUIC. WebSockets remain the
+best choice for most real-time apps. WebTransport suits advanced scenarios like
+gaming and media streaming.
+
+### Do WebSockets work over HTTP/3?
+
+Yes. RFC 9220 defines how to bootstrap WebSocket connections over HTTP/3.
+Browser and server support is still rolling out. Most production deployments
+still use WebSockets over HTTP/1.1 or HTTP/2 (RFC 8441).
+
+### Should I use WebSockets or WebTransport for my application?
+
+Use WebSockets for most applications - they have universal browser support and
+mature tooling. Consider WebTransport only if you need unreliable datagrams,
+multiplexed streams, or sub-millisecond latency. WebTransport browser support is
+still limited.
+
+### What is RFC 9220?
+
+RFC 9220 defines how to bootstrap WebSocket connections over HTTP/3 (QUIC). It
+allows WebSocket connections to benefit from QUIC features like reduced latency
+and better congestion control, without changing the WebSocket API.
+
+## Related Content
+
+- [The Road to WebSockets](/guides/road-to-websockets/) - How the web evolved
+  from HTTP polling to WebSockets
+- [WebSocket Protocol: RFC 6455](/guides/websocket-protocol/) - The current
+  standard these new protocols build on
+- [WebSocket vs WebTransport](/comparisons/webtransport/) - Detailed comparison
+  of WebSocket and WebTransport
+- [WebSocket vs SSE](/comparisons/sse/) - Another alternative for
+  server-to-client streaming
+- [WebSocket Libraries & Tools](/resources/websocket-resources/) - Current
+  ecosystem including HTTP/3-ready libraries

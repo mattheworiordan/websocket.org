@@ -1,13 +1,20 @@
 ---
-title: AWS Application Load Balancer WebSocket Configuration
+title: 'AWS ALB WebSocket: Config, Sticky Sessions & Scaling'
 description:
-  Complete guide to configuring AWS ALB for WebSocket applications with
-  CloudFormation, CDK, sticky sessions, and cost optimization
+  'Configure AWS Application Load Balancer for WebSockets. Covers target groups,
+  sticky sessions, health checks, CloudFormation/CDK templates, monitoring, and
+  cost optimization.'
 author: Matthew O'Riordan
 authorRole: Co-founder & CEO, Ably
 publishedDate: 2025-09-01T00:00:00.000Z
 updatedDate: 2025-09-01T00:00:00.000Z
+lastUpdated: 2026-03-10
 category: infrastructure
+keywords:
+  - aws alb websocket
+  - aws websocket load balancer
+  - alb sticky sessions websocket
+  - aws websocket configuration
 tags:
   - aws
   - alb
@@ -17,11 +24,6 @@ tags:
   - infrastructure
   - monitoring
 seo:
-  title: 'AWS ALB WebSocket Configuration: Production Setup Guide'
-  description:
-    Configure AWS Application Load Balancer for WebSocket applications with
-    sticky sessions, health checks, CloudFormation templates, monitoring, and
-    cost optimization.
   keywords:
     - aws alb websocket
     - application load balancer websocket
@@ -29,8 +31,38 @@ seo:
     - alb sticky sessions
     - cloudformation websocket
     - aws websocket cost
+    - alb target group websocket
+    - aws websocket scaling
+faq:
+  - q: 'Does AWS ALB support WebSockets?'
+    a:
+      'Yes. AWS Application Load Balancer natively supports WebSockets. It
+      automatically detects the HTTP Upgrade header and upgrades connections to
+      WebSocket without additional configuration. Use target groups with HTTP
+      protocol.'
+  - q: 'How do I configure sticky sessions for WebSockets on ALB?'
+    a:
+      'Enable sticky sessions on your target group using application-based
+      cookies or duration-based stickiness. This ensures reconnecting WebSocket
+      clients reach the same backend instance, which is important for stateful
+      connections.'
+  - q: 'What is the ALB idle timeout for WebSockets?'
+    a:
+      'The default ALB idle timeout is 60 seconds. For WebSocket connections,
+      increase this to match your application needs (up to 4000 seconds). Set it
+      in the load balancer attributes or via CloudFormation/CDK.'
+  - q: 'How do I monitor WebSocket connections on AWS ALB?'
+    a:
+      'Use CloudWatch metrics like ActiveConnectionCount, NewConnectionCount,
+      and TargetResponseTime. Set alarms on connection errors and unhealthy host
+      counts. Enable access logs for detailed connection-level analysis.'
 date: '2024-09-02'
 ---
+
+:::note[Quick Answer] AWS ALB supports WebSockets natively - no special
+configuration needed. Set the idle timeout higher than 60s for long-lived
+connections, enable sticky sessions on the target group, and configure health
+checks on your WebSocket endpoint. :::
 
 AWS Application Load Balancer (ALB) provides native WebSocket support with
 automatic connection upgrades, making it an excellent choice for WebSocket
@@ -919,6 +951,33 @@ def analyze_websocket_logs(log_file):
 9. **Use SSL/TLS**: Always use WSS in production with proper certificates
 10. **Tag Resources**: Use consistent tagging for cost allocation and management
 
+## Frequently Asked Questions
+
+### Does AWS ALB support WebSockets?
+
+Yes. AWS Application Load Balancer natively supports WebSockets. It
+automatically detects the HTTP Upgrade header and upgrades connections to
+WebSocket without additional configuration. Use target groups with HTTP
+protocol.
+
+### How do I configure sticky sessions for WebSockets on ALB?
+
+Enable sticky sessions on your target group using application-based cookies or
+duration-based stickiness. This ensures reconnecting WebSocket clients reach the
+same backend instance, which is important for stateful connections.
+
+### What is the ALB idle timeout for WebSockets?
+
+The default ALB idle timeout is 60 seconds. For WebSocket connections, increase
+this to match your application needs (up to 4000 seconds). Set it in the load
+balancer attributes or via CloudFormation/CDK.
+
+### How do I monitor WebSocket connections on AWS ALB?
+
+Use CloudWatch metrics like ActiveConnectionCount, NewConnectionCount, and
+TargetResponseTime. Set alarms on connection errors and unhealthy host counts.
+Enable access logs for detailed connection-level analysis.
+
 ## Additional Resources
 
 - [AWS ALB Documentation](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/)
@@ -926,10 +985,15 @@ def analyze_websocket_logs(log_file):
 - [ALB Pricing](https://aws.amazon.com/elasticloadbalancing/pricing/)
 - [CloudFormation ALB Resources](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-elasticloadbalancingv2-loadbalancer.html)
 
----
+## Related Content
 
-_This guide is maintained by
-[Matthew O'Riordan](https://twitter.com/mattyoriordan), Co-founder & CEO of
-[Ably](https://ably.com), the real-time data platform. For corrections or
-suggestions, please
-[open an issue](https://github.com/websockets/websocket.org/issues)._
+- [Nginx WebSocket Proxy](/guides/infrastructure/nginx/) - Alternative reverse
+  proxy configuration
+- [Kubernetes WebSocket Ingress](/guides/infrastructure/kubernetes/) - Container
+  orchestration with NGINX and Traefik Ingress
+- [Cloudflare WebSockets](/guides/infrastructure/cloudflare/) - CDN and edge
+  WebSocket support
+- [WebSockets at Scale](/guides/websockets-at-scale/) - Architecture patterns
+  for millions of connections
+- [WebSocket Security](/guides/security/) - TLS termination and authentication
+  strategies

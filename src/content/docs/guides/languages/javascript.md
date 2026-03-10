@@ -1,24 +1,55 @@
 ---
-title: JavaScript WebSocket Implementation Guide
+title: 'JavaScript WebSocket: Browser API & Node.js Guide'
 description:
-  Complete guide to WebSocket implementation in JavaScript for browser and
-  Node.js applications. Learn the WebSocket API, build real-time applications,
-  handle reconnection, and implement production-ready patterns.
+  'Build WebSocket apps in JavaScript. Covers the browser WebSocket API, ws
+  library for Node.js, reconnection, binary data, and production patterns for
+  real-time applications.'
 sidebar:
   order: 1
 author: Matthew O'Riordan
+authorRole: Co-founder & CEO, Ably
 date: '2024-09-02'
+lastUpdated: 2026-03-10
 category: guide
+keywords:
+  - javascript websocket
+  - websocket api javascript
+  - nodejs websocket
+  - ws library
+  - browser websocket
 seo:
   keywords:
-    - websocket javascript
-    - javascript websocket client
-    - websocket api
+    - javascript websocket
+    - websocket api javascript
     - nodejs websocket
-    - browser websocket
-    - real-time javascript
-    - websocket implementation
     - ws library
+    - browser websocket
+    - websocket client javascript
+    - websocket server nodejs
+    - real-time javascript
+faq:
+  - q: 'How do I create a WebSocket connection in JavaScript?'
+    a:
+      'Use the native WebSocket API: const ws = new
+      WebSocket("wss://example.com"). Listen for events with ws.onopen,
+      ws.onmessage, ws.onerror, and ws.onclose. The browser handles the HTTP
+      upgrade automatically.'
+  - q: 'What is the best WebSocket library for Node.js?'
+    a:
+      'The ws library is the most popular and performant choice for Node.js
+      WebSocket servers. It is fast, well-maintained, and closely follows the
+      WebSocket specification. For additional features like rooms and fallbacks,
+      use Socket.IO.'
+  - q: 'How do I handle WebSocket reconnection in JavaScript?'
+    a:
+      'Implement a reconnection loop with exponential backoff. On the close
+      event, wait an increasing delay before calling new WebSocket() again. Cap
+      the maximum delay and reset it after a successful connection.'
+  - q: 'Can I send binary data over WebSockets in JavaScript?'
+    a:
+      'Yes. Set ws.binaryType to "arraybuffer" or "blob" before receiving. Send
+      binary data with ws.send(arrayBuffer) or ws.send(blob). The WebSocket API
+      handles framing automatically.'
 tags:
   - websocket
   - javascript
@@ -31,6 +62,11 @@ tags:
   - guide
   - how-to
 ---
+
+:::note[Quick Answer] In the browser, use the native API:
+`new WebSocket("wss://example.com")`. For Node.js servers, use the **ws**
+library (`npm install ws`). Handle events with `onopen`, `onmessage`, `onerror`,
+and `onclose`. Add reconnection with exponential backoff for production use. :::
 
 ## Introduction to WebSockets in JavaScript
 
@@ -1278,3 +1314,42 @@ ecosystem ensures that it will remain the primary language for WebSocket
 development. Whether you're building your first WebSocket application or
 architecting a complex real-time system, JavaScript provides the flexibility and
 power needed to create exceptional real-time experiences on the web.
+
+## Frequently Asked Questions
+
+### How do I create a WebSocket connection in JavaScript?
+
+Use the native WebSocket API: `const ws = new WebSocket("wss://example.com")`.
+Listen for events with `ws.onopen`, `ws.onmessage`, `ws.onerror`, and
+`ws.onclose`. The browser handles the HTTP upgrade automatically.
+
+### What is the best WebSocket library for Node.js?
+
+The ws library is the most popular and performant choice for Node.js WebSocket
+servers. It is fast, well-maintained, and closely follows the WebSocket
+specification. For additional features like rooms and fallbacks, use Socket.IO.
+
+### How do I handle WebSocket reconnection in JavaScript?
+
+Implement a reconnection loop with exponential backoff. On the close event, wait
+an increasing delay before calling `new WebSocket()` again. Cap the maximum
+delay and reset it after a successful connection.
+
+### Can I send binary data over WebSockets in JavaScript?
+
+Yes. Set `ws.binaryType` to `"arraybuffer"` or `"blob"` before receiving. Send
+binary data with `ws.send(arrayBuffer)` or `ws.send(blob)`. The WebSocket API
+handles framing automatically.
+
+## Related Content
+
+- [WebSocket API: Events, Methods & Properties](/reference/websocket-api/) -
+  Complete browser API reference
+- [WebSocket Protocol: RFC 6455](/guides/websocket-protocol/) - The protocol
+  behind the JavaScript WebSocket API
+- [Python WebSocket Guide](/guides/languages/python/) - Compare JavaScript
+  patterns with Python asyncio
+- [WebSocket Libraries, Tools & Specs](/resources/websocket-resources/) -
+  Curated list including ws, Socket.IO, and uWebSockets.js
+- [WebSocket Close Codes](/reference/close-codes/) - Understanding close codes
+  for error handling

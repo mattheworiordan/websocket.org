@@ -1,30 +1,59 @@
 ---
-title: The Road to WebSockets
+title: 'The Road to WebSockets: From HTTP Polling to RFC 6455'
 description:
-  A look at how web technologies evolved since the inception of the World Wide
-  `Web``, culminating with the emergence of WebSockets, a vastly superior
-  improvement on HTTP for building realtime web apps.
+  'How the web evolved from HTTP polling and Comet to WebSockets. Covers Ajax,
+  long polling, Server-Sent Events, and why WebSockets became the standard for
+  real-time communication.'
 author: Matthew O'Riordan
+authorRole: Co-founder & CEO, Ably
 date: '2024-09-02'
+lastUpdated: 2026-03-10
 category: guide
+keywords:
+  - history of websockets
+  - websocket evolution
+  - http polling vs websocket
+  - comet web
+  - road to websockets
 seo:
   keywords:
-    - websocket
-    - tutorial
-    - guide
-    - how-to
-    - road
-    - websockets
-    - javascript
-    - nodejs
-    - go
-    - golang
+    - websocket history
+    - http polling
+    - comet web technology
+    - ajax real-time
+    - long polling
+    - server-sent events
+    - websocket vs polling
+    - road to websockets
+faq:
+  - q: 'What came before WebSockets?'
+    a:
+      'Before WebSockets, developers used HTTP polling, long polling, and Comet
+      techniques to simulate real-time communication. These approaches worked
+      but were inefficient, requiring repeated HTTP requests and causing
+      unnecessary latency and server load.'
+  - q: 'When was the WebSocket protocol standardized?'
+    a:
+      'The WebSocket protocol was standardized as RFC 6455 in December 2011. The
+      browser API was standardized by the W3C around the same time. Major
+      browsers added support between 2010 and 2012.'
+  - q: 'Why were WebSockets created?'
+    a:
+      'WebSockets were created to solve the inefficiency of HTTP for real-time
+      communication. HTTP requires a new connection for each request-response
+      cycle. WebSockets provide a persistent, full-duplex connection that
+      eliminates polling overhead and enables true real-time data exchange.'
 tags:
   - websocket
   - guide
   - tutorial
   - how-to
 ---
+
+:::note[Quick Answer] WebSockets evolved from earlier workarounds like HTTP
+polling, long polling, and Comet. These techniques simulated real-time
+communication over HTTP but were inefficient. WebSockets (RFC 6455, 2011) solved
+this with a persistent, full-duplex connection over a single TCP socket. :::
 
 > During the 1990s, the web rapidly grew into the dominant way to exchange
 > information. Increasing numbers of users became accustomed to the experience
@@ -655,3 +684,38 @@ use HTTP for the initial handshake was brilliant, allowing WebSockets to work
 with existing proxies and firewalls while still providing the benefits of a
 persistent connection. This pragmatic approach to design helped ensure rapid
 adoption across browsers and servers.
+
+## Frequently Asked Questions
+
+### What came before WebSockets?
+
+Before WebSockets, developers used HTTP polling, long polling, and Comet
+techniques to simulate real-time communication. These approaches worked but were
+inefficient, requiring repeated HTTP requests and causing unnecessary latency
+and server load.
+
+### When was the WebSocket protocol standardized?
+
+The WebSocket protocol was standardized as RFC 6455 in December 2011. The
+browser API was standardized by the W3C around the same time. Major browsers
+added support between 2010 and 2012.
+
+### Why were WebSockets created?
+
+WebSockets were created to solve the inefficiency of HTTP for real-time
+communication. HTTP requires a new connection for each request-response cycle.
+WebSockets provide a persistent, full-duplex connection that eliminates polling
+overhead and enables true real-time data exchange.
+
+## Related Content
+
+- [WebSocket Protocol: RFC 6455](/guides/websocket-protocol/) - The protocol
+  that emerged from this evolution
+- [Future of WebSockets](/guides/future-of-websockets/) - How WebSockets are
+  evolving with HTTP/3 and WebTransport
+- [WebSocket vs SSE](/comparisons/sse/) - How SSE compares as another
+  post-polling technology
+- [WebSocket vs Long Polling](/comparisons/long-polling/) - Detailed comparison
+  with the technique WebSockets replaced
+- [WebSocket API Reference](/reference/websocket-api/) - The browser API that
+  made WebSockets accessible to developers
