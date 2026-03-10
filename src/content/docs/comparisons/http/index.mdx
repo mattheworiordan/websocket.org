@@ -1,24 +1,54 @@
 ---
-title: 'WebSockets vs HTTP: Understanding the Fundamental Difference'
+title: 'WebSocket vs HTTP: Persistent Connections vs Request-Response'
 description:
-  'Comprehensive comparison of WebSockets and HTTP protocols. Learn when to use
-  persistent connections vs request-response patterns, with code examples and
-  architectural guidance.'
+  'Compare WebSockets and HTTP. HTTP uses request-response for APIs
+  and page loads. WebSockets maintain persistent bidirectional
+  connections for real-time data. Choose based on your use case.'
 author: "Matthew O'Riordan"
 authorRole: 'Co-founder & CEO, Ably'
 date: 2025-01-07
+lastUpdated: 2026-03-10
+category: comparison
 keywords:
-  [
-    'websocket vs http',
-    'websocket http difference',
-    'persistent connection vs request response',
-    'real-time vs rest api',
-    'websocket performance',
-    'http limitations',
-  ]
+  - websocket vs http
+  - websocket http difference
+  - persistent connection vs request response
+  - real-time vs rest api
+seo:
+  keywords:
+    - websocket vs http
+    - websocket http difference
+    - persistent connection vs request response
+    - real-time vs rest api
+    - websocket performance vs http
+    - when to use websocket
+faq:
+  - q: 'What is the difference between WebSocket and HTTP?'
+    a: 'HTTP uses a request-response model where the client initiates
+      every exchange. WebSockets maintain a persistent, full-duplex
+      connection where both client and server can send data at any
+      time. HTTP is stateless; WebSockets are stateful.'
+  - q: 'When should I use WebSockets instead of HTTP?'
+    a: 'Use WebSockets when you need real-time bidirectional
+      communication: live chat, multiplayer games, collaborative
+      editing, real-time dashboards, or financial data streaming.
+      Use HTTP for REST APIs, page loads, and request-response
+      workflows.'
+  - q: 'Are WebSockets faster than HTTP?'
+    a: 'For real-time data, yes. WebSockets eliminate the overhead
+      of establishing a new connection for each message. After the
+      initial handshake, messages have minimal framing overhead
+      (2-14 bytes vs hundreds of bytes for HTTP headers).'
 ---
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+:::note[Quick Answer]
+**HTTP** uses request-response for APIs and page loads. **WebSockets**
+maintain a persistent bidirectional connection for real-time data.
+Use HTTP for REST APIs; use WebSockets when the server needs to push
+data to the client without polling.
+:::
 
 ## Quick Summary
 
@@ -1136,6 +1166,42 @@ The choice between WebSockets and HTTP isn't always binary. Modern applications
 often benefit from using both protocols strategically, playing to each one's
 strengths while mitigating their weaknesses.
 
+## Frequently Asked Questions
+
+### What is the difference between WebSocket and HTTP?
+
+HTTP uses a request-response model where the client initiates every
+exchange. WebSockets maintain a persistent, full-duplex connection
+where both client and server can send data at any time. HTTP is
+stateless; WebSockets are stateful.
+
+### When should I use WebSockets instead of HTTP?
+
+Use WebSockets when you need real-time bidirectional communication:
+live chat, multiplayer games, collaborative editing, real-time
+dashboards, or financial data streaming. Use HTTP for REST APIs, page
+loads, and request-response workflows.
+
+### Are WebSockets faster than HTTP?
+
+For real-time data, yes. WebSockets eliminate the overhead of
+establishing a new connection for each message. After the initial
+handshake, messages have minimal framing overhead (2-14 bytes vs
+hundreds of bytes for HTTP headers).
+
+## Related Content
+
+- [WebSocket vs Long Polling](/comparisons/long-polling/) — compare
+  WebSockets with the most common HTTP-based real-time workaround
+- [WebSocket vs WebTransport](/comparisons/webtransport/) — next-gen
+  transport protocol built on HTTP/3 and QUIC
+- [The Road to WebSockets](/guides/road-to-websockets/) — how HTTP
+  polling evolved into the WebSocket protocol
+- [Building a WebSocket Application](/guides/building-a-websocket-app/)
+  — hands-on tutorial building a real-time app
+- [WebSocket Security Guide](/guides/security/) — securing persistent
+  connections with TLS and authentication
+
 ## Further Reading
 
 - [WebSocket Protocol RFC 6455](https://datatracker.ietf.org/doc/html/rfc6455)
@@ -1145,8 +1211,8 @@ strengths while mitigating their weaknesses.
 - [WebSocket Security Hardening](/guides/security/)
 - [Nginx WebSocket Configuration](/guides/infrastructure/nginx/)
 
-For production-ready real-time infrastructure that handles both WebSocket and
-HTTP complexity at scale, explore
+For production-ready real-time infrastructure that handles both
+WebSocket and HTTP complexity at scale, explore
 [Ably's platform](https://ably.com/?utm_source=websocket-org&utm_medium=websocket-vs-http),
-which provides automatic protocol selection, fallback mechanisms, and global
-scalability.
+which provides automatic protocol selection, fallback mechanisms, and
+global scalability.

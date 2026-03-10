@@ -1,24 +1,54 @@
 ---
-title: 'WebSockets vs WebRTC: Signaling vs Peer-to-Peer Communication'
+title: 'WebSocket vs WebRTC: When to Use Each Protocol'
 description:
-  "Compare WebSockets with WebRTC for real-time communication. Understand when
-  to use WebRTC's peer-to-peer capabilities versus WebSocket's client-server
-  model, and how they work together."
+  'Compare WebSockets and WebRTC for real-time apps. WebSockets
+  handle client-server messaging. WebRTC enables peer-to-peer
+  video, audio, and data. They often work together.'
 author: "Matthew O'Riordan"
 authorRole: 'Co-founder & CEO, Ably'
 date: 2025-01-07
+lastUpdated: 2026-03-10
+category: comparison
 keywords:
-  [
-    'websocket vs webrtc',
-    'webrtc data channel vs websocket',
-    'peer to peer vs client server',
-    'webrtc signaling websocket',
-    'real-time video websocket',
-    'webrtc vs websocket gaming',
-  ]
+  - websocket vs webrtc
+  - webrtc data channel vs websocket
+  - peer to peer vs client server
+  - webrtc signaling websocket
+seo:
+  keywords:
+    - websocket vs webrtc
+    - webrtc vs websocket
+    - webrtc data channel
+    - peer to peer vs client server
+    - webrtc signaling websocket
+    - websocket or webrtc
+faq:
+  - q: 'What is the difference between WebSocket and WebRTC?'
+    a: 'WebSockets provide client-server communication over a
+      persistent TCP connection. WebRTC enables peer-to-peer
+      connections for video, audio, and data directly between
+      browsers. WebSockets need a server relay; WebRTC can bypass
+      the server after connection setup.'
+  - q: 'Can I use WebSocket and WebRTC together?'
+    a: 'Yes, this is common. WebSockets are typically used as the
+      signaling channel to exchange WebRTC session descriptions
+      and ICE candidates. Once the peer-to-peer connection is
+      established, data flows directly via WebRTC.'
+  - q: 'Should I use WebSocket or WebRTC for chat?'
+    a: 'Use WebSockets for text chat - they are simpler, more
+      reliable, and work through all firewalls. Use WebRTC only
+      if you need video or audio chat, or if peer-to-peer data
+      transfer is specifically required.'
 ---
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+:::note[Quick Answer]
+Use **WebSockets** for client-server messaging (chat, notifications,
+live data). Use **WebRTC** for peer-to-peer video, audio, or direct
+data transfer. They're complementary - WebSockets often serve as the
+signaling channel for WebRTC connection setup.
+:::
 
 ## Overview
 
@@ -712,6 +742,41 @@ The relationship between WebSockets and WebRTC is fundamentally complementary. E
 
 For most real-time features, WebSockets provide the simpler, more reliable solution. Reserve WebRTC for when you specifically need peer-to-peer communication or media streaming.
 
+## Frequently Asked Questions
+
+### What is the difference between WebSocket and WebRTC?
+
+WebSockets provide client-server communication over a persistent TCP
+connection. WebRTC enables peer-to-peer connections for video, audio,
+and data directly between browsers. WebSockets need a server relay;
+WebRTC can bypass the server after connection setup.
+
+### Can I use WebSocket and WebRTC together?
+
+Yes, this is common. WebSockets are typically used as the signaling
+channel to exchange WebRTC session descriptions and ICE candidates.
+Once the peer-to-peer connection is established, data flows directly
+via WebRTC.
+
+### Should I use WebSocket or WebRTC for chat?
+
+Use WebSockets for text chat — they are simpler, more reliable, and
+work through all firewalls. Use WebRTC only if you need video or audio
+chat, or if peer-to-peer data transfer is specifically required.
+
+## Related Content
+
+- [WebSocket vs HTTP](/comparisons/http/) — understand the
+  request-response model WebSockets replace
+- [WebSocket vs WebTransport](/comparisons/webtransport/) — the next
+  evolution in browser-based real-time transport
+- [Building a WebSocket Application](/guides/building-a-websocket-app/)
+  — hands-on tutorial with cursor sharing
+- [WebSocket Security Guide](/guides/security/) — authentication, TLS,
+  and CSWSH protection
+- [WebSockets at Scale](/guides/websockets-at-scale/) — architecture
+  for millions of concurrent connections
+
 ## Further Reading
 
 - [WebRTC API Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API)
@@ -719,9 +784,14 @@ For most real-time features, WebSockets provide the simpler, more reliable solut
 - [Building a WebSocket Application](/guides/building-a-websocket-app/)
 - [WebSocket Security Guide](/guides/security/)
 
-While raw WebSocket or WebRTC implementation is complex, production applications often benefit from using established libraries like Socket.IO or commercial services that handle protocol complexities, connection management, and scaling challenges.
+While raw WebSocket or WebRTC implementation is complex, production
+applications often benefit from using established libraries like
+Socket.IO or commercial services that handle protocol complexities,
+connection management, and scaling challenges.
 
 ---
 
-*Written by [Matthew O'Riordan](/author/matthew-oriordan/), Co-founder & CEO of Ably, with experience building real-time systems reaching 2 billion+ devices monthly.*
+Written by [Matthew O'Riordan](/author/matthew-oriordan/), Co-founder
+& CEO of Ably, with experience building real-time systems reaching 2
+billion+ devices monthly.
 ```

@@ -1,22 +1,52 @@
 ---
-title: 'WebSockets vs gRPC: Client-Facing vs Microservice Communication'
+title: 'WebSocket vs gRPC: Browser Apps vs Microservices'
 description:
-  "Compare WebSockets with gRPC for real-time communication. Understand when to
-  use gRPC's efficient RPC model for microservices versus WebSocket's
-  flexibility for client applications."
+  'Compare WebSockets and gRPC for real-time communication. WebSockets
+  excel for browser clients. gRPC with Protocol Buffers is better for
+  service-to-service communication and microservices.'
 author: "Matthew O'Riordan"
 authorRole: 'Co-founder & CEO, Ably'
 date: 2025-01-07
+lastUpdated: 2026-03-10
+category: comparison
 keywords:
-  [
-    'websocket vs grpc',
-    'grpc streaming vs websocket',
-    'grpc vs websocket performance',
-    'microservices real-time',
-    'protobuf websocket',
-    'grpc browser support',
-  ]
+  - websocket vs grpc
+  - grpc streaming vs websocket
+  - grpc vs websocket performance
+  - microservices real-time
+seo:
+  keywords:
+    - websocket vs grpc
+    - grpc streaming vs websocket
+    - grpc vs websocket performance
+    - microservices real-time
+    - protobuf websocket
+    - grpc browser support
+faq:
+  - q: 'What is the difference between WebSocket and gRPC?'
+    a: 'WebSockets provide a generic bidirectional channel over TCP
+      for browser-to-server communication. gRPC is an RPC framework
+      using HTTP/2 and Protocol Buffers, optimized for
+      service-to-service communication. gRPC has limited browser
+      support; WebSockets work everywhere.'
+  - q: 'Can I use gRPC in the browser?'
+    a: 'Not natively. gRPC requires HTTP/2 trailers which browsers
+      do not expose. gRPC-Web is a compatibility layer that works
+      through a proxy, but it only supports unary and server
+      streaming calls, not bidirectional streaming.'
+  - q: 'Should I use WebSocket or gRPC for streaming?'
+    a: 'Use gRPC for backend service-to-service streaming with
+      strong typing via Protocol Buffers. Use WebSockets for
+      browser-facing real-time features where you need full
+      bidirectional communication and universal client support.'
 ---
+
+:::note[Quick Answer]
+Use **WebSockets** for browser-facing real-time features (chat,
+dashboards, live updates). Use **gRPC** for service-to-service
+communication where Protocol Buffers and strong typing matter.
+gRPC has limited browser support; WebSockets work everywhere.
+:::
 
 ## Quick Summary
 
@@ -422,6 +452,42 @@ challenges. For WebSockets specifically, libraries like Socket.IO or commercial
 services provide robust protocols on top of WebSockets with features like
 automatic reconnection, message queueing, and horizontal scaling support.
 
+## Frequently Asked Questions
+
+### What is the difference between WebSocket and gRPC?
+
+WebSockets provide a generic bidirectional channel over TCP for
+browser-to-server communication. gRPC is an RPC framework using HTTP/2
+and Protocol Buffers, optimized for service-to-service communication.
+gRPC has limited browser support; WebSockets work everywhere.
+
+### Can I use gRPC in the browser?
+
+Not natively. gRPC requires HTTP/2 trailers which browsers do not
+expose. gRPC-Web is a compatibility layer that works through a proxy,
+but it only supports unary and server streaming calls, not
+bidirectional streaming.
+
+### Should I use WebSocket or gRPC for streaming?
+
+Use gRPC for backend service-to-service streaming with strong typing
+via Protocol Buffers. Use WebSockets for browser-facing real-time
+features where you need full bidirectional communication and universal
+client support.
+
+## Related Content
+
+- [WebSocket vs HTTP](/comparisons/http/) — the request-response model
+  that gRPC builds upon with HTTP/2
+- [WebSocket vs WebTransport](/comparisons/webtransport/) — another
+  modern transport alternative for real-time apps
+- [WebSockets at Scale](/guides/websockets-at-scale/) — architecture
+  for millions of concurrent connections
+- [Building a WebSocket Application](/guides/building-a-websocket-app/)
+  — hands-on tutorial with cursor sharing
+- [WebSocket Security Guide](/guides/security/) — auth, TLS, and
+  protection patterns for persistent connections
+
 ## Further Reading
 
 - [gRPC Documentation](https://grpc.io/docs/)
@@ -431,6 +497,6 @@ automatic reconnection, message queueing, and horizontal scaling support.
 
 ---
 
-_Written by [Matthew O'Riordan](/author/matthew-oriordan/), Co-founder & CEO of
-Ably, with experience building real-time systems reaching 2 billion+ devices
-monthly._
+Written by [Matthew O'Riordan](/author/matthew-oriordan/), Co-founder
+& CEO of Ably, with experience building real-time systems reaching 2
+billion+ devices monthly.

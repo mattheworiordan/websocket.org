@@ -1,24 +1,54 @@
 ---
-title: 'WebSockets vs MQTT: Web vs IoT Communication Protocols'
+title: 'WebSocket vs MQTT: Web Apps vs IoT Messaging'
 description:
-  "Compare WebSockets with MQTT for real-time messaging. Understand when to use
-  MQTT's pub/sub model for IoT devices versus WebSockets for web applications,
-  including bridging strategies."
+  'Compare WebSockets and MQTT for real-time messaging. WebSockets
+  suit web and mobile apps. MQTT is designed for IoT with low
+  bandwidth, QoS levels, and pub/sub. MQTT can run over WebSockets.'
 author: "Matthew O'Riordan"
 authorRole: 'Co-founder & CEO, Ably'
 date: 2025-01-07
+lastUpdated: 2026-03-10
+category: comparison
 keywords:
-  [
-    'websocket vs mqtt',
-    'mqtt over websockets',
-    'iot protocols comparison',
-    'mqtt websocket bridge',
-    'pub sub vs websocket',
-    'mqtt vs websocket iot',
-  ]
+  - websocket vs mqtt
+  - mqtt over websockets
+  - iot protocols comparison
+  - mqtt websocket bridge
+seo:
+  keywords:
+    - websocket vs mqtt
+    - mqtt over websockets
+    - iot protocols comparison
+    - mqtt websocket bridge
+    - pub sub vs websocket
+    - mqtt vs websocket iot
+faq:
+  - q: 'What is the difference between WebSocket and MQTT?'
+    a: 'WebSockets provide a generic bidirectional communication
+      channel. MQTT is a pub/sub messaging protocol designed for
+      IoT with features like QoS levels, retained messages, and
+      last will. MQTT can run over WebSockets to reach browsers.'
+  - q: 'Can MQTT run over WebSockets?'
+    a: 'Yes. MQTT over WebSockets is common for bridging IoT
+      backends with web dashboards. The browser connects via
+      WebSocket, and the MQTT protocol runs on top. Most MQTT
+      brokers like Mosquitto and HiveMQ support this.'
+  - q: 'Should I use WebSocket or MQTT for IoT?'
+    a: 'Use MQTT for IoT devices - it handles unreliable networks,
+      has QoS message delivery guarantees, and uses minimal
+      bandwidth. Use WebSockets for the web dashboard or mobile
+      app that displays IoT data. Use MQTT over WebSockets to
+      bridge both.'
 ---
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+:::note[Quick Answer]
+Use **MQTT** for IoT devices (low bandwidth, QoS, pub/sub). Use
+**WebSockets** for web and mobile apps. To bridge both worlds, run
+**MQTT over WebSockets** so browsers can subscribe to IoT data
+streams directly.
+:::
 
 ## Quick Summary
 
@@ -601,6 +631,41 @@ real-time communication.
 For most web developers, WebSockets remain the primary choice, with MQTT
 relevant when extending into IoT device communication.
 
+## Frequently Asked Questions
+
+### What is the difference between WebSocket and MQTT?
+
+WebSockets provide a generic bidirectional communication channel. MQTT
+is a pub/sub messaging protocol designed for IoT with features like
+QoS levels, retained messages, and last will. MQTT can run over
+WebSockets to reach browsers.
+
+### Can MQTT run over WebSockets?
+
+Yes. MQTT over WebSockets is common for bridging IoT backends with web
+dashboards. The browser connects via WebSocket, and the MQTT protocol
+runs on top. Most MQTT brokers like Mosquitto and HiveMQ support this.
+
+### Should I use WebSocket or MQTT for IoT?
+
+Use MQTT for IoT devices — it handles unreliable networks, has QoS
+message delivery guarantees, and uses minimal bandwidth. Use WebSockets
+for the web dashboard or mobile app that displays IoT data. Use MQTT
+over WebSockets to bridge both.
+
+## Related Content
+
+- [WebSocket vs HTTP](/comparisons/http/) — the underlying protocol
+  both WebSockets and MQTT can transport over
+- [WebSocket vs Long Polling](/comparisons/long-polling/) — compare
+  polling approaches with persistent connections
+- [Building a WebSocket Application](/guides/building-a-websocket-app/)
+  — hands-on tutorial for real-time web features
+- [WebSocket Security Guide](/guides/security/) — securing persistent
+  connections with TLS and authentication
+- [WebSockets at Scale](/guides/websockets-at-scale/) — architecture
+  patterns for high-volume messaging
+
 ## Further Reading
 
 - [MQTT Protocol Specification](https://mqtt.org/mqtt-specification/)
@@ -609,11 +674,12 @@ relevant when extending into IoT device communication.
 - [WebSocket Security Guide](/guides/security/)
 
 While raw WebSocket or MQTT implementation requires significant effort,
-production applications often benefit from using established libraries or
-services that handle protocol complexities, bridging, and scaling challenges.
+production applications often benefit from using established libraries
+or services that handle protocol complexities, bridging, and scaling
+challenges.
 
 ---
 
-_Written by [Matthew O'Riordan](/author/matthew-oriordan/), Co-founder & CEO of
-Ably, with experience building real-time systems reaching 2 billion+ devices
-monthly._
+Written by [Matthew O'Riordan](/author/matthew-oriordan/), Co-founder
+& CEO of Ably, with experience building real-time systems reaching 2
+billion+ devices monthly.
