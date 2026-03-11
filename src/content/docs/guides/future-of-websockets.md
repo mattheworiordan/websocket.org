@@ -120,7 +120,7 @@ limitations:
 - **HTTP Compatibility:** Originally designed around HTTP/1.1, WebSockets lacked
   initial integration with HTTP/2 and HTTP/3.
 
-As [Ably explains](https://ably.com/topic/websockets), while these challenges
+As [Ably explains][ably-websockets], while these challenges
 are manageable, modern demands require new solutions. The increasing complexity
 of real-time applications, combined with users' expectations for instant
 responsiveness across unreliable networks, has pushed the traditional WebSocket
@@ -391,7 +391,7 @@ WebTransport faces several adoption challenges:
 - **Server requirements**: HTTP/3 infrastructure needed
 
 For a comprehensive analysis, see Ably's post:
-[Can WebTransport replace WebSockets?](https://ably.com/blog/can-webtransport-replace-websockets).
+[Can WebTransport replace WebSockets?][ably-webtransport].
 
 ## Adoption Challenges and Solutions
 
@@ -491,7 +491,7 @@ that handle underlying protocol complexities.
 WebSockets remain a cornerstone technology for real-time web interactions, now
 enhanced by HTTP/3 and complemented by WebTransport. Developers should remain
 flexible, adapting to these evolving standards, and leverage resources like
-[Ably’s WebSocket resources](https://ably.com/topic/websockets) for deeper
+[Ably’s WebSocket resources][ably-websockets] for deeper
 insights and seamless integrations.
 
 The future of WebSockets is not about replacing a proven technology, but rather
@@ -538,3 +538,6 @@ and better congestion control, without changing the WebSocket API.
   server-to-client streaming
 - [WebSocket Libraries & Tools](/resources/websocket-resources/) - Current
   ecosystem including HTTP/3-ready libraries
+
+[ably-websockets]: https://ably.com/topic/websockets?utm_source=websocket-org&utm_medium=future-of-websockets
+[ably-webtransport]: https://ably.com/blog/can-webtransport-replace-websockets?utm_source=websocket-org&utm_medium=future-of-websockets

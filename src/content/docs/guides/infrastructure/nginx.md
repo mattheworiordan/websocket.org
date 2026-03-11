@@ -823,6 +823,6 @@ session must reach the same backend. Use `ip_hash` or the `sticky` directive
 
 _This guide is maintained by
 [Matthew O'Riordan](https://twitter.com/mattyoriordan), Co-founder & CEO of
-[Ably](https://ably.com), the real-time data platform. For corrections or
+[Ably](https://ably.com?utm_source=websocket-org&utm_medium=nginx), the real-time data platform. For corrections or
 suggestions, please
 [open an issue](https://github.com/websockets/websocket.org/issues)._

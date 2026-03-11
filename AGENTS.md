@@ -161,6 +161,31 @@ src/
 - Focus on real-world deployment challenges
 - Wrap prose at 80 characters (prettier enforces this for markdown)
 
+## Ably Link Tracking (UTM Parameters)
+
+All links to `ably.com`, `ably.io`, and `go.ably.com` MUST include UTM tracking
+parameters:
+
+```
+?utm_source=websocket-org&utm_medium={page-section}
+```
+
+Where `{page-section}` is derived from the content file's slug/path (e.g.,
+`road-to-websockets`, `websocket-api`, `community`, `echo-server`).
+
+- If the URL already has query parameters, use `&utm_source=...` instead of `?`
+- If adding UTM params pushes a line over 120 characters, use a markdown
+  reference-style link with the definition at the bottom of the file:
+
+  ```markdown
+  See [Ably's guide][ably-guide] for details.
+
+  [ably-guide]:
+    https://ably.com/topic/websockets?utm_source=websocket-org&utm_medium=my-page
+  ```
+
+- Do NOT add UTM params to email addresses (e.g., `matt@ably.com`)
+
 ## WebSocket-Specific Standards
 
 - Use `wss://echo.websocket.org` for examples (working echo server)

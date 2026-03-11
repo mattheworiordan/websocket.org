@@ -75,7 +75,7 @@ the
 which define many of the codes and parameter identifiers used by the protocol.
 
 This article covers key considerations related to the
-[WebSocket protocol](https://ably.com/topic/websockets), as described in
+[WebSocket protocol][ably-websockets], as described in
 RFC 6455. You'll find out how to establish a WebSocket connection and exchange
 messages, what kind of data can be sent over WebSockets, what types of
 extensions and subprotocols you can use to augment WebSockets.
@@ -789,3 +789,5 @@ traffic.
   Events
 - [Building a WebSocket App](/guides/building-a-websocket-app/) - Practical
   guide to building your first WebSocket application
+
+[ably-websockets]: https://ably.com/topic/websockets?utm_source=websocket-org&utm_medium=websocket-protocol

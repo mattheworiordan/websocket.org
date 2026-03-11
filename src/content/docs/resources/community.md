@@ -51,7 +51,7 @@ resources, and collaboration opportunities around WebSocket technology.
 
 ## About This Site
 
-WebSocket.org is sponsored by [Ably](https://ably.com) and led by
+WebSocket.org is sponsored by [Ably](https://ably.com?utm_source=websocket-org&utm_medium=community) and led by
 [Matthew O'Riordan](/author/matthew-oriordan/), but it's an open community
 resource. We welcome participation, contributions, and feedback from developers
 worldwide who are passionate about real-time web technologies.
@@ -175,5 +175,6 @@ Ably. All content is open for community contributions via pull requests.
 
 ---
 
-WebSocket.org is an open-source project sponsored by [Ably](https://ably.com) —
-the platform for real-time digital experiences.
+WebSocket.org is an open-source project sponsored by
+[Ably](https://ably.com?utm_source=websocket-org&utm_medium=community)
+— the platform for real-time digital experiences.

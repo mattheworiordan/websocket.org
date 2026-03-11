@@ -165,7 +165,7 @@ The most popular WebSocket libraries by language:
   fallback
 
 For a comprehensive comparison of the best WebSocket libraries for Node.js, see
-[this detailed guide](https://ably.com/blog/websocket-libraries-for-node).
+[this detailed guide](https://ably.com/blog/websocket-libraries-for-node?utm_source=websocket-org&utm_medium=websocket-resources).
 
 - [Reconnecting WebSocket](https://github.com/joewalnes/reconnecting-websocket) -
   Automatic reconnection handling
@@ -261,18 +261,18 @@ For a comprehensive comparison of the best WebSocket libraries for Node.js, see
   Security best practices
 - [Exponential Backoff in JavaScript](https://advancedweb.hu/exponential-backoff-javascript/) -
   Reconnection strategies
-- [Patterns for Building Realtime Features](https://ably.com/blog/patterns-for-building-realtime-features) -
+- [Patterns for Building Realtime Features][ably-realtime-patterns] -
   Architectural patterns and best practices
 
 ### Architecture & Scaling
 
 - [Migrating Millions of Websockets to Envoy](https://slack.engineering/websockets-to-envoy/) -
   Slack Engineering
-- [Engineering Fault Tolerance in Distributed Systems](https://www.ably.io/blog/engineering-fault-tolerance/) -
+- [Engineering Fault Tolerance in Distributed Systems][ably-fault-tolerance] -
   Dr. Paddy Byers
 - [The Future of Web Software Is HTML-over-WebSockets](https://alistapart.com/article/html-over-websockets/) -
   Architecture patterns
-- [Scaling WebSockets: The Challenge Explained](https://ably.com/topic/the-challenge-of-scaling-websockets) -
+- [Scaling WebSockets: The Challenge Explained][ably-scaling-challenge] -
   Common scaling challenges
 
 ## Video Tutorials
@@ -352,7 +352,8 @@ ws.onclose = (event) => {
   Q&A community
 - [WebSocket Reddit Community](https://www.reddit.com/r/websocket/) - Discussion
   forum
-- [Real-time Web Technologies Guide](https://www.ably.io/periodic-table-of-realtime) -
+- [Real-time Web Technologies
+  Guide](https://www.ably.io/periodic-table-of-realtime?utm_source=websocket-org&utm_medium=websocket-resources) -
   Periodic table of real-time tech
 
 ## Frequently Asked Questions
@@ -390,3 +391,7 @@ and HTTP/3 respectively.
   WebSockets with Server-Sent Events
 - [WebSockets at Scale](/guides/websockets-at-scale/) - Architecture patterns
   for scaling WebSocket connections
+
+[ably-realtime-patterns]: https://ably.com/blog/patterns-for-building-realtime-features?utm_source=websocket-org&utm_medium=websocket-resources
+[ably-fault-tolerance]: https://www.ably.io/blog/engineering-fault-tolerance/?utm_source=websocket-org&utm_medium=websocket-resources
+[ably-scaling-challenge]: https://ably.com/topic/the-challenge-of-scaling-websockets?utm_source=websocket-org&utm_medium=websocket-resources

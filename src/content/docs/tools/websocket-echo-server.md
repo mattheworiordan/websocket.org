@@ -244,7 +244,7 @@ limited to 64KB and connections timeout after 10 minutes of inactivity.
 
 ## Sponsored by Ably
 
-This echo server is sponsored by [Ably](https://ably.com/), a realtime data
+This echo server is sponsored by [Ably](https://ably.com/?utm_source=websocket-org&utm_medium=echo-server), a realtime data
 delivery platform that provides scalable, reliable and secure
-[WebSocket infrastructure](https://ably.com/topic/websockets) for apps and
+[WebSocket infrastructure](https://ably.com/topic/websockets?utm_source=websocket-org&utm_medium=echo-server) for apps and
 services.

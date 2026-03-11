@@ -151,7 +151,7 @@ need to reach the widest possible audience or operate in restrictive network
 environments, implementing fallback mechanisms becomes essential rather than
 optional. For an analysis of current WebSocket support and whether you still
 need fallbacks in 2024, see
-[this detailed evaluation](https://ably.com/blog/websocket-compatibility).
+[this detailed evaluation][ably-ws-compat].
 
 ## SockJS — a JavaScript library to provide WebSocket-like communication
 
@@ -288,7 +288,7 @@ procure. Additionally, vertical scaling is not elastic, so you have to do it
 ahead of time. You should consider horizontal scaling, which is better in the
 long run — but also significantly more difficult. Ably has a good architectural
 document explaining how they have approached
-[vertical vs horizontal scalability for WebSockets](https://ably.com/docs/platform/architecture/platform-scalability).'
+[vertical vs horizontal scalability for WebSockets][ably-scalability].'
 
 ## What makes WebSockets hard to scale?
 
@@ -326,14 +326,14 @@ There are multiple ways to solve this: either by using some form of direct
 connection between the cluster nodes that are handling the traffic, or by using
 an external pub/sub mechanism. This is sometimes called "adding a backplane" to
 your infrastructure, and is yet another moving part that makes
-[scaling WebSockets](https://ably.com/topic/the-challenge-of-scaling-websockets)
+[scaling WebSockets][ably-scaling-challenge]
 difficult.
 
 See [WebSockets at Scale](/guides/websockets-at-scale/) for a more in-depth read
 about the engineering challenges involved in scaling WebSockets. For production
 applications, you might want to consider using a realtime platform like
-[Ably](https://ably.com/) that is
-[architected for scaling WebSockets](https://ably.com/docs/platform/architecture/platform-scalability).
+[Ably](https://ably.com/?utm_source=websocket-org&utm_medium=building-a-websocket-app)
+that is [architected for scaling WebSockets][ably-scalability].
 
 ## Frequently Asked Questions
 
@@ -368,3 +368,7 @@ servers.
   the protocol behind your app
 - [WebSocket Close Codes](/reference/close-codes/) - Handling disconnections
   gracefully
+
+[ably-ws-compat]: https://ably.com/blog/websocket-compatibility?utm_source=websocket-org&utm_medium=building-a-websocket-app
+[ably-scalability]: https://ably.com/docs/platform/architecture/platform-scalability?utm_source=websocket-org&utm_medium=building-a-websocket-app
+[ably-scaling-challenge]: https://ably.com/topic/the-challenge-of-scaling-websockets?utm_source=websocket-org&utm_medium=building-a-websocket-app

@@ -89,7 +89,7 @@ development community began recognizing that the future of interactive
 applications required a protocol designed from the ground up for bidirectional,
 low-latency communication. In this article, we'll look at how web technologies
 evolved, culminating with the emergence of
-[WebSockets](https://ably.com/topic/websockets), a vastly superior improvement
+[WebSockets][ably-websockets], a vastly superior improvement
 on HTTP for building realtime web apps.
 
 ## The World Wide Web is born
@@ -139,8 +139,8 @@ blocks:
   identify each resource on the web.
 - **HTTP**. Protocol used for requesting and receiving resources over the web.
 
-This [initial version of HTTP](https://go.ably.com/wur) (commonly known as
-[HTTP/0.9](https://go.ably.com/wur)) that Berners-Lee developed was incredibly
+This [initial version of HTTP][go-ably-wur] (commonly known as
+[HTTP/0.9][go-ably-wur]) that Berners-Lee developed was incredibly
 basic. Requests consisted of a single line and started with the only supported
 method, `GET`, followed by the path to the resource:
 
@@ -189,15 +189,15 @@ adding new capabilities. Some key changes:
 These modifications were not done in an orderly or agreed-upon fashion, leading
 to different flavors of HTTP/0.9 in the wild, in turn causing interoperability
 problems. To resolve these issues, an
-[HTTP Working Group](https://go.ably.com/9fu) was set up, and in 1996, published
-[HTTP/1.0](https://go.ably.com/n6l) (defined via RFC 1945). It was an
+[HTTP Working Group][go-ably-9fu] was set up, and in 1996, published
+[HTTP/1.0][go-ably-n6l] (defined via RFC 1945). It was an
 informational RFC, merely documenting all the usages at the time. As such,
 HTTP/1.0 is not considered a formal specification or an internet standard.
 
 In parallel with the efforts made on HTTP/1.0, work to properly standardize HTTP
 was in progress. The first standardized version of the protocol, HTTP/1.1, was
-initially defined in [RFC 2068](https://go.ably.com/tqm) and released in
-January 1997. Several subsequent [HTTP/1.1 RFCs](https://go.ably.com/mc2) have
+initially defined in [RFC 2068][go-ably-tqm] and released in
+January 1997. Several subsequent [HTTP/1.1 RFCs][go-ably-mc2] have
 been released since then, most recently in 2014.
 
 HTTP/1.1 introduces many feature enhancements and performance optimizations,
@@ -299,13 +299,13 @@ AJAX (short for Asynchronous JavaScript and XML) is a method of asynchronously
 exchanging data with a server in the background and updating parts of a web page
 — without the need for an entire page refresh (postback).
 
-[Publicly used as a term for the first time in 2005, AJAX](https://go.ably.com/7a4)
+[Publicly used as a term for the first time in 2005, AJAX][go-ably-7a4]
 encompasses several technologies:
 
 - HTML (or XHTML) and CSS for presentation.
 - Document Object Model (DOM) for dynamic display and interaction.
 - XML or JSON for data interchange, and XSLT for XML manipulation.
-- [`XMLHttpRequest`](https://go.ably.com/kva) (XHR) object for asynchronous
+- [`XMLHttpRequest`][go-ably-kva] (XHR) object for asynchronous
   communication.
 - JavaScript to bind everything together.
 
@@ -372,7 +372,7 @@ was possible with web technologies.
 
 ## Comet
 
-[Coined in 2006, Comet](https://go.ably.com/wjk) is a web application design
+[Coined in 2006, Comet][go-ably-wjk] is a web application design
 model that allows a web server to push data to the browser. Similar to AJAX,
 Comet enables asynchronous communication. Unlike classic AJAX (where the client
 periodically polls the server for updates), Comet uses long-lived HTTP
@@ -386,7 +386,7 @@ Microsoft chat platforms through the browser. In a short time, Comet became a
 default standard for building responsive, interactive web apps.
 
 Several different techniques can be used to deliver the Comet model, the most
-well-known being [long polling](https://go.ably.com/2bg) and HTTP streaming.
+well-known being [long polling][go-ably-2bg] and HTTP streaming.
 Let's now quickly review how these two work.
 
 ### Long polling
@@ -432,7 +432,7 @@ Example\r\n
 :::note When chunked transfer encoding is used, each server response includes
 `Transfer-Encoding: chunked`, while the `Content-Length` header is omitted. :::
 
-[Server-Sent Events (SSE)](https://go.ably.com/irg) is another option you can
+[Server-Sent Events (SSE)][go-ably-irg] is another option you can
 leverage to implement HTTP streaming. SSE is a server push technology commonly
 used to send message updates or continuous data streams to a browser client. SSE
 aims to enhance native, cross-browser server-to-client streaming through a
@@ -515,7 +515,7 @@ user — far from ideal in the context of realtime applications.
 Although HTTP streaming techniques are better for lower latencies than (long)
 polling, they are limited themselves (just like any other HTTP-based mechanism)
 by HTTP headers, which increase message size and cause unnecessary delays.
-[Often, the HTTP headers in the response outweigh the core data being delivered](https://go.ably.com/zps).
+[Often, the HTTP headers in the response outweigh the core data being delivered][go-ably-zps].
 
 ### No bidirectional streaming
 
@@ -534,8 +534,8 @@ alternative to HTTP was needed.
 
 In 2008, the pain and limitations of using Comet when implementing anything
 resembling realtime were being felt particularly keenly by developers Michael
-Carter and Ian Hickson. Through collaboration on [IRC](https://go.ably.com/m92)
-and [W3C mailing lists](https://go.ably.com/sg9), they came up with a plan to
+Carter and Ian Hickson. Through collaboration on [IRC][go-ably-m92]
+and [W3C mailing lists][go-ably-sg9], they came up with a plan to
 introduce a new standard for modern, truly realtime communication on the web.
 Thus, the name "WebSocket'' was coined.
 
@@ -562,7 +562,7 @@ The WebSocket technology includes two core building blocks:
 
 ## Comparing WebSockets and HTTP
 
-While HTTP is _request-driven_, [WebSockets](https://ably.com/topic/websockets)
+While HTTP is _request-driven_, [WebSockets][ably-websockets]
 are _event-driven_. The table below illustrates fundamental differences between
 the two technologies.
 
@@ -590,7 +590,7 @@ about this in the next section.
 The WebSocket technology has broad applicability. You can use it for different
 purposes, such as streaming data between backend services, or connecting a
 backend with a frontend via long-lasting, full-duplex connections. In a
-nutshell, [WebSockets](https://ably.com/topic/websockets) are an excellent
+nutshell, [WebSockets][ably-websockets] are an excellent
 choice for architecting event-driven systems and building realtime apps and
 services where it's essential for data to be delivered immediately.
 
@@ -613,7 +613,7 @@ And here are some of the main benefits of using WebSockets:
   a new connection with every request, drastically reducing the size of each
   message (no HTTP headers). This helps save bandwidth, improves latency, and
   makes WebSockets more scalable than HTTP (note that
-  [scaling WebSockets](https://ably.com/topic/the-challenge-of-scaling-websockets)
+  [scaling WebSockets][ably-scaling-challenge]
   is far from trivial, but at scale, WebSockets are significantly less taxing on
   the server-side).
 - **Extensibility**. Flexibility is ingrained into the design of the WebSocket
@@ -629,7 +629,7 @@ And here are some of the main benefits of using WebSockets:
 ## Adoption
 
 Initially called `TCPConnection`, the WebSocket interface made its way into the
-[HTML5 specification](https://go.ably.com/0u9), which was first released as a
+[HTML5 specification][go-ably-0u9], which was first released as a
 draft in January 2008. The WebSocket protocol was standardized in 2011 via RFC
 6455; more about this in [The WebSocket Protocol](/guides/websocket-protocol).
 
@@ -643,7 +643,7 @@ Nowadays, WebSockets are a key technology for building scalable realtime web
 apps. The WebSocket API and protocol have a thriving community, which is
 reflected by a variety of client and server options (both open-source and
 commercial), developer ecosystems, and myriad real-life implementations from
-providers like [Ably](https://ably.com/).
+providers like [Ably](https://ably.com/?utm_source=websocket-org&utm_medium=road-to-websockets).
 
 ## The Browser Wars and JavaScript Renaissance
 
@@ -721,3 +721,20 @@ overhead and enables true real-time data exchange.
   with the technique WebSockets replaced
 - [WebSocket API Reference](/reference/websocket-api/) - The browser API that
   made WebSockets accessible to developers
+
+[ably-websockets]: https://ably.com/topic/websockets?utm_source=websocket-org&utm_medium=road-to-websockets
+[ably-scaling-challenge]: https://ably.com/topic/the-challenge-of-scaling-websockets?utm_source=websocket-org&utm_medium=road-to-websockets
+[go-ably-wur]: https://go.ably.com/wur?utm_source=websocket-org&utm_medium=road-to-websockets
+[go-ably-9fu]: https://go.ably.com/9fu?utm_source=websocket-org&utm_medium=road-to-websockets
+[go-ably-n6l]: https://go.ably.com/n6l?utm_source=websocket-org&utm_medium=road-to-websockets
+[go-ably-tqm]: https://go.ably.com/tqm?utm_source=websocket-org&utm_medium=road-to-websockets
+[go-ably-mc2]: https://go.ably.com/mc2?utm_source=websocket-org&utm_medium=road-to-websockets
+[go-ably-7a4]: https://go.ably.com/7a4?utm_source=websocket-org&utm_medium=road-to-websockets
+[go-ably-kva]: https://go.ably.com/kva?utm_source=websocket-org&utm_medium=road-to-websockets
+[go-ably-wjk]: https://go.ably.com/wjk?utm_source=websocket-org&utm_medium=road-to-websockets
+[go-ably-2bg]: https://go.ably.com/2bg?utm_source=websocket-org&utm_medium=road-to-websockets
+[go-ably-irg]: https://go.ably.com/irg?utm_source=websocket-org&utm_medium=road-to-websockets
+[go-ably-zps]: https://go.ably.com/zps?utm_source=websocket-org&utm_medium=road-to-websockets
+[go-ably-m92]: https://go.ably.com/m92?utm_source=websocket-org&utm_medium=road-to-websockets
+[go-ably-sg9]: https://go.ably.com/sg9?utm_source=websocket-org&utm_medium=road-to-websockets
+[go-ably-0u9]: https://go.ably.com/0u9?utm_source=websocket-org&utm_medium=road-to-websockets

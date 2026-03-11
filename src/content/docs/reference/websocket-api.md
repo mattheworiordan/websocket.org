@@ -114,7 +114,7 @@ socket.close(1000, 'Normal closure');
 
 ## The WebSocket API Overview
 
-The [WebSocket API](https://ably.com/topic/websockets) is an advanced technology
+The [WebSocket API][ably-websockets] is an advanced technology
 that enables persistent, bidirectional, full-duplex communication channels
 between web clients and servers. Unlike traditional HTTP requests, WebSocket
 connections remain open, allowing for real-time data exchange without the
@@ -2070,7 +2070,7 @@ class AdaptiveWebSocket {
 
 - [Socket.IO](https://socket.io/) - Real-time engine with fallbacks
 - [ws](https://github.com/websockets/ws) - Popular Node.js WebSocket library
-- [Ably](https://ably.com) - Enterprise-grade WebSocket infrastructure
+- [Ably](https://ably.com?utm_source=websocket-org&utm_medium=websocket-api) - Enterprise-grade WebSocket infrastructure
 
 ## FAQ
 
@@ -2121,3 +2121,5 @@ Libraries like reconnecting-websocket automate this.
   and common vulnerabilities
 - [WebSocket Echo Server](/tools/websocket-echo-server/) - Test your WebSocket
   code against a live echo server
+
+[ably-websockets]: https://ably.com/topic/websockets?utm_source=websocket-org&utm_medium=websocket-api
