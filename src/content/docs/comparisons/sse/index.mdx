@@ -926,6 +926,36 @@ const ws = new WebSocket('wss://other-domain.com/socket');
 // Server should validate Origin header manually
 ```
 
+### Proxy and Corporate Network Buffering
+
+SSE and HTTP streaming can be silently buffered by corporate proxies,
+firewalls, and some CDN configurations. The connection appears open, but
+events arrive in batches instead of real-time — or not at all until the
+buffer fills or the connection closes.
+
+This is particularly common in:
+
+- Corporate networks with SSL-inspecting proxies
+- Environments using legacy HTTP/1.0 proxies that don't understand
+  chunked transfer encoding
+- Some cloud WAF configurations
+
+At [Ably](https://ably.com/?utm_source=websocket-org&utm_medium=sse-comparison),
+we've seen this repeatedly — customers migrate from SSE to WebSockets
+after discovering their SSE connections work in development but buffer
+unpredictably in production environments. Our own SSE transport fallback
+encounters the same issue in restrictive networks.
+
+The `X-Accel-Buffering: no` header helps with Nginx (already shown in
+the Python server example above), but it can't solve buffering by
+intermediaries you don't control. If your users are in corporate
+environments, test SSE delivery latency there specifically — don't
+assume dev environment behavior matches production.
+
+WebSockets avoid this problem because the HTTP upgrade switches to a
+different protocol that proxies either pass through or block entirely
+— there's no silent buffering.
+
 ## When to Choose Which
 
 ### Choose SSE When
