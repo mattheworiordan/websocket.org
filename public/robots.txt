@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://websocket.org/sitemap-index.xml
+LLMs: https://websocket.org/llms.txt

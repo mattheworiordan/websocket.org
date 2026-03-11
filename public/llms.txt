@@ -1,0 +1,60 @@
+# websocket.org
+
+> The comprehensive resource for WebSocket technology. Guides, comparisons, tools, and reference documentation for building real-time web applications.
+
+## About This Site
+
+websocket.org is an open-source developer resource covering the WebSocket protocol (RFC 6455), real-time web technologies, and related protocols. Sponsored by Ably and led by Matthew O'Riordan.
+
+## Core Guides
+
+- [The Road to WebSockets](https://websocket.org/guides/road-to-websockets/): History from HTTP polling to RFC 6455
+- [WebSocket Protocol Deep Dive](https://websocket.org/guides/websocket-protocol/): RFC 6455 handshake, frames, close codes, and extensions
+- [Build a WebSocket App](https://websocket.org/guides/building-a-websocket-app/): Step-by-step Node.js cursor sharing tutorial
+- [WebSockets at Scale](https://websocket.org/guides/websockets-at-scale/): Architecture for millions of concurrent connections
+- [WebSocket Security](https://websocket.org/guides/security/): Authentication, TLS, CSWSH prevention, and rate limiting
+- [Future of WebSockets](https://websocket.org/guides/future-of-websockets/): HTTP/3, WebTransport, and upcoming standards
+- [WebSockets and AI](https://websocket.org/guides/websockets-and-ai/): Why LLMs are moving from SSE to WebSockets
+
+## Language Guides
+
+- [JavaScript & Node.js](https://websocket.org/guides/languages/javascript/): Browser API and Node.js ws library
+- [Python](https://websocket.org/guides/languages/python/): asyncio client and server with the websockets library
+- [Go](https://websocket.org/guides/languages/go/): Gorilla, nhooyr, and concurrency patterns
+- [Rust](https://websocket.org/guides/languages/rust/): tokio-tungstenite and actix-web
+- [Java](https://websocket.org/guides/languages/java/): Spring Boot and Jakarta EE
+- [C# & .NET](https://websocket.org/guides/languages/csharp/): ASP.NET Core, SignalR, and ClientWebSocket
+- [PHP](https://websocket.org/guides/languages/php/): Ratchet, Swoole, and ReactPHP
+
+## Infrastructure Guides
+
+- [Nginx](https://websocket.org/guides/infrastructure/nginx/): Proxy config, SSL termination, and load balancing
+- [AWS ALB](https://websocket.org/guides/infrastructure/aws/alb/): Configuration, sticky sessions, and scaling
+- [Cloudflare](https://websocket.org/guides/infrastructure/cloudflare/): CDN, Workers, and Durable Objects
+- [Kubernetes](https://websocket.org/guides/infrastructure/kubernetes/): NGINX, Traefik, and HAProxy ingress
+
+## Protocol Comparisons
+
+- [WebSocket vs HTTP](https://websocket.org/comparisons/http/): Persistent connections vs request-response
+- [WebSocket vs SSE](https://websocket.org/comparisons/sse/): Server-Sent Events comparison
+- [WebSocket vs Long Polling](https://websocket.org/comparisons/long-polling/): Performance and when to use each
+- [WebSocket vs WebTransport](https://websocket.org/comparisons/webtransport/): Next-gen transport on HTTP/3
+- [WebSocket vs WebRTC](https://websocket.org/comparisons/webrtc/): Client-server vs peer-to-peer
+- [WebSocket vs gRPC](https://websocket.org/comparisons/grpc/): Browser apps vs microservices
+- [WebSocket vs MQTT](https://websocket.org/comparisons/mqtt/): Web apps vs IoT messaging
+
+## Reference
+
+- [WebSocket API](https://websocket.org/reference/websocket-api/): Events, methods, and properties
+- [Close Codes](https://websocket.org/reference/close-codes/): 1000, 1001, 1006, and all others
+- [Standards Tracker](https://websocket.org/standards/): RFC 6455, extensions, and browser support
+
+## Tools
+
+- [Echo Server](https://websocket.org/tools/websocket-echo-server/): Free testing endpoint at echo.websocket.org
+- [Autobahn TestSuite](https://websocket.org/guides/testing/autobahn/): RFC 6455 protocol compliance testing
+
+## Resources
+
+- [Libraries & Tools](https://websocket.org/resources/websocket-resources/): Implementations by language
+- [Community](https://websocket.org/resources/community/): Forums, chat, and contributing

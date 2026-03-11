@@ -1,12 +1,41 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import sitemap from '@astrojs/sitemap';
+import fs from 'fs';
+import path from 'path';
+import matter from 'gray-matter';
+
+// Read lastUpdated from content frontmatter for sitemap lastmod
+function getLastmod(url) {
+  try {
+    const pathname = new URL(url).pathname.replace(/^\//, '').replace(/\/$/, '');
+    const basePath = path.join('src/content/docs', pathname);
+    for (const ext of ['.md', '.mdx', '/index.md', '/index.mdx']) {
+      const filePath = basePath + ext;
+      if (fs.existsSync(filePath)) {
+        const { data } = matter(fs.readFileSync(filePath, 'utf-8'));
+        if (data.lastUpdated) return new Date(data.lastUpdated).toISOString();
+        if (data.date) return new Date(data.date).toISOString();
+        break;
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return undefined;
+}
 
 // https://astro.build/config
 export default defineConfig({
   site: 'https://websocket.org',
   integrations: [
-    sitemap(),
+    sitemap({
+      serialize(item) {
+        const lastmod = getLastmod(item.url);
+        if (lastmod) item.lastmod = lastmod;
+        return item;
+      },
+    }),
     starlight({
       title: 'WebSocket.org',
       favicon: '/favicon.svg',

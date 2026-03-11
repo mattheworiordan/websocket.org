@@ -16,13 +16,15 @@ const frontmatter: any = customFrontmatter || entry?.data || {};
 const author = frontmatter.author || "Matthew O'Riordan";
 const authorSlug = 'matthew-oriordan'; // Fixed slug to match actual file
 const publishedDate = frontmatter.date;
+const lastUpdated = frontmatter.lastUpdated;
 
 // Determine if we should show the author info
-// Show for all content in guides, reference sections (excluding author pages)
+// Show for all content in guides, reference, comparisons, tools, resources (excluding author pages)
 const pathSegments = Astro.url.pathname.split('/');
 const shouldShowAuthorInfo =
-  (pathSegments[1] === 'guides' || pathSegments[1] === 'reference') &&
-  !Astro.url.pathname.includes('/author/');
+  ['guides', 'reference', 'comparisons', 'tools', 'resources', 'standards'].includes(
+    pathSegments[1]
+  ) && !Astro.url.pathname.includes('/author/');
 ---
 
 <h1 id={PAGE_TITLE_ID}>{entry.data.title}</h1>
@@ -42,6 +44,19 @@ const shouldShowAuthorInfo =
             month: 'long',
             day: 'numeric',
           })}
+        </span>
+      )}
+      {lastUpdated && (
+        <span class="article-updated">
+          {' '}
+          • Updated{' '}
+          <time datetime={new Date(lastUpdated).toISOString()}>
+            {new Date(lastUpdated).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
+          </time>
         </span>
       )}
     </div>
@@ -78,5 +93,15 @@ const shouldShowAuthorInfo =
 
   .article-date {
     margin-left: 0.25rem;
+  }
+
+  .article-updated {
+    margin-left: 0.25rem;
+    color: #0d9488;
+    font-weight: 500;
+  }
+
+  .article-updated time {
+    color: #0d9488;
   }
 </style>
