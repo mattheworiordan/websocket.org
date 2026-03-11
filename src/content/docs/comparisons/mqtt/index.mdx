@@ -96,31 +96,33 @@ designed for constrained devices:
 // MQTT in browser via WebSocket transport
 const mqtt = require('mqtt');
 
-// Note: MQTT over WebSocket for browser compatibility const client =
-mqtt.connect('wss://broker.example.com:8083/mqtt', { clientId: 'web-client-' +
-Math.random().toString(16).substr(2, 8), clean: true, reconnectPeriod: 1000, //
-Last Will and Testament will: { topic: 'clients/web-client/status', payload:
-'offline', qos: 1, retain: true } });
+const client = mqtt.connect('wss://broker.example.com:8083/mqtt', {
+  clientId: 'web-client-' + Math.random().toString(16).substr(2, 8),
+  clean: true,
+  reconnectPeriod: 1000,
+  // Last Will and Testament
+  will: {
+    topic: 'clients/web-client/status',
+    payload: 'offline',
+    qos: 1,
+    retain: true
+  }
+});
 
-client.on('connect', () => { console.log('Connected to MQTT broker');
-
-// Publish online status client.publish('clients/web-client/status', 'online', {
-qos: 1, retain: true });
-
-// Subscribe to topics client.subscribe('sensors/+/temperature', { qos: 1 });
-client.subscribe('commands/web-client/#', { qos: 2 }); });
+client.on('connect', () => {
+  console.log('Connected to MQTT broker');
+  client.subscribe('sensors/+/temperature', { qos: 1 });
+});
 
 client.on('message', (topic, message) => {
-console.log(`Topic: ${topic}, Message: ${message.toString()}`);
+  console.log(`Topic: ${topic}, Message: ${message.toString()}`);
+});
 
-// Route based on topic if (topic.startsWith('sensors/')) {
-updateSensorDisplay(topic, message); } else if (topic.startsWith('commands/')) {
-handleCommand(topic, message); } });
-
-// Publish with QoS client.publish('control/lights/living-room',
-JSON.stringify({ state: 'on', brightness: 80 }), { qos: 1 });
-
-````
+client.publish('control/lights/living-room',
+  JSON.stringify({ state: 'on', brightness: 80 }),
+  { qos: 1 }
+);
+```
 </TabItem>
 <TabItem label="Python (Paho)">
 ```python
@@ -160,7 +162,7 @@ client.connect("broker.example.com", 1883, 60)
 
 # Start loop
 client.loop_forever()
-````
+```
 
 </TabItem>
 </Tabs>
@@ -171,49 +173,35 @@ WebSockets provide direct, bidirectional communication between client and
 server:
 
 ```javascript
-// QoS 0: At most once (fire and forget)
-client.publish('sensors/data', payload, { qos: 0 });
-// Fastest, but message may be lost
-
-// QoS 1: At least once (acknowledged delivery)
-client.publish('alerts/warning', payload, { qos: 1 });
-// Guaranteed delivery, but may duplicate
-
-// QoS 2: Exactly once (assured delivery)
-client.publish('commands/critical', payload, { qos: 2 });
-// Slowest, but exactly once delivery guaranteed
-// WebSocket - Direct connection
-const ws = new WebSocket('wss://api.example.com/socket');
+// WebSocket client for an IoT dashboard
+const ws = new WebSocket('wss://api.example.com/dashboard');
 
 ws.onopen = () => {
-  console.log('WebSocket connected');
-
-  // Send identification
+  console.log('Dashboard connected');
   ws.send(JSON.stringify({
-    type: 'identify',
-    clientId: 'web-app-user-123'
+    type: 'subscribe',
+    topics: ['sensors/+/temperature']
   }));
 };
 
 ws.onmessage = (event) => {
   const data = JSON.parse(event.data);
 
-  // Handle different message types
-  switch(data.type) {
+  switch (data.type) {
     case 'sensor-update':
-      updateSensorDisplay(data);
+      document.getElementById(data.deviceId).textContent =
+        `${data.value}°C`;
       break;
-    case 'command':
-      handleCommand(data);
+    case 'alert':
+      showNotification(data.message);
       break;
+  }
+};
 
-// Direct message sending
-ws.send(JSON.stringify({
-  type: 'control',
-  textdevice: 'lightsliving-room',
-  state: 'on',
-  brightness: 80
-}));
+ws.onclose = () => {
+  console.log('Disconnected, reconnecting...');
+  setTimeout(connectDashboard, 3000);
+};
 ```
 
 ## Key Differences
@@ -227,74 +215,38 @@ ws.send(JSON.stringify({
 - Topic-based filtering
 - Many-to-many communication
 
-**WebSockets**: Point-to-point Structureconnections
+**WebSockets**: Point-to-point connections
 
 - Direct client-server communication
 - No built-in routing
 - Application-level message handling
 - One-to-one or server-mediated broadcast
 
-#### MQTT Message Structure
-
-```
-MQTT Fixed Header (2-5 bytes):
-┌─────────────────┬─────────────────┐
-│   Message Type  │ Remaining Length│
-│   + Flags (1B)  │   (1-4 bytes)   │
-└─────────────────┴─────────────────┘
-
-Variable Header (optional):
-┌─────────────────────────────────────┐
-│ Protocol-specific fields (varies)  │
-└─────────────────────────────────────┘
-
-Payload:
-┌─────────────────────────────────────┐
-│        Application Data             │
-└─────────────────────────────────────┘
-```
-
 ### Quality of Service
 
-#### WebSocket Frame Structure
-
-```
-WebSocket Frame (2-14 bytes header):
- 0                   1                   2                   3
- 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-------+-+-------------+-------------------------------+
-|F|R|R|R| opcode|M| Payload len |    Extended payload length    |
-|I|S|S|S|  (4)  |A|     (7)     |             (16/64)           |
-|N|V|V|V|       |S|             |   (if payload len==126/127)   |
-| |1|2|3|       |K|             |                               |
-+-+-+-+-+-------+-+-------------+ - - - - - - - - - - - - - - - +
-|     Extended payload length continued, if payload len == 127  |
-+ - - - - - - - - - - - - - - - +-------------------------------+
-|                               |Masking-key, if MASK set to 1  |
-+-------------------------------+-------------------------------+
-| Masking-key (continued)       |          Payload Data         |
-+-------------------------------- - - - - - - - - - - - - - - - +
-:                     Payload Data continued ...                :
-+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-|                     Payload Data continued ...                |
-+---------------------------------------------------------------+
 **MQTT**: Built-in QoS levels
+
 - QoS 0: At most once (fire and forget)
 - QoS 1: At least once (acknowledged)
 - QoS 2: Exactly once (4-way handshake)
 
-**WebSockets**: OverheadTCPreliabilityonly
+**WebSockets**: TCP reliability only
+
 - Messages delivered in order
 - No built-in acknowledgment
 - Application must implement QoS
 
 ### Connection Handling
+
 **MQTT**: Session awareness
+
 - Clean/persistent sessions
 - Automatic resubscription
 - Queued messages for offline clients
 - Last Will and Testament
+
 **WebSockets**: Simple connection model
+
 - No built-in session persistence
 - Manual reconnection handling
 - No offline message queuing
@@ -305,24 +257,22 @@ WebSocket Frame (2-14 bytes header):
 ### When MQTT is the Clear Winner
 
 ✅ **IoT and embedded devices**:
+
 - Sensor networks
 - Smart home devices
 - Industrial IoT
 - Agricultural monitoring
 - Vehicle telemetry
 
-// MQTT excels here due to:
-// - Pub/sub reduces connections from 200 to 1 (broker)
-// - Built-in QoS handles network interruptions
-// - Topic hierarchy organizes data logically
-// - Retained messages provide device status
 ✅ **Constrained environments**:
+
 - Low bandwidth networks
 - Battery-powered devices
 - Unreliable connections
 - High-latency links
 
 ✅ **Message patterns**:
+
 - One-to-many broadcasting
 - Topic-based routing
 - Offline message delivery
@@ -331,6 +281,7 @@ WebSocket Frame (2-14 bytes header):
 ### When WebSockets are Superior
 
 ✅ **Web applications**:
+
 - Browser-based real-time apps
 - Chat and messaging
 - Live dashboards
@@ -338,11 +289,14 @@ WebSocket Frame (2-14 bytes header):
 - Gaming
 
 ✅ **Interactive features**:
+
 - Bidirectional communication
 - Low-latency requirements
 - Request-response patterns
 - Direct server push
+
 ✅ **Existing web infrastructure**:
+
 - HTTP/HTTPS environments
 - Web server integration
 - CDN compatibility
@@ -354,29 +308,41 @@ The two protocols often work together in IoT platforms:
 
 ### Common Architecture Pattern
 
-// MQTT for device communication
-// WebSockets for web interface
+```javascript
+// Bridge: forward MQTT messages to WebSocket clients
+const mqtt = require('mqtt');
+const WebSocket = require('ws');
 
-IoTPlatformmqttBrokerMQTTBrokerwsServerWebSocketServer();
+const mqttClient = mqtt.connect('mqtt://broker.example.com');
+const wss = new WebSocket.Server({ port: 8080 });
 
-    // Bridge MQTT to WebSocket
-    this.bridgeMessages  bridgeMessages() {
-    // Subscribe to all MQTT topics
-    this.mqttBroker.subscribe('#', (topic, message) => {
-      // Forward to WebSocket clients interested in this topic
-      this.wsServer.broadcast({
-        type: 'mqtt-message',
-        topic: topic,
-        payload: message
-    // Handle WebSocket commands
-    this.wsServer.on('message', (client, data) => {
-      if (data.type === 'publish') {
-        // Publish to MQTT from WebSocket
-        this.mqttBroker.publish(data.topic, data.payload);
-      } else if (data.type === 'subscribe') {
-        // Track WebSocket subscriptions
-        client.subscriptions.add(data.topic);
-}
+const wsClients = new Set();
+
+wss.on('connection', (ws) => {
+  wsClients.add(ws);
+  ws.on('close', () => wsClients.delete(ws));
+
+  ws.on('message', (raw) => {
+    const msg = JSON.parse(raw);
+    if (msg.type === 'publish') {
+      mqttClient.publish(msg.topic, msg.payload, { qos: 1 });
+    }
+  });
+});
+
+// Subscribe to all sensor topics and forward
+mqttClient.subscribe('sensors/#');
+
+mqttClient.on('message', (topic, payload) => {
+  const update = JSON.stringify({
+    type: 'mqtt-message',
+    topic,
+    payload: payload.toString()
+  });
+  for (const ws of wsClients) {
+    if (ws.readyState === WebSocket.OPEN) ws.send(update);
+  }
+});
 ```
 
 ### MQTT over WebSockets
@@ -394,168 +360,65 @@ client.publish('commands/device', 'restart');
 
 ## Implementation Examples
 
-### Hybrid IoT DeviceDashboard
+### Hybrid IoT Dashboard
 
 <Tabs>
-<TabItem label="Temperature Sensor Side (MQTT)">
+<TabItem label="IoT Device (MQTT/Python)">
 ```python
-# IoT device using native MQTT
 import paho.mqtt.client as mqtt
 import time
 import random
-const { randomBytes } = require('crypto');
-
-class TemperatureSensor { constructor(config) { this.deviceId = config.deviceId
-|| `sensor-${randomBytes(4).toString('hex')}`; this.location = config.location;
-this.reportingInterval = config.reportingInterval || 30000; // 30 seconds
-
-    // MQTT configuration
-    this.client = mqtt.connect(config.brokerUrl, {
-      clientId: this.deviceId,
 
 client = mqtt.Client("temp-sensor-001")
+client.will_set("devices/temp-sensor-001/status",
+                "offline", qos=1, retain=True)
 
-def publish_sensor_data(): while True: temperature = 20 + random.uniform(-5, 5)
-humidity = 60 + random.uniform(-10, 10)
+def on_connect(client, userdata, flags, rc):
+    print(f"Sensor connected: {rc}")
+    client.publish("devices/temp-sensor-001/status",
+                   "online", qos=1, retain=True)
 
-        # Publish sensor data via MQTT
-        client.publish("sensors/temp-sensor-001/temperature",
-                      f"{temperature:.2f}", qos=1, retain=True)
-        client.publish("sensors/temp-sensor-001/humidity",
-                      f"{humidity:.2f}", qos=1, retain=True)
+client.on_connect = on_connect
+client.connect("broker.example.com", 1883, 60)
+client.loop_start()
 
-        time.sleep(10)  # Update every 10 seconds
-
-client.connect("mqtt.broker.com", 1883) client.loop_start()
-publish_sensor_data()
-
-````
+while True:
+    temp = 20 + random.uniform(-5, 5)
+    client.publish("sensors/temp-sensor-001/temperature",
+                   f"{temp:.1f}", qos=1, retain=True)
+    time.sleep(10)
+```
 </TabItem>
-<TabItem label="SmartWeb ThermostatDashboard ControllerWebSocket">
+<TabItem label="Web Dashboard (WebSocket)">
 ```javascript
-// mqttWeb dashboard using WebSocketclass SmartThermostat {
-  constructor(config) {
-    this.deviceId = config.deviceId;
-    this.location = config.location;
-    this.currentTemp = 20; // Start at 20°C
-    this.targetTemp = 22;
-    this.mode = 'auto'; // auto, heat, cool, off
-    this.isHeating = false;
-    this.isCooling = false;
-IoTDashboardwsWebSocket'wss://api.example.com/dashboard'setupWebSocket  setupWebSocket() {
-    this.ws.onopen = () => {
-      // Subscribe to sensor updates
-      this.ws.send(JSON.stringify({
-        action: 'subscribe',
-        topics: ['sensors/+/temperature', 'sensors/+/humidity']
-      }));
-    };
+// Browser dashboard receiving sensor data
+const ws = new WebSocket('wss://api.example.com/dashboard');
 
-    this.client = mqtt.connect(config.brokerUrl, {
-      clientId: this.deviceId,
-      clean: false,
-      will: {
-        topic: `devices/${this.deviceId}/status`,
-        payload: JSON.stringify({ online: false, lastSeen: Date.now() }),
-        qos: 1,
-        retain: true
-    this.ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
+ws.onopen = () => {
+  ws.send(JSON.stringify({
+    action: 'subscribe',
+    topics: ['sensors/+/temperature']
+  }));
+};
 
-      // Update UI with sensor data
-      if (data.topic && data.topic.includes('temperature')) {
-        this.updateTemperature(data.device, data.value);
-      } else if (data.topic && data.topic.includes('humidity')) {
-        this.updateHumidity(data.device, data.value);
-      }
-    };
+ws.onmessage = (event) => {
+  const data = JSON.parse(event.data);
 
-    // Publish to HVAC system with QoS 2 for critical commands
-    this.client.publish(`hvac/${this.location}/${system}`,
-      JSON.stringify(command),
-      { qos: 2 } // Exactly once delivery for HVAC commands
-    );
+  if (data.topic && data.topic.includes('temperature')) {
+    const el = document.getElementById(`${data.device}-temp`);
+    el.textContent = `${data.value}°C`;
 
-    console.log(`HVAC Command: ${system} ${enabled ? 'ON' : 'OFF'}`);
+    if (parseFloat(data.value) > 30) {
+      showAlert(`High temp on ${data.device}: ${data.value}°C`);
+    }
   }
+};
 
-  publishStatus() {
-    const status = {
-      deviceId: this.deviceId,
-      location: this.location,
-      online: true,
-      currentTemperature: this.currentTemp,
-      targetTemperature: this.targetTemp,
-      mode: this.mode,
-      heating: this.isHeating,
-      cooling: this.isCooling,
-      timestamp: Date.now()
-    };
-
-    // Retain status for new subscribers
-    this.client.publish(`devices/${this.deviceId}/status`,
-      JSON.stringify(status),
-      { qos: 1, retain: true }
-    );
-  }
-
-  startThermostatLogic() {
-    // Update HVAC state every 30 seconds
-    setInterval(() => {
-      this.updateHVACState();
-      this.publishStatus();
-    }, 30000);
-  }
-
-  emergencyStop() {
-    console.log('EMERGENCY STOP - Turning off all HVAC systems');
-
-    this.isHeating = false;
-    this.isCooling = false;
-
-    this.publishHVACCommand('heating', false);
-    this.publishHVACCommand('cooling', false);
-
-    // Publish emergency status
-    this.client.publish(`alerts/emergency`,
-      JSON.stringify({
-        deviceId: this.deviceId,
-        location: this.location,
-        type: 'hvac_emergency_stop',
-        timestamp: Date.now()
-      }),
-      { qos: 2 }
-    );
-  }
-
-  sendCommand(device, command) {
-    // Send control command via WebSocket
-    this.ws.send(JSON.stringify({
-      action: 'command',
-      device: device,
-      command: command
-    }));
-  }
-
-  broadcastToWebClients(message) {
-    const messageStr = JSON.stringify(message);
-  }
-
-  updateTemperature(device, value) {
-    document.getElementById(`${device}-temp`).textContent = `${value}°C`;
-  }
-
-  updateHumidity(device, value) {
-    document.getElementById(`${device}-humidity`).textContent = `${value}%`;
-  }
-}
-
-const dashboard = new IoTDashboard();
-
-// Export for external health checks
-module.exports = dashboard;
-````
-
+ws.onclose = () => {
+  console.log('Connection lost, reconnecting...');
+  setTimeout(connectDashboard, 3000);
+};
+```
 </TabItem>
 </Tabs>
 
@@ -585,51 +448,6 @@ module.exports = dashboard;
 - Need device-to-web communication
 - Require different protocols for different parts
 - Want to leverage strengths of each
-
-## Working with Protocol Providers
-
-Rather than implementing raw protocols, consider established solutions: **MQTT
-Platforms** provide:
-
-- Managed brokers
-- Device management
-- Security and authentication
-- Scaling and redundancy
-
-**WebSocket Services** offer:
-
-- Global infrastructure
-- Automatic scaling
-- Protocol abstraction
-- Multiple transport support
-
-**Unified Platforms** like Ably provide:
-
-- Both MQTT and WebSocket support
-- Protocol interoperability
-- Message bridging
-- Unified API across protocols These solutions handle the complexity of protocol
-  management while providing reliable, scalable infrastructure for real-time
-  communication.
-
-## Conclusion
-
-The choice between MQTT and WebSockets depends on your application's domain.
-These aren't fundamentally competing protocols but complementary technologies
-serving different needs. MQTT excels in IoT environments with its pub/sub model
-and QoS guarantees, while WebSockets provide the ideal solution for web-based
-real-time communication.
-
-**Key Takeaways:**
-
-1. **MQTT is designed for IoT**, WebSockets for web applications
-2. **They often work together** in complete solutions
-3. **MQTT over WebSockets** enables browser access to MQTT
-4. **Choose based on your environment** and requirements
-5. **Consider unified platforms** that support both protocols
-
-For most web developers, WebSockets remain the primary choice, with MQTT
-relevant when extending into IoT device communication.
 
 ## Frequently Asked Questions
 
@@ -665,21 +483,3 @@ over WebSockets to bridge both.
   connections with TLS and authentication
 - [WebSockets at Scale](/guides/websockets-at-scale/) — architecture
   patterns for high-volume messaging
-
-## Further Reading
-
-- [MQTT Protocol Specification](https://mqtt.org/mqtt-specification/)
-- [WebSocket Protocol RFC 6455](https://datatracker.ietf.org/doc/html/rfc6455)
-- [Building a WebSocket Application](/guides/building-a-websocket-app/)
-- [WebSocket Security Guide](/guides/security/)
-
-While raw WebSocket or MQTT implementation requires significant effort,
-production applications often benefit from using established libraries
-or services that handle protocol complexities, bridging, and scaling
-challenges.
-
----
-
-Written by [Matthew O'Riordan](/author/matthew-oriordan/), Co-founder
-& CEO of Ably, with experience building real-time systems reaching 2
-billion+ devices monthly.

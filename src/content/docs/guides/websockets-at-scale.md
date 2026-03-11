@@ -33,11 +33,11 @@ faq:
       connections are achievable.'
   - q: 'How do you load balance WebSocket connections?'
     a:
-      'Use Layer 4 (TCP) or Layer 7 (HTTP) load balancing with sticky sessions.
-      WebSocket connections are long-lived and stateful, so all frames must
-      reach the same backend. Use IP hash, cookie-based affinity, or a
-      connection-aware load balancer. Avoid round-robin for established
-      connections.'
+      'Use Layer 4 (TCP) or Layer 7 (HTTP) load balancing. Sticky sessions (IP
+      hash or cookie-based affinity) work as a starting point, but at high
+      scale, shared external state (Redis or a database) lets any server handle
+      any reconnecting client. This avoids the fragility of pinning clients to
+      specific servers.'
   - q: 'How do you horizontally scale WebSocket servers?'
     a:
       'Add a pub/sub backplane (Redis, Kafka, NATS, or a message broker) between
@@ -55,9 +55,10 @@ faq:
 
 :::note[Quick Answer]
 Scaling WebSockets requires horizontal server scaling with
-a pub/sub backplane (Redis, Kafka, or NATS), sticky-session load balancing, OS
-tuning for file descriptor and memory limits, and connection state management. A
-single server can handle 500K+ idle connections with proper tuning.
+a pub/sub backplane (Redis, Kafka, or NATS), load balancing with session
+affinity or shared state, OS tuning for file descriptor and memory limits, and
+connection state management. A single server can handle 500K+ idle connections
+with proper tuning.
 :::
 
 This article covers the main aspects to consider when you set out to build a
@@ -328,17 +329,28 @@ non-WebSocket traffic).
 
 ### Sticky sessions
 
-One could argue that WebSockets are sticky by default (in the sense that there's
-a persistent connection between server and client). However, this doesn't mean
-that you are forced to use sticky load balancing (where the load balancer
-repeatedly routes traffic from a client to the same destination server). In
-fact, sticky load balancing is a rather fragile approach (there's always the
-risk that a server will fail), making it hard to rebalance load. Rather than
-using sticky load balancing, which inherently assumes that a client will always
-stay connected to the same server, it's more reliable to use non-sticky
-sessions, and have a mechanism that allows your servers to share connection
-state between them. This way, stream continuity can be ensured without the need
-for a WebSocket connection to always be linked to the exact same server.
+WebSockets are inherently sticky while a connection is open - there's a
+persistent connection between server and client. When a client reconnects
+(after a disconnect or server restart), you need a strategy for routing that
+new connection and restoring state.
+
+**Sticky sessions as a starting point.** For moderate scale, configuring your
+load balancer with sticky sessions (IP hash or cookie-based affinity) is a
+pragmatic choice. It keeps things simple: the same client reconnects to the
+same server, which still holds its session state in memory.
+
+**The fragility at high scale.** Sticky sessions become a liability as you
+grow. When a server fails, every client pinned to it loses their session state
+at once. Rebalancing load across servers is harder because you can't freely
+move connections. Rolling deployments become disruptive since draining a server
+means disconnecting all its sticky clients.
+
+**The better long-term approach: shared state.** Instead of relying on clients
+always reaching the same server, store connection and session state externally
+(Redis, a database, or another shared store). This way, any server can handle
+any reconnecting client and restore its state from the shared store. This
+decouples clients from specific servers and makes your system resilient to
+server failures, easier to rebalance, and simpler to deploy.
 
 ## Architecting your system for scale
 
@@ -655,6 +667,34 @@ Another example is SockJS, which supports a large number of streaming and
 polling fallbacks, including xhr-polling (long-polling using cross-domain XHR)
 and eventsource (Server-Sent Events).
 
+## Monitoring and scaling signals
+
+Knowing when to scale matters as much as knowing how. Without the right
+metrics, you're flying blind - reacting to outages instead of preventing them.
+
+**Infrastructure metrics that trigger scaling decisions:**
+
+- **Connections per server.** Track this against your tested capacity ceiling.
+  When servers consistently sit above 70-80% of their tested max, add capacity.
+- **CPU and memory usage.** High CPU means message processing is the
+  bottleneck. High memory often means too many connections or buffered messages.
+- **Message latency (p50, p95, p99).** Rising tail latency is an early warning
+  sign before users start complaining. Alert on p99.
+
+**WebSocket-specific metrics to track:**
+
+- **Active connection count.** The most fundamental metric. Track it per server
+  and across the cluster.
+- **Message throughput.** Messages sent and received per second, broken down by
+  channel if you use pub/sub.
+- **Error rate.** Failed connection upgrades, unexpected disconnects, and
+  message delivery failures.
+- **Reconnection rate.** A spike in reconnections often signals server
+  instability, network issues, or a deployment gone wrong.
+
+Export these to your observability stack (Prometheus, Datadog, or similar) and
+set alerts on trend changes, not just static thresholds.
+
 ## FAQ
 
 ### How many WebSocket connections can a single server handle?
@@ -667,10 +707,11 @@ achievable.
 
 ### How do you load balance WebSocket connections?
 
-Use Layer 4 (TCP) or Layer 7 (HTTP) load balancing with sticky sessions.
-WebSocket connections are long-lived and stateful, so all frames must reach the
-same backend. Use IP hash, cookie-based affinity, or a connection-aware load
-balancer. Avoid round-robin for established connections.
+Use Layer 4 (TCP) or Layer 7 (HTTP) load balancing. Sticky sessions (IP hash
+or cookie-based affinity) work as a pragmatic starting point at moderate scale.
+For higher scale, store session state externally (Redis or a database) so any
+server can handle any reconnecting client, avoiding the fragility of pinning
+clients to specific servers.
 
 ### How do you horizontally scale WebSocket servers?
 

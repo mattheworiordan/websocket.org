@@ -33,9 +33,10 @@ faq:
       advanced scenarios like gaming and media streaming.'
   - q: 'Do WebSockets work over HTTP/3?'
     a:
-      'Yes. RFC 9220 defines how to bootstrap WebSocket connections over HTTP/3.
-      Browser and server support is still rolling out. Most production
-      deployments still use WebSockets over HTTP/1.1 or HTTP/2 (RFC 8441).'
+      'RFC 9220 defines how to bootstrap WebSocket connections over HTTP/3, but
+      as of early 2026, no major browser or server has shipped production
+      support. Most deployments use WebSockets over HTTP/1.1 or HTTP/2 (RFC
+      8441), which work well for the vast majority of use cases.'
   - q: 'Should I use WebSockets or WebTransport for my application?'
     a:
       'Use WebSockets for most applications - they have universal browser
@@ -60,7 +61,9 @@ tags:
 
 :::note[Quick Answer]
 WebSockets remain the standard for real-time web apps.
-**HTTP/3** support (RFC 9220) is emerging but not yet widely deployed.
+**HTTP/3** support is defined by RFC 9220, but as of early 2026 no major
+browser or server has shipped a production implementation - and that's fine,
+since HTTP/1.1 WebSockets work well.
 **WebTransport** complements WebSockets for advanced use cases (unreliable
 datagrams, multiplexed streams) but has limited browser support. Stick with
 WebSockets for most applications today.
@@ -154,7 +157,10 @@ support over HTTP/2 using the Extended CONNECT method:
 ### RFC 9220: HTTP/3 WebSocket Bootstrapping
 
 [RFC 9220](https://datatracker.ietf.org/doc/html/rfc9220) defines how WebSockets
-work over HTTP/3:
+would work over HTTP/3. The spec was published in 2022, but as of early 2026 no
+major browser or web server has shipped a production implementation (see the
+[Implementation Reality Check](#implementation-reality-check-2025) below). In
+theory, RFC 9220 enables:
 
 - **QUIC Transport:** Built on UDP, eliminating TCP head-of-line blocking
   entirely
@@ -162,6 +168,10 @@ work over HTTP/3:
 - **Connection Coalescing:** Multiple WebSocket connections can share a single
   QUIC connection
 - **Better Performance:** Reduced latency through 0-RTT connection establishment
+
+In practice, the lack of adoption has had minimal impact on developers. HTTP/1.1
+WebSockets remain performant and universally supported, and HTTP/2 WebSockets
+(RFC 8441) are available when multiplexing is needed.
 
 ### SETTINGS Negotiation Explained
 
@@ -269,7 +279,7 @@ Key benefits:
 
 ### Implementation Reality Check (2025)
 
-**Important**: As of September 2025, WebSocket over HTTP/3 (RFC 9220) has **no
+**Important**: As of early 2026, WebSocket over HTTP/3 (RFC 9220) has **no
 production implementations** in browsers or most web servers, despite the RFC
 being published in 2022:
 
@@ -453,24 +463,12 @@ class RealtimeConnection {
 
 ## WebSockets in the AI Era
 
-Beyond protocol evolution, one of the most compelling new drivers of WebSocket
-adoption is artificial intelligence. AI applications have emerged as a major use
-case for persistent, bidirectional connections.
-
-Early LLM integrations used Server-Sent Events for simple token streaming, but
-as AI products have grown into agent workflows, human-in-the-loop approval
-systems, and multi-device interactions, WebSockets have become the preferred
-transport. The bidirectional nature of WebSockets is a natural fit for AI
-interactions where both the model and the user need to send messages at any
-point during a session.
-
-This trend has given rise to an emerging category called
-[Durable Sessions](https://durablesessions.ai/) - persistent session layers
-built on top of WebSockets that survive connection drops, work across devices,
-and handle the complex state management AI workflows demand.
-
-For a comprehensive look at how AI is driving WebSocket adoption, see our guide
-on [WebSockets and AI](/guides/websockets-and-ai/).
+AI applications have emerged as a major driver of WebSocket adoption. As LLM
+products have evolved from simple token streaming into agent workflows and
+multi-device interactions, WebSockets have become the preferred transport for
+bidirectional AI communication. For a deep dive on how AI applications are
+driving renewed WebSocket adoption, see
+[WebSockets and AI](/guides/websockets-and-ai/).
 
 ## The Road Ahead
 
@@ -488,8 +486,9 @@ that handle underlying protocol complexities.
 
 ## Conclusion
 
-WebSockets remain a cornerstone technology for real-time web interactions, now
-enhanced by HTTP/3 and complemented by WebTransport. Developers should remain
+WebSockets remain a cornerstone technology for real-time web interactions,
+with HTTP/3 support defined but not yet adopted, and complemented by
+WebTransport for advanced use cases. Developers should remain
 flexible, adapting to these evolving standards, and leverage resources like
 [Ably’s WebSocket resources][ably-websockets] for deeper
 insights and seamless integrations.
@@ -509,9 +508,10 @@ gaming and media streaming.
 
 ### Do WebSockets work over HTTP/3?
 
-Yes. RFC 9220 defines how to bootstrap WebSocket connections over HTTP/3.
-Browser and server support is still rolling out. Most production deployments
-still use WebSockets over HTTP/1.1 or HTTP/2 (RFC 8441).
+RFC 9220 defines how to bootstrap WebSocket connections over HTTP/3, but as of
+early 2026, no major browser or server has shipped production support. Most
+deployments use WebSockets over HTTP/1.1 or HTTP/2 (RFC 8441), which work well
+for the vast majority of use cases.
 
 ### Should I use WebSockets or WebTransport for my application?
 

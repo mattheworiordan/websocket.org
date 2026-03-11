@@ -242,29 +242,16 @@ and where they aren't, it will use Comet long polling. This latter fallback
 option will show a slightly less smooth cursor movement, but it is more
 functional than no connection at all!
 
-## Running the demo with SockJS
+### Running the SockJS demo
 
-If you've been following along with the tutorial, then you can run:
-
-```bash
-> npm install
-> npm run start
-```
-
-If not, you can clone a working version of the demo from:
-https://github.com/ably-labs/websockets-cursor-sharing/tree/sockjs.
+Run the SockJS demo the same way as before: clone, install, and start. The only
+difference is that you check out the `sockjs` branch:
 
 ```bash
 > git clone -b sockjs https://github.com/ably-labs/WebSockets-cursor-sharing.git
 > npm install
 > npm run start
 ```
-
-This demo includes two applications: a web app that we serve through
-[Snowpack](https://www.snowpack.dev/), and a Node.js web server. The NPM start
-task spins up both the API and the web server.
-
-The demo should look as depicted below:
 
 ![Realtime cursor movement powered by the SockJS WebSockets library](../../../assets/guides/sockjs-cursor-demo.png)
 _Figure 4.3: Realtime cursor movement powered by the SockJS WebSockets library_

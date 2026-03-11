@@ -52,13 +52,10 @@ signaling channel for WebRTC connection setup.
 
 ## Overview
 
-## Quick Summary
-
-WebRTC and WebSockets serve different real-time communication needs: WebRTC
-enables peer-to-peer connections ideal for video, audio, and direct data
-transfer, while WebSockets excel at client-server communication for general
-real-time features. The two technologies are complementary, with WebSockets
-often handling WebRTC signaling.
+WebRTC and WebSockets solve different problems. WebRTC enables direct
+peer-to-peer connections for video, audio, and data transfer. WebSockets
+provide client-server messaging for chat, notifications, and live updates.
+They're complementary — WebSockets typically handle WebRTC signaling.
 
 ## At a Glance Comparison
 
@@ -82,7 +79,7 @@ WebRTC enables direct peer-to-peer communication between browsers:
 
 ### WebRTC Components
 
-1. \*\*\*\*:video capture and streaming
+1. **MediaStream**: video capture and streaming
 2. **RTCPeerConnection**: Peer connection management
 3. **RTCDataChannel**: Application data transfer
 4. **ICE**: NAT traversal and connectivity
@@ -184,111 +181,19 @@ class WebRTCPeer {
     await this.pc.addIceCandidate(candidate);
   }
 }
-// WebRTC peer connection with data channel
-class WebRTCConnection {
-  constructor(signalingSocket) {
-    this.signalingSocket = signalingSocket;
-    this.peerConnection = null;
-    this.dataChannel = null;
-    this.rooms = new Map();
-  }
-
-  async initializeConnection(isInitiator) {
-    // Create peer connection
-    this.peerConnection = new RTCPeerConnection({
-turnserver
-    // Handle ICE candidates
-    this.peerConnection.onicecandidate = (event) => {
-      if (event.candidate) {
-        this.signalingSocket.send(JSON.stringify({
-          type: 'ice-candidate',
-          candidate: event.candidate
-        }));
-      }
-    };
-
-    if (isInitiator) {
-      // Create data channel
-      this.dataChannel = this.peerConnection.createDataChannel('data');
-      this.setupDataChannel();
-
-      // Create offer
-      const offer = await this.peerConnection.createOffer();
-      await this.peerConnection.setLocalDescription(offer);
-
-      this.signalingSocket.send(JSON.stringify({
-        type: 'offer',
-        offer: offer
-      }));
-    } else {
-      // Wait for data channel
-      this.peerConnection.ondatachannel = (event) => {
-        this.dataChannel = event.channel;
-        this.setupDataChannel();
-      };
-    }
-  setupDataChannel() {
-    this.dataChannel.onopen = () => {
-      console.log('Data channel opened');
-      this.dataChannel.send('Hello peer!');
-    };
-
-    this.dataChannel.onmessage = (event) => {
-      console.log('Received:', event.data);
-    };
-
-    this.dataChannel.onerror = (error) => {
-      console.error('Data channel error:', error);
-    };
-  }
-
-  async handleSignalingMessage(event) {
-    const data = JSON.parse(event.data);
-
-    switch(data.type) {
-      case 'offer':
-        await this.peerConnection.setRemoteDescription(data.offer);
-        const answer = await this.peerConnection.createAnswer();
-        await this.peerConnection.setLocalDescription(answer);
-
-        this.signalingSocket.send(JSON.stringify({
-          type: 'answer',
-          answer: answer
-        }));
-        break;
-      case 'answer':
-        await this.peerConnection.setRemoteDescription(data.answer);
-        break;
-      case 'ice-candidate':
-        await this.peerConnection.addIceCandidate(data.candidate);
-        break;
-    }
-  }
-}
-
-// WebSocket for signaling
-const signalingSocket = new WebSocket('wss://signaling.example.com');
-const rtcConnection = new WebRTCConnection(signalingSocket);
-
-signalingSocket.onmessage = (event) => {
-  rtcConnection.handleSignalingMessage(event);
-};
 ```
 
 ## How WebSockets Work
 
 WebSockets provide persistent client-server connections:
 
-````javascript
+```javascript
 // WebSocket - Simple client-server communication
 const ws = new WebSocket('wss://api.example.com/socket');
 
 ws.onopen = () => {
   console.log('Connected to server');
-  ws.send(JSON.stringify({
-    type: 'join',
-    room: 'lobby'
-  }));
+  ws.send(JSON.stringify({ type: 'join', room: 'lobby' }));
 };
 
 ws.onmessage = (event) => {
@@ -296,21 +201,29 @@ ws.onmessage = (event) => {
   handleServerMessage(message);
 };
 
+ws.onerror = (error) => {
+  console.error('WebSocket error:', error);
+};
+
 // All communication goes through server
 function broadcastToRoom(data) {
-  ws.send(JSON.stringify({
-    type: 'broadcast',
-    data: data
-  }));
-##KeyDifferences### Connection Architecture
+  ws.send(JSON.stringify({ type: 'broadcast', data }));
+}
+```
+
+## Key Differences
+
+### Connection Architecture
 
 **WebSockets**: Client-Server Star Topology
+
 - All clients connect to central server
 - Server mediates all communication
 - Simple connection management
 - Server controls message routing
 
 **WebRTC**: Peer-to-Peer Mesh
+
 - Direct connections between peers
 - No server needed for data transfer
 - Complex connection establishment
@@ -323,7 +236,7 @@ function broadcastToRoom(data) {
 // WebSocket - One step connection
 const ws = new WebSocket('wss://example.com');
 ws.onopen = () => console.log('Connected!');
-````
+```
 
 **WebRTC**: Complex negotiation
 
@@ -536,168 +449,209 @@ class VideoCallApp {
 
 ## Implementation Examples
 
-### Complete Multi-User Video Conference
+### Signaling Server (WebSocket)
 
-<Tabs>
-<TabItem label="Signaling Server (WebSocket) Implementation">
+The server relays WebRTC signaling messages between peers. This is where
+WebSockets do the work — once the peer connection is established, media
+flows directly.
+
 ```javascript
-class VideoChat {
-  constructor(signalingUrl, config = {}) {
-    this.signalingUrl = signalingUrl;
-    this.config = {
-      iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
-        ...config.iceServers || []
-      ],
-      ...config
-// WebSocket signaling server
+// signaling-server.js
 const WebSocket = require('ws');
 const wss = new WebSocket.Server({ port: 8080 });
 
 const rooms = new Map();
 
-wss.on('connection', (ws) => { let currentRoom = null; let userId = null;
-on('message',message const data = JSON.parse(message);
+wss.on('connection', (ws) => {
+  let currentRoom = null;
+  let userId = null;
 
-    switch(data.type) {
+  ws.on('message', (message) => {
+    const data = JSON.parse(message);
+
+    switch (data.type) {
       case 'join-room':
         currentRoom = data.room;
         userId = data.userId;
-
-        // Add to room
         if (!rooms.has(currentRoom)) {
-          rooms.set(currentRoom, new Set());
+          rooms.set(currentRoom, new Map());
         }
-        rooms.get(currentRoom).add(ws);
-
-        // Notify others in room
+        rooms.get(currentRoom).set(userId, ws);
         broadcast(currentRoom, {
           type: 'user-joined',
-          userId: userId
+          userId,
         }, ws);
         break;
 
       case 'signal':
-        // Forward WebRTC signaling to specific user
-        const targetWs = findUserWebSocket(data.targetUserId);
-        if (targetWs) {
-          targetWs.send(JSON.stringify({
+        // Forward WebRTC offer/answer/ICE to the target peer
+        const target = rooms.get(currentRoom)?.get(data.targetUserId);
+        if (target?.readyState === WebSocket.OPEN) {
+          target.send(JSON.stringify({
             type: 'signal',
             signal: data.signal,
-            fromUserId: userId
+            fromUserId: userId,
           }));
         }
         break;
 
       case 'chat':
-        // Broadcast chat to room via WebSocket
         broadcast(currentRoom, {
           type: 'chat',
           message: data.message,
-          userId: userId
+          userId,
+        }, ws);
+        break;
+    }
+  });
 
-); ws.on('close', () => { if (currentRoom && rooms.has(currentRoom)) {
-rooms.get(currentRoom).delete(ws); broadcast(currentRoom, { type: 'user-left',
-userId: userId }); });
+  ws.on('close', () => {
+    if (currentRoom && rooms.has(currentRoom)) {
+      rooms.get(currentRoom).delete(userId);
+      broadcast(currentRoom, { type: 'user-left', userId });
+    }
+  });
+});
 
-function broadcast(room, message, exclude) { if (rooms.has(room)) {
-rooms.get(room).forEach(client => { if (client !== exclude && client.readyState
-=== WebSocket.OPEN) { client.send(JSON.stringify(message)); (WebSocket +
-WebRTC)// Client using both WebSocket and WebRTC class ConferenceClient {
-constructor(roomId, userId) { this.roomId = roomId; this.userId = userId;
-this.peers = new Map();
-
-    // WebSocket for signaling and chat
-    this.ws = new WebSocket('wss://signal.example.com');
-
-    // Local media stream
-    this.localStream = null;
-
-    // Application state
-    this.roomId = nullinitialize();
-
+function broadcast(room, message, exclude) {
+  if (!rooms.has(room)) return;
+  const payload = JSON.stringify(message);
+  for (const [, client] of rooms.get(room)) {
+    if (client !== exclude && client.readyState === WebSocket.OPEN) {
+      client.send(payload);
+    }
+  }
 }
+```
 
-async initialize() { await this.setupSignaling(); await this.setupLocalMedia();
-this.setupUI(); }
+### Conference Client (WebSocket + WebRTC)
 
-async setupSignaling() { this.signaling = new WebSocket(this.signalingUrl);
+The client uses WebSocket for signaling and chat, and WebRTC for media:
 
-    this.signaling.onopen = () => {
-      console.log('Signaling connected');
-      this.authenticate();
+```javascript
+class ConferenceClient {
+  constructor(roomId, userId) {
+    this.roomId = roomId;
+    this.userId = userId;
+    this.peers = new Map();
+    this.ws = new WebSocket('wss://signal.example.com');
+    this.localStream = null;
+    this.initialize();
+  }
 
-async initialize() { // Get local media this.localStream = await
-navigator.mediaDevices.getUserMedia({ video: true, audio: true // Set up
-WebSocket handlers this.ws.onopen = () => { this.ws.send(JSON.stringify({ type:
-'join-room', room: this.roomId, userId: this.userId })); };
+  async initialize() {
+    this.localStream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true,
+    });
+
+    this.ws.onopen = () => {
+      this.ws.send(JSON.stringify({
+        type: 'join-room',
+        room: this.roomId,
+        userId: this.userId,
+      }));
+    };
 
     this.ws.onmessage = async (event) => {
       const data = JSON.parse(event.data);
-
-      switch(data.type) {
+      switch (data.type) {
         case 'user-joined':
-          // Create WebRTC connection to new user
-          await this.createPeerConnection(data.userId, true);
+          await this.createPeer(data.userId, true);
           break;
-
         case 'signal':
-          // Handle WebRTC signaling
           await this.handleSignal(data.fromUserId, data.signal);
           break;
-
         case 'chat':
-          // Display chat message (via WebSocket)
           this.displayChat(data.userId, data.message);
           break;
-
         case 'user-left':
-          // Clean up WebRTC connection
-          this.removePeerConnection(data.userId);
+          this.removePeer(data.userId);
           break;
       }
     };
 
-}
+    this.ws.onerror = (err) => console.error('Signaling error:', err);
+  }
 
-async createPeerConnection(peerId, createOffer) { const pc = new
-RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+  async createPeer(peerId, createOffer) {
+    const pc = new RTCPeerConnection({
+      iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
+    });
+    this.peers.set(peerId, pc);
 
-    // Add local stream
-    this.localStream.getTracks().forEach(track => {
+    this.localStream.getTracks().forEach((track) => {
       pc.addTrack(track, this.localStream);
     });
 
-    // Handle remote stream
     pc.ontrack = (event) => {
       this.displayRemoteStream(peerId, event.streams[0]);
     };
 
-    // Handle ICE candidates
     pc.onicecandidate = (event) => {
+      if (event.candidate) {
+        this.sendSignal(peerId, {
+          type: 'ice-candidate',
+          candidate: event.candidate,
+        });
+      }
+    };
 
-sendSignalpeerId, ice-candidatepeerssetpeerId, pc if (createOffer) { const offer
-= await pc.createOffer(); await pc.setLocalDescription(offer);
-this.sendSignal(peerId, { }
+    if (createOffer) {
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      this.sendSignal(peerId, { type: 'offer', sdp: offer });
+    }
+  }
 
-sendSignal(targetUserId, signal) { this.ws.send(JSON.stringify({ type: 'signal',
-targetUserId: targetUserId, signal: signal })); }
+  async handleSignal(fromId, signal) {
+    let pc = this.peers.get(fromId);
+    if (!pc) {
+      await this.createPeer(fromId, false);
+      pc = this.peers.get(fromId);
+    }
 
-sendChatMessage(message) { // Chat goes through WebSocket, not WebRTC
-this.ws.send(JSON.stringify({ type: 'chat', message: message })); } }
+    if (signal.type === 'offer') {
+      await pc.setRemoteDescription(signal.sdp);
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+      this.sendSignal(fromId, { type: 'answer', sdp: answer });
+    } else if (signal.type === 'answer') {
+      await pc.setRemoteDescription(signal.sdp);
+    } else if (signal.type === 'ice-candidate') {
+      await pc.addIceCandidate(signal.candidate);
+    }
+  }
 
-// Export for testing module.exports = VideoChatServer;
+  sendSignal(targetUserId, signal) {
+    this.ws.send(JSON.stringify({
+      type: 'signal',
+      targetUserId,
+      signal,
+    }));
+  }
 
+  // Chat goes through WebSocket, not WebRTC
+  sendChat(message) {
+    this.ws.send(JSON.stringify({ type: 'chat', message }));
+  }
+
+  removePeer(peerId) {
+    const pc = this.peers.get(peerId);
+    if (pc) {
+      pc.close();
+      this.peers.delete(peerId);
+    }
+  }
+}
 ```
-</TabItem>
-</Tabs>
 
 ## Choosing the Right Technology
 
 ### Decision Matrix
 
 | Requirement | WebSocket | WebRTC | Both |
-|------------|-----------|---------|------|
+| --- | --- | --- | --- |
 | Text chat | ✅ Better | ✅ Possible | Best |
 | Video calling | ❌ | ✅ Required | ✅ |
 | File sharing | ✅ Works | ✅ Better for P2P | Depends |
@@ -705,64 +659,38 @@ this.ws.send(JSON.stringify({ type: 'chat', message: message })); } }
 | Notifications | ✅ Ideal | ❌ Overkill | |
 | Broadcasting | ✅ Efficient | ❌ Not scalable | |
 | IoT devices | ✅ Simple | ❌ Too complex | |
-## Working with Real-Time Solutions
 
-Rather than implementing raw protocols, consider comprehensive solutions:
-
-**WebSocket Platforms** provide:
-- Managed infrastructure
-- Automatic scaling
-- Global presence
-- Connection reliability
-
-**WebRTC Platforms** offer:
-- TURN server infrastructure
-- Signaling services
-- Media servers for recording
-- Bandwidth optimization
-**Unified Platforms** like Ably support:
-- WebSocket communication
-- WebRTC signaling
-- Hybrid architectures
-- Protocol abstraction
-
-These solutions handle the complexity while providing reliable, scalable real-time features.
-
-## Conclusion
-
-The relationship between WebSockets and WebRTC is fundamentally complementary. Each protocol excels in its domain and together they form the foundation of real-time communication. WebSockets excel at client-server communication for general real-time web features, while WebRTC enables peer-to-peer connections for media streaming and direct data transfer. Most video calling applications use both: WebRTC for media and WebSockets for signaling and chat.
-
-**Key Takeaways:**
-
-1. **WebRTC is for peer-to-peer**, especially media streaming
-2. **WebSockets are essential for client-server real-time communication**
-3. **They work together** in modern video conferencing and collaboration apps
-4. **WebSockets often handle** WebRTC signaling
-5. **Choose based on** your architecture needs
-
-For most real-time features, WebSockets provide the simpler, more reliable solution. Reserve WebRTC for when you specifically need peer-to-peer communication or media streaming.
+For most real-time features, WebSockets are the simpler, more reliable
+choice. Reserve WebRTC for when you specifically need peer-to-peer media
+streaming or direct data transfer between browsers.
 
 ## Frequently Asked Questions
 
 ### What is the difference between WebSocket and WebRTC?
 
 WebSockets provide client-server communication over a persistent TCP
-connection. WebRTC enables peer-to-peer connections for video, audio,
-and data directly between browsers. WebSockets need a server relay;
-WebRTC can bypass the server after connection setup.
+connection — all messages go through a server. WebRTC enables direct
+peer-to-peer connections for video, audio, and data between browsers,
+bypassing the server after the initial signaling exchange. The key
+architectural difference: WebSockets always need a server relay, while
+WebRTC connections are direct once established.
 
 ### Can I use WebSocket and WebRTC together?
 
-Yes, this is common. WebSockets are typically used as the signaling
-channel to exchange WebRTC session descriptions and ICE candidates.
-Once the peer-to-peer connection is established, data flows directly
-via WebRTC.
+Yes, and most video calling apps do exactly this. WebSockets handle the
+signaling — exchanging WebRTC session descriptions (SDP) and ICE
+candidates between peers. Once the peer-to-peer connection is
+established through that signaling, media and data flow directly via
+WebRTC. WebSockets also handle non-media features like text chat,
+presence, and room management.
 
 ### Should I use WebSocket or WebRTC for chat?
 
-Use WebSockets for text chat — they are simpler, more reliable, and
-work through all firewalls. Use WebRTC only if you need video or audio
-chat, or if peer-to-peer data transfer is specifically required.
+Use WebSockets for text chat. They're simpler to implement, more
+reliable (TCP guarantees delivery), and work through all firewalls and
+proxies without TURN servers. WebRTC data channels can carry text, but
+the connection setup complexity isn't justified unless you also need
+video/audio or specifically require peer-to-peer data transfer.
 
 ## Related Content
 
@@ -776,22 +704,3 @@ chat, or if peer-to-peer data transfer is specifically required.
   and CSWSH protection
 - [WebSockets at Scale](/guides/websockets-at-scale/) — architecture
   for millions of concurrent connections
-
-## Further Reading
-
-- [WebRTC API Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API)
-- [WebSocket Protocol RFC 6455](https://datatracker.ietf.org/doc/html/rfc6455)
-- [Building a WebSocket Application](/guides/building-a-websocket-app/)
-- [WebSocket Security Guide](/guides/security/)
-
-While raw WebSocket or WebRTC implementation is complex, production
-applications often benefit from using established libraries like
-Socket.IO or commercial services that handle protocol complexities,
-connection management, and scaling challenges.
-
----
-
-Written by [Matthew O'Riordan](/author/matthew-oriordan/), Co-founder
-& CEO of Ably, with experience building real-time systems reaching 2
-billion+ devices monthly.
-```
