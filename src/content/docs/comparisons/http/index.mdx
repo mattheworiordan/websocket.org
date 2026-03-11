@@ -50,25 +50,6 @@ Use HTTP for REST APIs; use WebSockets when the server needs to push
 data to the client without polling.
 :::
 
-## Quick Summary
-
-WebSockets and HTTP serve fundamentally different purposes: HTTP follows a
-request-response pattern ideal for traditional web applications, while
-WebSockets maintain persistent, bidirectional connections perfect for real-time
-communication. Choose HTTP for RESTful APIs and document delivery; choose
-WebSockets when you need low-latency, bidirectional data flow.
-
-## Table of Contents
-
-- [At a Glance Comparison](#at-a-glance-comparison)
-- [How HTTP Works](#how-http-works)
-- [How WebSockets Work](#how-websockets-work)
-- [Key Differences](#key-differences)
-- [Use Case Analysis](#use-case-analysis)
-- [Implementation Examples](#implementation-examples)
-- [Conclusion](#conclusion)
-- [Further Reading](#further-reading)
-
 ## At a Glance Comparison
 
 | Feature                  | HTTP                       | WebSockets                     |
@@ -87,9 +68,8 @@ WebSockets when you need low-latency, bidirectional data flow.
 
 ## How HTTP Works
 
-HTTP (HyperText Transfer Protocol) operates on a simple request-response model
-that has powered the web since 1991. Understanding its mechanics is crucial for
-appreciating when WebSockets become necessary.
+HTTP (HyperText Transfer Protocol) operates on a request-response model
+that has powered the web since 1991.
 
 ### The Request-Response Cycle
 
@@ -690,140 +670,6 @@ client.connect();
 </TabItem>
 </Tabs>
 
-### Phase 1: Parallel Implementation
-
-```javascript
-class HybridClient {
-  constructor(httpUrl, wsUrl) {
-    this.httpUrl = httpUrl;
-    this.wsUrl = wsUrl;
-    this.useWebSocket = this.isWebSocketSupported();
-  }
-
-  isWebSocketSupported() {
-    return 'WebSocket' in window && window.WebSocket.CLOSING === 2;
-  }
-
-  connect() {
-    if (this.useWebSocket) {
-      this.connectWebSocket();
-    } else {
-      this.startPolling();
-    }
-  }
-
-  connectWebSocket() {
-    this.ws = new WebSocket(this.wsUrl);
-    // WebSocket implementation
-  }
-
-  startPolling() {
-    // Fallback to HTTP polling
-    setInterval(() => {
-      fetch(this.httpUrl)
-        .then((res) => res.json())
-        .then((data) => this.handleData(data));
-    }, 1000);
-  }
-}
-```
-
-#### Phase 2: Feature Detection and Fallback
-
-```javascript
-class SmartClient {
-  async connect() {
-    // Try WebSocket first
-    try {
-      await this.connectWebSocket();
-    } catch (error) {
-      console.warn('WebSocket failed, falling back to HTTP');
-      this.startHTTPFallback();
-    }
-  }
-
-  connectWebSocket() {
-    return new Promise((resolve, reject) => {
-      this.ws = new WebSocket(this.wsUrl);
-
-      this.ws.onopen = resolve;
-      this.ws.onerror = reject;
-
-      // Set timeout for connection
-      setTimeout(() => {
-        if (this.ws.readyState !== WebSocket.OPEN) {
-          reject(new Error('Connection timeout'));
-        }
-      }, 5000);
-    });
-  }
-}
-```
-
-#### Phase 3: Gradual Rollout
-
-```javascript
-class FeatureFlagClient {
-  constructor(config) {
-    this.config = config;
-    this.transportMethod = this.determineTransport();
-  }
-
-  determineTransport() {
-    // Check feature flags
-    if (this.config.featureFlags.websocketsEnabled) {
-      // Check user segment
-      if (this.config.user.segment === 'beta') {
-        return 'websocket';
-      }
-      // Percentage rollout
-      if (Math.random() < this.config.websocketRolloutPercentage) {
-        return 'websocket';
-      }
-    }
-    return 'http';
-  }
-}
-```
-
-### API Design Considerations
-
-When supporting both HTTP and WebSocket:
-
-```javascript
-// Shared message format
-const messageSchema = {
-  id: 'string',
-  type: 'string',
-  payload: 'object',
-  timestamp: 'number',
-};
-
-// HTTP endpoint mirrors WebSocket messages
-app.post('/api/messages', (req, res) => {
-  const message = validateMessage(req.body);
-
-  // Process message
-  processMessage(message);
-
-  // Also broadcast to WebSocket clients
-  broadcastToWebSockets(message);
-
-  res.json({ status: 'accepted', id: message.id });
-});
-
-// WebSocket handler
-ws.on('message', (data) => {
-  const message = validateMessage(JSON.parse(data));
-
-  // Same processing logic
-  processMessage(message);
-
-  // Broadcast to all clients (WebSocket and SSE)
-  broadcastToAll(message);
-});
-```
-
 ## Production Considerations
 
 ### Load Balancing
@@ -884,310 +730,68 @@ server {
 - Consider connection limits per server
 - Plan for graceful connection migration
 
-### Monitoring and Debugging
-
-**HTTP Monitoring**:
-
-```javascript
-// Easy to track with standard tools
-app.use((req, res, next) => {
-  const start = Date.now();
-
-  res.on('finish', () => {
-    const duration = Date.now() - start;
-    metrics.histogram('http.request.duration', duration, {
-      method: req.method,
-      path: req.path,
-      status: res.statusCode,
-    });
-  });
-
-  next();
-});
-```
-
-**WebSocket Monitoring**:
-
-```javascript
-// Requires custom instrumentation
-class MonitoredWebSocket {
-  constructor(ws) {
-    this.ws = ws;
-    this.connectedAt = Date.now();
-    this.messageCount = 0;
-
-    metrics.gauge('websocket.connections', 1, { action: 'increment' });
-
-    ws.on('message', () => {
-      this.messageCount++;
-      metrics.counter('websocket.messages', 1);
-    });
-
-    ws.on('close', () => {
-      const duration = Date.now() - this.connectedAt;
-      metrics.gauge('websocket.connections', 1, { action: 'decrement' });
-      metrics.histogram('websocket.session.duration', duration);
-      metrics.histogram('websocket.session.messages', this.messageCount);
-    });
-  }
-}
-```
-
-### Security Implications
-
-**HTTP Security**:
-
-- Well-understood security model
-- CORS for cross-origin requests
-- CSRF tokens for state-changing operations
-- Standard authentication (cookies, tokens)
-
-**WebSocket Security**:
-
-- No CORS (check Origin header manually)
-- CSWSH (Cross-Site WebSocket Hijacking) risks
-- Authentication during handshake only
-- Need to validate every message
-
-```javascript
-// WebSocket security implementation
-wss.on('connection', (ws, req) => {
-  // Validate origin
-  const origin = req.headers.origin;
-  if (!isValidOrigin(origin)) {
-    ws.close(1008, 'Invalid origin');
-    return;
-  }
-
-  // Validate authentication
-  const token = extractToken(req);
-  const user = validateToken(token);
-  if (!user) {
-    ws.close(1008, 'Unauthorized');
-    return;
-  }
-
-  // Attach user to connection
-  ws.userId = user.id;
-
-  // Validate every message
-  ws.on('message', (data) => {
-    try {
-      const message = JSON.parse(data);
-      if (!validateMessage(message, user)) {
-        ws.send(JSON.stringify({ error: 'Invalid message' }));
-        return;
-      }
-      processMessage(message, user);
-    } catch (error) {
-      ws.send(JSON.stringify({ error: 'Invalid format' }));
-    }
-  });
-});
-```
-
-## When to Choose Which
-
-### Choose HTTP When You Need
-
-✅ **RESTful operations**
-
-- CRUD operations
-- Resource-based APIs
-- Stateless interactions
-
-✅ **Caching benefits**
-
-- Static content
-- Infrequently changing data
-- CDN distribution
-
-✅ **Simple request-response**
-
-- Form submissions
-- File uploads/downloads
-- One-time queries
-
-✅ **Wide compatibility**
-
-- Legacy system integration
-- Firewall/proxy traversal
-- Universal browser support
-
-### Choose WebSockets When You Need
-
-✅ **Real-time bidirectional communication**
-
-- Chat applications
-- Collaborative editing
-- Multiplayer gaming
-
-✅ **Low latency updates**
-
-- Financial trading
-- Live sports scores
-- Real-time monitoring
-
-✅ **Server push capabilities**
-
-- Notifications
-- Live feeds
-- Event streaming
-
-✅ **Efficient high-frequency messaging**
-
-- IoT telemetry
-- Location tracking
-- Sensor data streams
-
-### Consider Hybrid Approaches For
-
-🔄 **Mixed requirements**
-
-- Initial data via HTTP
-- Updates via WebSocket
-- Fallback mechanisms
-
-🔄 **Progressive enhancement**
-
-- HTTP baseline functionality
-- WebSocket for enhanced experience
-- Graceful degradation
-
-## Common Pitfalls and Solutions
-
-### Pitfall 1: Using WebSockets for Everything
-
-❌ **Wrong approach**:
-
-```javascript
-// Don't use WebSocket for simple CRUD
-ws.send(
-  JSON.stringify({
-    action: 'GET_USER_PROFILE',
-    userId: 123,
-  })
-);
-```
-
-✅ **Better approach**:
-
-```javascript
-// Use HTTP for request-response
-const profile = await fetch('/api/users/123').then((r) => r.json());
-
-// Use WebSocket for real-time updates
-ws.on('message', (event) => {
-  const { type, data } = JSON.parse(event.data);
-  if (type === 'PROFILE_UPDATED') {
-    updateProfileUI(data);
-  }
-});
-```
-
-### Pitfall 2: Not Handling Connection Failures
-
-❌ **Wrong approach**:
-
-```javascript
-const ws = new WebSocket('wss://example.com');
-ws.onmessage = handler; // What if connection fails?
-```
-
-✅ **Better approach**:
-
-```javascript
-class ResilientWebSocket {
-  connect() {
-    this.ws = new WebSocket(this.url);
-
-    this.ws.onclose = () => {
-      setTimeout(() => this.connect(), this.backoff());
-    };
-
-    this.ws.onerror = () => {
-      this.fallbackToHTTP();
-    };
-  }
-
-  fallbackToHTTP() {
-    console.log('WebSocket failed, using HTTP polling');
-    this.startPolling();
-  }
-}
-```
-
-### Pitfall 3: Ignoring Protocol Overhead
-
-❌ **Wrong approach**:
-
-```javascript
-// Sending large payloads frequently
-ws.send(
-  JSON.stringify({
-    type: 'update',
-    timestamp: Date.now(),
-    fullStateSnapshot: this.entireApplicationState, // 100KB
-  })
-);
-```
-
-✅ **Better approach**:
-
-```javascript
-// Send only deltas
-ws.send(
-  JSON.stringify({
-    type: 'update',
-    timestamp: Date.now(),
-    changes: this.getStateChanges(), // 1KB
-  })
-);
-```
-
-## Conclusion
-
-WebSockets and HTTP serve different purposes in modern web architecture. HTTP
-excels at request-response patterns, caching, and stateless operations, making
-it perfect for traditional web applications and RESTful APIs. WebSockets shine
-in real-time, bidirectional communication scenarios where low latency and server
-push capabilities are crucial.
-
-**Key Takeaways:**
-
-1. **Use HTTP** for RESTful APIs, file transfers, and cacheable content
-2. **Use WebSockets** for real-time features, live updates, and bidirectional
-   communication
-3. **Consider hybrid approaches** that leverage both protocols' strengths
-4. **Plan for fallbacks** to ensure reliability across all network conditions
-5. **Monitor and scale appropriately** based on each protocol's characteristics
-
-The choice between WebSockets and HTTP isn't always binary. Modern applications
-often benefit from using both protocols strategically, playing to each one's
-strengths while mitigating their weaknesses.
+### Security Differences
+
+**HTTP** has a well-understood security model: CORS, CSRF tokens,
+standard cookie/token authentication.
+
+**WebSockets** require more care: no built-in CORS (check the Origin
+header yourself), risk of Cross-Site WebSocket Hijacking, and
+authentication happens only during the handshake. Validate every
+incoming message server-side.
+
+## Common Mistakes
+
+- **Using WebSockets for everything.** Simple CRUD and
+  request-response calls belong on HTTP. Reserve WebSockets for
+  data that flows continuously or needs server push.
+- **Ignoring connection failures.** WebSocket connections drop.
+  Implement reconnection with exponential backoff and consider
+  an HTTP polling fallback.
+- **Sending full state snapshots.** Over a persistent connection,
+  send deltas, not the entire application state every time.
+
+## Beyond Raw WebSockets
+
+The WebSocket API gives you a raw bidirectional pipe, but production
+apps need more: automatic reconnection, message ordering guarantees,
+presence tracking, and state recovery after disconnects. You can
+build these yourself, layer a protocol like
+[Socket.IO](https://socket.io/) on top, or use a managed realtime
+service like
+[Ably](https://ably.com/docs/connect?utm_source=websocket-org&utm_medium=http-comparison)
+that handles connection management, scaling, and fallback transports
+for you.
 
 ## Frequently Asked Questions
 
 ### What is the difference between WebSocket and HTTP?
 
-HTTP uses a request-response model where the client initiates every
-exchange. WebSockets maintain a persistent, full-duplex connection
-where both client and server can send data at any time. HTTP is
-stateless; WebSockets are stateful.
+HTTP follows a request-response model: the client sends a request,
+the server replies, and (in HTTP/1.0) the connection closes. Every
+exchange is client-initiated and stateless. WebSockets flip that
+model. After an initial HTTP upgrade handshake, a persistent
+full-duplex channel stays open. Either side can send data at any
+time with minimal framing overhead, and the connection maintains
+state for as long as it lives.
 
 ### When should I use WebSockets instead of HTTP?
 
-Use WebSockets when you need real-time bidirectional communication:
-live chat, multiplayer games, collaborative editing, real-time
-dashboards, or financial data streaming. Use HTTP for REST APIs, page
-loads, and request-response workflows.
+Choose WebSockets when the server needs to push data to the client
+unprompted: live chat, multiplayer games, collaborative editing,
+real-time dashboards, or financial ticker feeds. If your data flow
+is request-then-response (REST APIs, form submissions, file
+downloads), HTTP is simpler and benefits from built-in caching,
+CDN support, and stateless scaling.
 
 ### Are WebSockets faster than HTTP?
 
-For real-time data, yes. WebSockets eliminate the overhead of
-establishing a new connection for each message. After the initial
-handshake, messages have minimal framing overhead (2-14 bytes vs
-hundreds of bytes for HTTP headers).
+For sustained real-time data, yes. Once the handshake completes,
+each WebSocket frame adds only 2-14 bytes of overhead compared to
+500-2,000 bytes of HTTP headers per request. The persistent
+connection also removes TCP and TLS handshake latency from every
+message. For one-off requests, the difference is negligible since
+both protocols pay the same initial connection cost.
 
 ## Related Content
 
@@ -1201,18 +805,3 @@ hundreds of bytes for HTTP headers).
   — hands-on tutorial building a real-time app
 - [WebSocket Security Guide](/guides/security/) — securing persistent
   connections with TLS and authentication
-
-## Further Reading
-
-- [WebSocket Protocol RFC 6455](https://datatracker.ietf.org/doc/html/rfc6455)
-- [HTTP/2 Specification](https://datatracker.ietf.org/doc/html/rfc7540)
-- [HTTP/3 Specification](https://datatracker.ietf.org/doc/html/rfc9114)
-- [Building a WebSocket Application](/guides/building-a-websocket-app/)
-- [WebSocket Security Hardening](/guides/security/)
-- [Nginx WebSocket Configuration](/guides/infrastructure/nginx/)
-
-For production-ready real-time infrastructure that handles both
-WebSocket and HTTP complexity at scale, explore
-[Ably's platform](https://ably.com/?utm_source=websocket-org&utm_medium=websocket-vs-http),
-which provides automatic protocol selection, fallback mechanisms, and
-global scalability.

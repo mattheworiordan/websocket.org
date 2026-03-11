@@ -60,14 +60,11 @@ WebSocket connections. Set `proxy_read_timeout` to a high value (e.g. 3600s) to
 prevent idle connection drops.
 :::
 
-Nginx is one of the most popular web servers and reverse proxies for WebSocket
-applications. This comprehensive guide covers production-ready configurations
-for WebSocket proxying, load balancing, SSL/TLS termination, and advanced
-optimizations.
+Nginx sits in front of most WebSocket deployments as a reverse proxy.
+This guide provides copy-paste configs for proxying, load balancing,
+SSL/TLS termination, and related operational concerns.
 
 ## Quick Start: Basic WebSocket Proxy
-
-The minimal configuration to proxy WebSocket connections through Nginx:
 
 ```nginx
 http {
@@ -97,7 +94,7 @@ http {
 
 ### Essential Headers
 
-WebSocket requires specific HTTP headers for the upgrade handshake:
+The upgrade handshake needs these headers:
 
 ```nginx
 location /ws {
@@ -122,7 +119,7 @@ location /ws {
 
 ### Connection Upgrade Map
 
-Optimize connection handling with a map directive:
+Use a `map` directive to set the `Connection` header conditionally:
 
 ```nginx
 http {
@@ -147,7 +144,8 @@ http {
 
 ### Basic SSL Setup
 
-Enable secure WebSocket connections (WSS):
+Nginx terminates TLS so clients connect via `wss://` while backends
+use plain `ws://`:
 
 ```nginx
 server {
@@ -191,8 +189,6 @@ server {
 
 ### Security Headers
 
-Add security headers for enhanced protection:
-
 ```nginx
 server {
     # Security Headers
@@ -210,7 +206,8 @@ server {
 
 ### Sticky Sessions (IP Hash)
 
-WebSocket connections often require session persistence:
+WebSocket connections are stateful, so every frame in a session
+must reach the same backend:
 
 ```nginx
 upstream websocket_backend {
@@ -239,8 +236,6 @@ server {
 
 ### Least Connections Algorithm
 
-Distribute load based on active connections:
-
 ```nginx
 upstream websocket_backend {
     least_conn;  # Route to server with least connections
@@ -256,8 +251,8 @@ upstream websocket_backend {
 
 ### Health Checks
 
-Configure health checks for backend servers (requires Nginx Plus or custom
-module):
+Active health checks require Nginx Plus. Open-source Nginx uses
+passive checks via `max_fails`:
 
 ```nginx
 upstream websocket_backend {
@@ -279,7 +274,8 @@ upstream websocket_backend {
 
 ## Timeout Configuration
 
-WebSocket connections are long-lived and require appropriate timeout settings:
+WebSocket connections are long-lived. The default 60-second
+`proxy_read_timeout` will kill idle connections:
 
 ```nginx
 location /ws {
@@ -311,8 +307,8 @@ http {
 
 ## HTTP/2 Configuration
 
-Enable HTTP/2 for better performance (WebSocket over HTTP/2 requires RFC 8441
-support):
+WebSocket over HTTP/2 requires
+[RFC 8441](https://tools.ietf.org/html/rfc8441) support:
 
 ```nginx
 server {
@@ -339,7 +335,7 @@ server {
 
 ## HTTP/3 Configuration (Experimental)
 
-Enable experimental HTTP/3 support with QUIC:
+Requires an Nginx build with QUIC support:
 
 ```nginx
 server {
@@ -375,7 +371,8 @@ server {
 
 ## Buffering and Performance
 
-Optimize buffer settings for WebSocket traffic:
+Disable proxy buffering for WebSocket traffic to avoid
+added latency:
 
 ```nginx
 location /ws {
@@ -407,7 +404,8 @@ location /ws {
 
 ### Access Log Format
 
-Create a custom log format for WebSocket connections:
+Add `upgrade` and `upstream_addr` fields to track WebSocket-specific
+information:
 
 ```nginx
 http {
@@ -434,8 +432,6 @@ http {
 
 ### Error Logging
 
-Configure appropriate error logging levels:
-
 ```nginx
 # Global error log
 error_log /var/log/nginx/error.log warn;
@@ -450,8 +446,6 @@ location /ws {
 ```
 
 ### Metrics Export
-
-Export metrics for monitoring systems:
 
 ```nginx
 # Status endpoint for monitoring
@@ -474,8 +468,6 @@ location /status {
 ```
 
 ## Rate Limiting
-
-Protect against abuse with rate limiting:
 
 ```nginx
 http {
@@ -504,8 +496,6 @@ http {
 
 ## CORS Configuration
 
-Handle Cross-Origin Resource Sharing for WebSocket:
-
 ```nginx
 location /ws {
     # CORS headers
@@ -531,7 +521,7 @@ location /ws {
 
 ## Complete Production Configuration
 
-Here's a comprehensive production-ready configuration:
+Everything above combined into a single `nginx.conf`:
 
 ```nginx
 # /etc/nginx/nginx.conf
@@ -708,13 +698,11 @@ http {
    - Ensure correct backend port configuration
 
 4. **Performance issues**
-   - Disable proxy buffering for real-time data
-   - Optimize worker connections and processes
-   - Monitor system resources
+   - Disable proxy buffering for realtime data
+   - Per-server connection tuning matters less than handling
+     state, reliability, and failover across servers
 
 ### Debug Mode
-
-Enable debug logging for troubleshooting:
 
 ```nginx
 error_log /var/log/nginx/debug.log debug;
@@ -727,8 +715,6 @@ location /ws {
 ```
 
 ### Testing WebSocket Connection
-
-Test your Nginx WebSocket configuration:
 
 ```bash
 # Test basic connectivity
@@ -744,67 +730,42 @@ npm install -g wscat
 wscat -c wss://ws.example.com/ws
 ```
 
-## Best Practices
-
-1. **Use SSL/TLS**: Always use WSS (WebSocket Secure) in production environments
-   to protect data transmission and ensure connection integrity
-2. **Implement rate limiting**: Protect against abuse and DDoS attacks by
-   carefully configuring connection and request limits based on your expected
-   traffic patterns
-3. **Monitor connections**: Track active connections and performance metrics
-   using comprehensive logging and monitoring tools to maintain optimal service
-   quality
-4. **Set appropriate timeouts**: Balance between connection stability and
-   resource usage by configuring timeouts that accommodate your application's
-   specific communication patterns
-5. **Use connection pooling**: Maintain keepalive connections to backend servers
-   to reduce connection overhead and improve response times
-6. **Implement health checks**: Ensure backend availability through regular
-   health monitoring and automatic failover mechanisms
-7. **Log strategically**: Balance between debugging capability and performance
-   by implementing structured logging that captures essential information
-   without overwhelming your log storage systems
-8. **Optimize buffer sizes**: Adjust based on your message sizes and patterns to
-   minimize memory usage while ensuring efficient data transmission
-9. **Plan for scaling**: Use load balancing and session persistence
-   appropriately, considering both horizontal scaling requirements and the
-   stateful nature of WebSocket connections
-10. **Regular updates**: Keep Nginx and SSL certificates up to date to maintain
-    security standards and benefit from performance improvements and bug fixes
-
-## Additional Resources
-
-- [Nginx Official Documentation](http://nginx.org/en/docs/)
-- [Nginx WebSocket Module](http://nginx.org/en/docs/http/websocket.html)
-- [RFC 6455 - The WebSocket Protocol](https://tools.ietf.org/html/rfc6455)
-- [RFC 8441 - Bootstrapping WebSockets with HTTP/2](https://tools.ietf.org/html/rfc8441)
-
 ## FAQ
 
 ### How do I configure Nginx to proxy WebSocket connections?
 
 Add `proxy_set_header Upgrade $http_upgrade` and
 `proxy_set_header Connection "upgrade"` to your location block, alongside
-`proxy_pass` pointing to your backend. These headers tell Nginx to pass the HTTP
-Upgrade handshake through to the upstream server.
+`proxy_pass` pointing to your backend. You also need
+`proxy_http_version 1.1` because the default HTTP/1.0 does not support
+the `Upgrade` mechanism. Without these three directives, Nginx strips
+the upgrade headers and the WebSocket handshake fails with a 400 or
+drops silently.
 
 ### Why do my WebSocket connections drop after 60 seconds?
 
-Nginx defaults `proxy_read_timeout` to 60 seconds. Idle WebSocket connections
-with no traffic will be closed. Increase it with `proxy_read_timeout 3600s` and
-ensure your application sends ping/pong frames to keep the connection alive.
+Nginx defaults `proxy_read_timeout` to 60 seconds. If no data crosses
+the connection in that window, Nginx closes it. Set
+`proxy_read_timeout 3600s` (or longer) and make sure your application
+sends WebSocket ping/pong frames at a shorter interval than the
+timeout. Both `proxy_send_timeout` and `proxy_connect_timeout` should
+also be raised for long-lived connections.
 
 ### How do I enable SSL/TLS for WebSockets behind Nginx?
 
-Configure a standard `ssl` server block with your certificate and key, then
-`proxy_pass` to your backend over plain `ws://`. Nginx handles TLS termination
-so clients connect via `wss://` while your backend avoids the TLS overhead.
+Configure a standard `ssl` server block with your certificate and key,
+then `proxy_pass` to your backend over plain `ws://`. Nginx handles TLS
+termination so clients connect via `wss://` while your backend avoids
+the overhead. Add an HTTP-to-HTTPS redirect on port 80 so clients
+cannot accidentally downgrade to an unencrypted connection.
 
 ### Do I need sticky sessions for WebSocket load balancing?
 
-Yes. WebSocket connections are stateful and long-lived, so all frames for a
-session must reach the same backend. Use `ip_hash` or the `sticky` directive
-(Nginx Plus) in your upstream block to ensure session affinity.
+Yes. WebSocket connections are stateful and long-lived, so every frame
+in a session must reach the same backend. Use `ip_hash` or the `sticky`
+directive (Nginx Plus) in your upstream block. Note that `ip_hash`
+breaks when clients share a NAT IP. For those cases, cookie-based
+stickiness (Nginx Plus) or application-level routing is more reliable.
 
 ## Related Content
 
@@ -823,6 +784,9 @@ session must reach the same backend. Use `ip_hash` or the `sticky` directive
 
 _This guide is maintained by
 [Matthew O'Riordan](https://twitter.com/mattyoriordan), Co-founder & CEO of
-[Ably](https://ably.com?utm_source=websocket-org&utm_medium=nginx), the real-time data platform. For corrections or
-suggestions, please
+[Ably][ably-platform], the realtime data platform.
+For corrections or suggestions, please
 [open an issue](https://github.com/websockets/websocket.org/issues)._
+
+[ably-platform]:
+  https://ably.com?utm_source=websocket-org&utm_medium=nginx-websocket
