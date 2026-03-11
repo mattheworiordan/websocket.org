@@ -61,11 +61,15 @@ faq:
 date: '2024-09-02'
 ---
 
-:::note[Quick Answer] Add
+:::note[Quick Answer]
+Add
 `nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"` and
 `proxy-send-timeout: "3600"` annotations to your Ingress resource. NGINX Ingress
 supports WebSockets by default but needs extended timeouts for long-lived
-connections. Use sticky sessions if you run multiple pods. ::: Kubernetes
+connections. Use sticky sessions if you run multiple pods.
+:::
+
+Kubernetes
 Ingress controllers can handle WebSocket connections with proper configuration,
 though they require specific settings to accommodate the unique characteristics
 of WebSocket protocols. Unlike traditional HTTP requests, WebSocket connections

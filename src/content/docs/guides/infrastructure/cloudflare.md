@@ -53,10 +53,12 @@ faq:
       Worker invocation if you use Workers.'
 ---
 
-:::note[Quick Answer] Cloudflare supports WebSocket proxying on all plans,
+:::note[Quick Answer]
+Cloudflare supports WebSocket proxying on all plans,
 including Free. Just enable the proxy (orange cloud) on your DNS record. For
 edge WebSocket logic, use Workers. For stateful connections (chat,
-collaboration), use Durable Objects. :::
+collaboration), use Durable Objects.
+:::
 
 Cloudflare provides multiple ways to handle WebSocket connections: through their
 CDN proxy service, Workers for edge computing, and Durable Objects for stateful

@@ -64,11 +64,13 @@ faq:
       this.'
 ---
 
-:::note[Quick Answer] The browser WebSocket API lets you open a persistent
+:::note[Quick Answer]
+The browser WebSocket API lets you open a persistent
 connection with `new WebSocket(url)`, send data with `ws.send()`, receive
 messages via `ws.onmessage`, and close with `ws.close()`. It supports text and
 binary data, has four readyState values (CONNECTING, OPEN, CLOSING, CLOSED), and
-works in all modern browsers. :::
+works in all modern browsers.
+:::
 
 ## Quick Reference
 

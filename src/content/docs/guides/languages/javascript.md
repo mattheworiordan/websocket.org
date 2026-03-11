@@ -63,10 +63,12 @@ tags:
   - how-to
 ---
 
-:::note[Quick Answer] In the browser, use the native API:
+:::note[Quick Answer]
+In the browser, use the native API:
 `new WebSocket("wss://example.com")`. For Node.js servers, use the **ws**
 library (`npm install ws`). Handle events with `onopen`, `onmessage`, `onerror`,
-and `onclose`. Add reconnection with exponential backoff for production use. :::
+and `onclose`. Add reconnection with exponential backoff for production use.
+:::
 
 ## Introduction to WebSockets in JavaScript
 

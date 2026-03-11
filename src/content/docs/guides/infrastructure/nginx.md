@@ -53,10 +53,12 @@ faq:
       (Nginx Plus) in your upstream block to ensure session affinity.'
 ---
 
-:::note[Quick Answer] Add `proxy_set_header Upgrade $http_upgrade` and
+:::note[Quick Answer]
+Add `proxy_set_header Upgrade $http_upgrade` and
 `proxy_set_header Connection "upgrade"` to your Nginx location block to proxy
 WebSocket connections. Set `proxy_read_timeout` to a high value (e.g. 3600s) to
-prevent idle connection drops. :::
+prevent idle connection drops.
+:::
 
 Nginx is one of the most popular web servers and reverse proxies for WebSocket
 applications. This comprehensive guide covers production-ready configurations

@@ -64,6 +64,84 @@ if (frontmatter.faq && Array.isArray(frontmatter.faq) && frontmatter.faq.length 
     })),
   };
 }
+
+// Generate HowTo JSON-LD when howto data is present in frontmatter
+let howtoJsonLd = null;
+if (frontmatter.howto && frontmatter.howto.steps && frontmatter.howto.steps.length > 0) {
+  const howto: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: frontmatter.howto.name,
+    step: frontmatter.howto.steps.map((step: { name: string; text: string }, index: number) => ({
+      '@type': 'HowToStep',
+      position: index + 1,
+      name: step.name,
+      text: step.text,
+    })),
+  };
+  if (frontmatter.howto.totalTime) {
+    howto.totalTime = frontmatter.howto.totalTime;
+  }
+  if (frontmatter.howto.estimatedCost) {
+    howto.estimatedCost = {
+      '@type': 'MonetaryAmount',
+      currency: 'USD',
+      value: frontmatter.howto.estimatedCost,
+    };
+  }
+  howtoJsonLd = howto;
+}
+
+// Generate BreadcrumbList JSON-LD from URL path
+const breadcrumbSegments = Astro.url.pathname
+  .replace(/^\//, '')
+  .replace(/\/$/, '')
+  .split('/')
+  .filter(Boolean);
+
+const segmentLabels: Record<string, string> = {
+  guides: 'Guides',
+  comparisons: 'Protocol Comparisons',
+  reference: 'Reference',
+  tools: 'Tools',
+  resources: 'Resources',
+  standards: 'Standards',
+  languages: 'Languages',
+  infrastructure: 'Infrastructure',
+  testing: 'Testing',
+  aws: 'AWS',
+};
+
+const breadcrumbItems: Array<{ '@type': string; position: number; name: string; item?: string }> = [
+  { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://websocket.org/' },
+];
+let breadcrumbPath = '';
+for (let i = 0; i < breadcrumbSegments.length; i++) {
+  const segment = breadcrumbSegments[i];
+  breadcrumbPath += `/${segment}`;
+  const isLast = i === breadcrumbSegments.length - 1;
+  const name = isLast
+    ? frontmatter.title || entry?.data?.title || segment
+    : segmentLabels[segment] || segment.charAt(0).toUpperCase() + segment.slice(1);
+  const entry_item: { '@type': string; position: number; name: string; item?: string } = {
+    '@type': 'ListItem',
+    position: i + 2,
+    name,
+  };
+  if (!isLast) {
+    entry_item.item = `https://websocket.org${breadcrumbPath}/`;
+  }
+  breadcrumbItems.push(entry_item);
+}
+
+const breadcrumbJsonLd =
+  breadcrumbItems.length > 1
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: breadcrumbItems,
+      }
+    : null;
 ---
 
 <script is:inline>
@@ -75,3 +153,9 @@ if (frontmatter.faq && Array.isArray(frontmatter.faq) && frontmatter.faq.length 
 <GA4 {...Astro.props} />
 {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
 {faqJsonLd && <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />}
+{howtoJsonLd && <script type="application/ld+json" set:html={JSON.stringify(howtoJsonLd)} />}
+{
+  breadcrumbJsonLd && (
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} />
+  )
+}

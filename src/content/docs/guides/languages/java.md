@@ -64,10 +64,12 @@ tags:
   - how-to
 ---
 
-:::note[Quick Answer] Use **Spring Boot** with `spring-boot-starter-websocket`
+:::note[Quick Answer]
+Use **Spring Boot** with `spring-boot-starter-websocket`
 for the fastest setup. For Jakarta EE, annotate a class with
 `@ServerEndpoint("/path")` and implement `@OnOpen`, `@OnMessage`, `@OnClose`
-methods. Both approaches support the standard JSR 356 WebSocket API. :::
+methods. Both approaches support the standard JSR 356 WebSocket API.
+:::
 
 WebSockets have revolutionized real-time communication in Java applications,
 enabling bi-directional, low-latency communication between clients and servers.

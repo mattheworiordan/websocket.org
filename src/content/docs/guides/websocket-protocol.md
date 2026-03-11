@@ -60,10 +60,12 @@ faq:
       applies to client-originated traffic.'
 ---
 
-:::note[Quick Answer] The WebSocket protocol (RFC 6455) upgrades an HTTP
+:::note[Quick Answer]
+The WebSocket protocol (RFC 6455) upgrades an HTTP
 connection to a persistent, full-duplex channel. After a handshake, client and
 server exchange lightweight frames - text, binary, or control - with minimal
-overhead. It works over HTTP/1.1, HTTP/2, and HTTP/3. :::
+overhead. It works over HTTP/1.1, HTTP/2, and HTTP/3.
+:::
 
 In December 2011, the Internet Engineering Task Force (IETF) standardized the
 WebSocket protocol through [RFC 6455](https://tools.ietf.org/html/rfc6455). In

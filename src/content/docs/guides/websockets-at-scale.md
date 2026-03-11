@@ -53,10 +53,12 @@ faq:
       you can focus on application logic.'
 ---
 
-:::note[Quick Answer] Scaling WebSockets requires horizontal server scaling with
+:::note[Quick Answer]
+Scaling WebSockets requires horizontal server scaling with
 a pub/sub backplane (Redis, Kafka, or NATS), sticky-session load balancing, OS
 tuning for file descriptor and memory limits, and connection state management. A
-single server can handle 500K+ idle connections with proper tuning. :::
+single server can handle 500K+ idle connections with proper tuning.
+:::
 
 This article covers the main aspects to consider when you set out to build a
 system at scale. By this, I mean a system to handle thousands or even millions

@@ -58,11 +58,13 @@ tags:
   - future
 ---
 
-:::note[Quick Answer] WebSockets remain the standard for real-time web apps.
+:::note[Quick Answer]
+WebSockets remain the standard for real-time web apps.
 **HTTP/3** support (RFC 9220) is emerging but not yet widely deployed.
 **WebTransport** complements WebSockets for advanced use cases (unreliable
 datagrams, multiplexed streams) but has limited browser support. Stick with
-WebSockets for most applications today. :::
+WebSockets for most applications today.
+:::
 
 WebSockets have revolutionized real-time web communication, enabling efficient,
 two-way messaging between clients and servers since their formal introduction in

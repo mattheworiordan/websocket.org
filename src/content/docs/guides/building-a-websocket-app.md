@@ -42,6 +42,36 @@ faq:
       instances. Each server publishes incoming messages to Redis and subscribes
       for messages from other servers. A load balancer with sticky sessions
       routes clients to servers.'
+howto:
+  name: 'Build a Real-Time WebSocket App with Node.js'
+  totalTime: 'PT30M'
+  steps:
+    - name: 'Set up the Node.js project'
+      text:
+        'Create a new directory, run npm init, and install the ws WebSocket
+        library with npm install ws.'
+    - name: 'Create the WebSocket server'
+      text:
+        'Create an HTTP server and attach a WebSocketServer to it. Handle
+        connection events to track connected clients.'
+    - name: 'Implement message broadcasting'
+      text:
+        'When a client sends a cursor position, broadcast it to all other
+        connected clients using ws.send() on each connection in the clients set.'
+    - name: 'Build the browser client'
+      text:
+        'Use the native WebSocket API to connect to your server. Track mouse
+        movements and send coordinates. Render received cursor positions from
+        other users on a canvas.'
+    - name: 'Add reconnection logic'
+      text:
+        'Handle connection drops with exponential backoff reconnection in the
+        client. Listen for onclose events and retry with increasing delays.'
+    - name: 'Plan for scaling'
+      text:
+        'Add a Redis pub/sub backplane so multiple server instances can relay
+        messages. Use sticky sessions in your load balancer to keep WebSocket
+        connections pinned.'
 tags:
   - websocket
   - guide
@@ -49,10 +79,12 @@ tags:
   - how-to
 ---
 
-:::note[Quick Answer] Install `ws` with npm, create a `WebSocketServer`, and
-handle `connection` and `message` events. On the client, use
-`new WebSocket("ws://localhost:8080")` and listen for `onmessage`. This tutorial
-builds a real-time cursor sharing demo from scratch. :::
+:::note[Quick Answer]
+Install `ws` with npm, create a `WebSocketServer`, and handle
+`connection` and `message` events. On the client, use
+`new WebSocket("ws://localhost:8080")` and listen for `onmessage`.
+This tutorial builds a real-time cursor sharing demo from scratch.
+:::
 
 This post provides detailed, step-by-step instructions on building a realtime
 web app with WebSockets and Node.js - an interactive cursor position-sharing

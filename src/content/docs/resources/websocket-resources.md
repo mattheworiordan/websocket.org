@@ -46,10 +46,12 @@ faq:
       WebSocket over HTTP/2 and HTTP/3 respectively.'
 ---
 
-:::note[Quick Answer] The most popular WebSocket libraries by language:
+:::note[Quick Answer]
+The most popular WebSocket libraries by language:
 **JavaScript** - ws (Node.js) + native browser API. **Python** - websockets.
 **Go** - gorilla/websocket. **Java** - Tyrus, Jetty. **C#** - SignalR.
-**Rust** - tokio-tungstenite. **PHP** - Ratchet. :::
+**Rust** - tokio-tungstenite. **PHP** - Ratchet.
+:::
 
 ## Official Specifications & Standards
 

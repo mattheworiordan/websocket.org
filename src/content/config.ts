@@ -30,6 +30,19 @@ export const collections = {
             })
           )
           .optional(),
+        howto: z
+          .object({
+            name: z.string(),
+            estimatedCost: z.string().optional(),
+            totalTime: z.string().optional(),
+            steps: z.array(
+              z.object({
+                name: z.string(),
+                text: z.string(),
+              })
+            ),
+          })
+          .optional(),
         seo: z
           .object({
             title: z.string().optional(),

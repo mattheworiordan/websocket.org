@@ -42,9 +42,11 @@ faq:
       inactivity.'
 ---
 
-:::note[Quick Answer] Connect to `wss://echo.websocket.org` to test your
+:::note[Quick Answer]
+Connect to `wss://echo.websocket.org` to test your
 WebSocket client. Every message you send is echoed back instantly. Free, public,
-and supports WSS, SSE, and HTTP — no signup required. :::
+and supports WSS, SSE, and HTTP — no signup required.
+:::
 
 ## Overview
 

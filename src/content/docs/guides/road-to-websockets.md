@@ -50,10 +50,12 @@ tags:
   - how-to
 ---
 
-:::note[Quick Answer] WebSockets evolved from earlier workarounds like HTTP
+:::note[Quick Answer]
+WebSockets evolved from earlier workarounds like HTTP
 polling, long polling, and Comet. These techniques simulated real-time
 communication over HTTP but were inefficient. WebSockets (RFC 6455, 2011) solved
-this with a persistent, full-duplex connection over a single TCP socket. :::
+this with a persistent, full-duplex connection over a single TCP socket.
+:::
 
 > During the 1990s, the web rapidly grew into the dominant way to exchange
 > information. Increasing numbers of users became accustomed to the experience

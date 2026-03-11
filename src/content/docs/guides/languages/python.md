@@ -55,11 +55,13 @@ faq:
       create WebSocket consumers.'
 ---
 
-:::note[Quick Answer] Use the **websockets** library for async Python WebSocket
+:::note[Quick Answer]
+Use the **websockets** library for async Python WebSocket
 apps. Install with `pip install websockets`, create a server with
 `websockets.serve()`, and connect from clients with `websockets.connect()`. For
 Django, use **Django Channels**. For FastAPI, use its built-in WebSocket
-support. :::
+support.
+:::
 
 ## Introduction to WebSockets in Python
 

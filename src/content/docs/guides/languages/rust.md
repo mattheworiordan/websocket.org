@@ -65,10 +65,12 @@ tags:
   - how-to
 ---
 
-:::note[Quick Answer] Use **tokio-tungstenite** for async WebSocket support in
+:::note[Quick Answer]
+Use **tokio-tungstenite** for async WebSocket support in
 Rust. Add it with `cargo add tokio-tungstenite tokio`, accept connections with
 `accept_async()`, and read/write with `StreamExt` and `SinkExt` traits. For the
-actix-web framework, use its built-in WebSocket support. :::
+actix-web framework, use its built-in WebSocket support.
+:::
 
 ## Introduction to WebSockets in Rust
 

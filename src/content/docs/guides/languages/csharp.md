@@ -46,10 +46,12 @@ faq:
       communication across all platforms.'
 ---
 
-:::note[Quick Answer] Use **ASP.NET Core WebSocket middleware** for raw
+:::note[Quick Answer]
+Use **ASP.NET Core WebSocket middleware** for raw
 WebSocket servers. Use **ClientWebSocket** for .NET clients. Use **SignalR**
 when you want automatic reconnection, hub-based routing, and fallback
-transports. SignalR uses WebSockets under the hood when available. :::
+transports. SignalR uses WebSockets under the hood when available.
+:::
 
 C# and .NET provide one of the most comprehensive and mature ecosystems for
 WebSocket development, offering everything from low-level `ClientWebSocket` APIs

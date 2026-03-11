@@ -41,6 +41,28 @@ faq:
       Firefox, Safari, Node.js ws, and Python websockets all achieve
       517/517. Check your library documentation or run the suite
       yourself to verify compliance.'
+howto:
+  name: 'Test WebSocket Compliance with Autobahn TestSuite'
+  totalTime: 'PT15M'
+  steps:
+    - name: 'Install Autobahn TestSuite'
+      text: 'Pull the Docker image with docker pull
+        crossbario/autobahn-testsuite, or install via pip with pip
+        install autobahntestsuite.'
+    - name: 'Start your WebSocket server'
+      text: 'Run your WebSocket server on a known port (e.g. 9001).
+        The server must be running before the test suite connects.'
+    - name: 'Create a test configuration'
+      text: 'Write a fuzzingclient.json config file specifying your
+        server URL, which test cases to run, and where to output
+        reports.'
+    - name: 'Run the fuzzing client'
+      text: 'Execute wstest -m fuzzingclient -s fuzzingclient.json.
+        This runs all selected test cases against your server.'
+    - name: 'Review the HTML report'
+      text: 'Open the generated reports/index.html file. Each test
+        case shows pass, fail, or non-strict status with details
+        on what was tested and any protocol violations found.'
 ---
 
 import {

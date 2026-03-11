@@ -40,9 +40,11 @@ faq:
       pull requests.'
 ---
 
-:::note[Quick Answer] Ask WebSocket questions on **Stack Overflow** (tag:
+:::note[Quick Answer]
+Ask WebSocket questions on **Stack Overflow** (tag:
 `websocket`). Join discussions on **Reddit** and **Discord**. Contribute to
-websocket.org via **GitHub** pull requests. :::
+websocket.org via **GitHub** pull requests.
+:::
 
 Welcome to the WebSocket community hub! This is your gateway to discussions,
 resources, and collaboration opportunities around WebSocket technology.

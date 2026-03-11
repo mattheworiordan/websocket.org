@@ -45,10 +45,12 @@ faq:
       ecosystem.'
 ---
 
-:::note[Quick Answer] Use **Ratchet** (built on ReactPHP) for most PHP WebSocket
+:::note[Quick Answer]
+Use **Ratchet** (built on ReactPHP) for most PHP WebSocket
 projects. Use **Swoole** for high-performance needs. PHP's traditional
 request-response model requires an event loop library to support persistent
-WebSocket connections. :::
+WebSocket connections.
+:::
 
 ## Introduction to WebSockets in PHP
 

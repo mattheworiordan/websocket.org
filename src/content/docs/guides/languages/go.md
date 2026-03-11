@@ -64,11 +64,13 @@ tags:
   - how-to
 ---
 
-:::note[Quick Answer] Use **gorilla/websocket** for full-featured WebSocket
+:::note[Quick Answer]
+Use **gorilla/websocket** for full-featured WebSocket
 support or **nhooyr/websocket** for a simpler API. Create an `Upgrader`, call
 `Upgrade()` in your HTTP handler, then use `ReadMessage()` and `WriteMessage()`
 on the connection. Go's goroutines handle thousands of concurrent connections
-efficiently. :::
+efficiently.
+:::
 
 Go has emerged as one of the most powerful languages for building real-time,
 concurrent applications, making it an excellent choice for WebSocket

@@ -1,4 +1,5 @@
-# MDX files use JSX components (Tabs, TabItem) that Prettier
-# reformats incorrectly, collapsing multi-line code blocks
-# inside components onto single lines.
+# Content files use Starlight directives (:::note, :::tip, etc.)
+# that Prettier's proseWrap collapses onto single lines, breaking
+# the rendering. MDX files also have JSX component issues.
 src/content/docs/**/*.mdx
+src/content/docs/**/*.md

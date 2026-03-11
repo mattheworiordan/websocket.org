@@ -59,10 +59,12 @@ faq:
 date: '2024-09-02'
 ---
 
-:::note[Quick Answer] AWS ALB supports WebSockets natively - no special
+:::note[Quick Answer]
+AWS ALB supports WebSockets natively - no special
 configuration needed. Set the idle timeout higher than 60s for long-lived
 connections, enable sticky sessions on the target group, and configure health
-checks on your WebSocket endpoint. :::
+checks on your WebSocket endpoint.
+:::
 
 AWS Application Load Balancer (ALB) provides native WebSocket support with
 automatic connection upgrades, making it an excellent choice for WebSocket
