@@ -155,11 +155,18 @@ src/
 
 ### Writing Standards
 
-- Practical, production-focused (beyond MDN's API docs)
+- **Opinionated and specific**: Make recommendations, state trade-offs, cover
+  failure modes. Not "there are several options" but "use X because Y"
+- **Production-focused**: Beyond MDN's API docs — error handling, deployment,
+  scaling, monitoring. Code examples must work in production, not just localhost
+- **Concise**: Max 3-5 sentences before first code example. No philosophical
+  intros. Cut filler aggressively
+- **Code limits**: Inline examples 10-30 lines, full implementations 50-100
+  lines max. Never 150+ lines without interruption
 - Include infrastructure configs (Nginx, AWS ALB, etc.)
 - Provide language-specific implementations
-- Focus on real-world deployment challenges
 - Wrap prose at 80 characters (prettier enforces this for markdown)
+- See `docs/content-style-guide.md` for full voice and formatting standards
 
 ## Ably Link Tracking (UTM Parameters)
 

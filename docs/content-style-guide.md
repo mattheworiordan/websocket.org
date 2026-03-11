@@ -10,17 +10,21 @@ levels.
 
 ### Voice Attributes
 
-- **Authoritative**: We are the definitive source for WebSocket information
-- **Technical**: Precise and accurate in technical details
-- **Accessible**: Clear explanations for complex concepts
-- **Practical**: Focus on real-world applications
+- **Opinionated**: Make specific recommendations. "Use X for Y" is better than
+  "there are several options." State trade-offs honestly.
+- **Production-focused**: Cover what actually happens in production, not just
+  happy-path tutorials. Error handling, failure modes, deployment.
+- **Specific**: Use concrete numbers, real error messages, actual config. Not
+  "may cause issues" but "the handshake fails with a 400."
+- **Concise**: Get to the point. Maximum 3-5 sentences before the first code
+  example. Cut philosophical intros.
 
 ### Tone Guidelines
 
-- Professional but approachable
+- Professional but direct — say what you mean
 - Confident without being condescending
-- Helpful and educational
-- Objective and vendor-neutral (except for appropriate Ably mentions)
+- Honest about limitations and trade-offs
+- Vendor-neutral in comparisons (mention multiple options, not just Ably)
 
 ## Writing Principles
 
@@ -210,6 +214,14 @@ contributor: true
 
 ## Code Style
 
+### General Rules
+
+- **Every code example must include error handling** — `onerror`, `onclose`,
+  try/catch. A reader who copy-pastes should get something that won't crash.
+- **Inline examples**: 10-30 lines. Show one concept.
+- **Full implementations**: 50-100 lines max. Break up with explanation.
+- **Never**: 150+ lines of uninterrupted code.
+
 ### JavaScript
 
 - ES6+ syntax preferred
@@ -246,6 +258,10 @@ ws.onclose = (event) => {
 - "Obviously" (not obvious to everyone)
 - Unnecessary jargon
 - Marketing language in technical content
+- Vague praise: "robust", "comprehensive", "powerful", "seamless"
+- Filler phrases: "it's important to note", "in today's world", "at its core"
+- Hyperbole: "revolutionized", "paradigm shift"
+- Generic intros that could describe any technology
 
 ## Content Checklist
 
