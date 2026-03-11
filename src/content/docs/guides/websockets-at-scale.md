@@ -64,7 +64,7 @@ This article covers the main aspects to consider when you set out to build a
 system at scale. By this, I mean a system to handle thousands or even millions
 of concurrent end-user devices as they connect, consume, and send messages over
 WebSockets. As you will see,
-[scaling WebSockets](https://ably.com/topic/the-challenge-of-scaling-websockets)
+[scaling WebSockets](https://ably.com/topic/the-challenge-of-scaling-websockets?utm_source=websocket-org&utm_medium=websockets-at-scale)
 is non-trivial, and involves numerous engineering decisions and technical
 trade-offs.
 
@@ -153,7 +153,7 @@ the workload to?
 
 ## Load balancing
 
-[Load balancing WebSockets](https://ably.com/topic/when-and-how-to-load-balance-websockets-at-scale)
+[Load balancing WebSockets](https://ably.com/topic/when-and-how-to-load-balance-websockets-at-scale?utm_source=websocket-org&utm_medium=websockets-at-scale)
 is the process of distributing incoming network traffic (WebSocket connections
 in our case) across a group of backend servers (usually called a server farm).
 When you scale horizontally, your load balancing strategy is fundamental.
@@ -365,7 +365,7 @@ _Figure 5.3: The pub/sub pattern_
 Here's a practical implementation of the pub/sub pattern with Redis and
 WebSockets (for a deeper dive into scaling pub/sub with WebSockets and Redis,
 see
-[this comprehensive guide](https://ably.com/blog/scaling-pub-sub-with-websockets-and-redis)):
+[this comprehensive guide](https://ably.com/blog/scaling-pub-sub-with-websockets-and-redis?utm_source=websocket-org&utm_medium=websockets-at-scale)):
 
 ```javascript
 // Server-side pub/sub implementation using Redis
@@ -465,7 +465,7 @@ Here are some other benefits you gain by using pub/sub:
 - **Data integrity**. Modern pub/sub platforms ensure message ordering and
   delivery guarantees. For a deep dive into how data integrity is maintained in
   production pub/sub systems, see
-  [this technical analysis](https://ably.com/blog/data-integrity-in-ably-pub-sub).
+  [this technical analysis](https://ably.com/blog/data-integrity-in-ably-pub-sub?utm_source=websocket-org&utm_medium=websockets-at-scale).
 
 There are numerous projects built with WebSockets and pub/sub, and plenty of
 open-source libraries and commercial solutions combining these two elements, so
@@ -474,7 +474,7 @@ scratch. Examples of open-source solutions you can use include: Socket.IO with
 the Redis pub/sub adapter, SocketCluster, or Django Channels. Of course, when
 choosing an open-source solution, you have to deploy it, manage it, and scale it
 yourself — this is, without a doubt, a tough engineering challenge.
-Alternatively, you can use a commercial platform like [Ably](https://ably.com/)
+Alternatively, you can use a commercial platform like [Ably](https://ably.com/?utm_source=websocket-org&utm_medium=websockets-at-scale)
 that handles the complexities of scaling WebSockets for you.
 
 ## Fallback transports
