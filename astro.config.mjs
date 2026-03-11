@@ -64,7 +64,7 @@ export default defineConfig({
         },
       ],
       customCss: ['./src/styles/custom.css'],
-      social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/ably/websocket.org' }],
+      social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/mattheworiordan/websocket.org' }],
       sidebar: [
         {
           label: 'Guides',
@@ -162,7 +162,7 @@ export default defineConfig({
         },
       ],
       editLink: {
-        baseUrl: 'https://github.com/ably/websocket.org/edit/main/',
+        baseUrl: 'https://github.com/mattheworiordan/websocket.org/edit/main/',
       },
       components: {
         Head: './src/components/head.astro',

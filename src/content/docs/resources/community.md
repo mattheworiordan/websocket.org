@@ -30,7 +30,7 @@ faq:
       Community has real-time chat channels for WebSocket help.'
   - q: 'How can I contribute to websocket.org?'
     a:
-      'Submit pull requests on GitHub at github.com/ably/websocket.org to fix
+      'Submit pull requests on GitHub at github.com/mattheworiordan/websocket.org to fix
       typos, improve docs, or add guides. Open issues for bugs or suggestions.
       The project welcomes contributions from all developers.'
   - q: 'Is websocket.org open source?'
@@ -100,9 +100,9 @@ can help:
 ### How to Contribute
 
 1. **Submit PRs** - Fix typos, improve documentation, or add new guides via
-   [GitHub](https://github.com/ably/websocket.org)
+   [GitHub](https://github.com/mattheworiordan/websocket.org)
 2. **Report Issues** - Found a bug or have a suggestion?
-   [Open an issue](https://github.com/ably/websocket.org/issues)
+   [Open an issue](https://github.com/mattheworiordan/websocket.org/issues)
 3. **Share Knowledge** - Write a guide or tutorial about your WebSocket
    experience
 4. **Spread the Word** - Share WebSocket.org with your network
@@ -120,8 +120,8 @@ We're grateful to everyone who has contributed to making WebSocket.org better:
   improvements
 
 Want to see your name here? Check out our
-[Contributing Guide](https://github.com/ably/websocket.org/blob/main/CONTRIBUTING.md)
-and [start contributing](https://github.com/ably/websocket.org)!
+[Contributing Guide](https://github.com/mattheworiordan/websocket.org/blob/main/CONTRIBUTING.md)
+and [start contributing](https://github.com/mattheworiordan/websocket.org)!
 
 ## Code of Conduct
 
@@ -130,7 +130,7 @@ respectful and constructive in all interactions.
 
 ## Stay Updated
 
-- **[GitHub Releases](https://github.com/ably/websocket.org/releases)** - Track
+- **[GitHub Releases](https://github.com/mattheworiordan/websocket.org/releases)** - Track
   updates to this site
 - **[WebSocket Standards Updates](https://datatracker.ietf.org/doc/rfc6455/)** -
   Follow protocol developments
@@ -138,7 +138,7 @@ respectful and constructive in all interactions.
 ## Questions or Suggestions?
 
 Have ideas for improving the WebSocket community resources?
-[Open an issue](https://github.com/ably/websocket.org/issues) or contribute
+[Open an issue](https://github.com/mattheworiordan/websocket.org/issues) or contribute
 directly via pull request.
 
 ## Frequently Asked Questions
@@ -151,7 +151,7 @@ real-time chat channels for WebSocket help.
 
 ### How can I contribute to websocket.org?
 
-Submit pull requests on GitHub at github.com/ably/websocket.org to fix typos,
+Submit pull requests on GitHub at github.com/mattheworiordan/websocket.org to fix typos,
 improve docs, or add guides. Open issues for bugs or suggestions. The project
 welcomes contributions from all developers.
 
