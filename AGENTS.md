@@ -36,7 +36,19 @@ npm run format
 # Step 4: Verify lint still passes after formatting
 npm run lint
 # If errors, repeat from step 1
+
+# Step 5: Format ANY non-src files you are staging
+# npm run format only targets src/**/*. The pre-commit hook runs
+# prettier --check on ALL staged files. If you are staging files
+# outside src/ (e.g., AGENTS.md, README.md, docs/*.md, astro.config.mjs),
+# you MUST run prettier on them explicitly:
+npx prettier --write AGENTS.md README.md  # list every non-src file
 ```
+
+**CRITICAL: `npm run format` does NOT cover files outside `src/`.** The
+pre-commit hook checks ALL staged files with `prettier --check`. If you stage
+any file outside `src/` (root markdown, config files, docs/), you must run
+`npx prettier --write` on it explicitly or the commit WILL be rejected.
 
 ### "Pre-Existing" Errors Are YOUR Problem
 
@@ -130,6 +142,27 @@ When doing "Fix CTR" tasks from the content strategy, each page needs:
 FAQPage JSON-LD is auto-generated from frontmatter `faq` array by
 `src/components/head.astro`. The `faq` field is defined in
 `src/content/config.ts`.
+
+## Sidebar Navigation (MUST maintain)
+
+The sidebar is **manually configured** in `astro.config.mjs` under the `sidebar`
+array in the Starlight config. It is NOT auto-generated from the file structure.
+
+**When you add, remove, rename, or move a content page, you MUST update the
+sidebar config to match.** New pages will not appear in navigation until added
+here. Removed pages will leave broken sidebar links if not cleaned up.
+
+The sidebar is organized into groups: Guides (with sub-groups like Core
+Concepts, Implementation, Languages), Protocol Comparisons, Reference (with
+sub-groups like API Reference, Standards), Tools, and Resources.
+
+### Sidebar UX: collapsed state
+
+Only **Guides > Core Concepts** is expanded by default. All other groups and
+sub-groups use `collapsed: true` so the sidebar stays short. When adding a new
+group or sub-group, **default it to collapsed** unless it is a primary entry
+point that most visitors need. A long open-by-default sidebar overwhelms users —
+keep the initial view compact.
 
 ## Repository Structure
 

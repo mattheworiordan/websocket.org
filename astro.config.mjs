@@ -64,7 +64,13 @@ export default defineConfig({
         },
       ],
       customCss: ['./src/styles/custom.css'],
-      social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/mattheworiordan/websocket.org' }],
+      social: [
+        {
+          icon: 'github',
+          label: 'GitHub',
+          href: 'https://github.com/mattheworiordan/websocket.org',
+        },
+      ],
       sidebar: [
         {
           label: 'Guides',
@@ -80,6 +86,7 @@ export default defineConfig({
             },
             {
               label: 'Implementation',
+              collapsed: true,
               items: [
                 { label: 'Building a WebSocket App', link: '/guides/building-a-websocket-app/' },
                 { label: 'WebSockets at Scale', link: '/guides/websockets-at-scale/' },
@@ -87,14 +94,17 @@ export default defineConfig({
             },
             {
               label: 'Security',
+              collapsed: true,
               items: [{ label: 'Security Hardening', link: '/guides/security/' }],
             },
             {
               label: 'Testing',
+              collapsed: true,
               items: [{ label: 'Autobahn TestSuite', link: '/guides/testing/autobahn/' }],
             },
             {
               label: 'Infrastructure',
+              collapsed: true,
               items: [
                 { label: 'Nginx Configuration', link: '/guides/infrastructure/nginx/' },
                 { label: 'AWS ALB Configuration', link: '/guides/infrastructure/aws/alb/' },
@@ -134,12 +144,23 @@ export default defineConfig({
         },
         {
           label: 'Reference',
+          collapsed: true,
           items: [
             {
               label: 'API Reference',
               items: [
                 { label: 'WebSocket API', link: '/reference/websocket-api/' },
                 { label: 'Close Codes', link: '/reference/close-codes/' },
+              ],
+            },
+            {
+              label: 'Protocol & Transport',
+              items: [
+                { label: 'WebSocket Headers', link: '/reference/headers/' },
+                { label: 'WebSocket Ports', link: '/reference/ports/' },
+                { label: 'wss vs ws', link: '/reference/wss-vs-ws/' },
+                { label: 'WebSocket vs TCP', link: '/reference/websocket-vs-tcp/' },
+                { label: 'Browser Support', link: '/reference/browser-support/' },
               ],
             },
             {
@@ -150,10 +171,12 @@ export default defineConfig({
         },
         {
           label: 'Tools',
+          collapsed: true,
           items: [{ label: 'Echo Server', link: '/tools/websocket-echo-server/' }],
         },
         {
           label: 'Resources',
+          collapsed: true,
           items: [
             { label: 'WebSocket Resources', link: '/resources/websocket-resources/' },
             { label: 'Community', link: '/resources/community/' },
