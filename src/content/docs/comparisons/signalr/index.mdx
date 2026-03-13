@@ -1,0 +1,380 @@
+---
+title: 'SignalR vs WebSocket: .NET Abstraction vs Protocol'
+description:
+  'SignalR adds hub abstraction and transport negotiation on top of
+  WebSocket. Compare raw WebSocket, SignalR, and managed services
+  for .NET real-time apps.'
+author: "Matthew O'Riordan"
+authorRole: 'Co-founder & CEO, Ably'
+date: 2026-03-12
+lastUpdated: 2026-03-12
+category: comparisons
+keywords:
+  - signalr vs websocket
+  - signalr websocket
+  - asp.net websocket
+  - signalr or websocket
+  - asp.net core signalr
+  - azure signalr service
+seo:
+  keywords:
+    - signalr vs websocket
+    - signalr websocket
+    - asp.net websocket
+    - asp.net core real-time
+    - signalr or websocket
+    - azure signalr service
+    - websocket .net
+faq:
+  - q: 'What is the difference between SignalR and WebSocket?'
+    a:
+      'WebSocket is a transport protocol providing a persistent,
+      bidirectional connection between client and server. SignalR is a
+      Microsoft library that uses WebSocket as its preferred transport
+      but adds hub abstraction, automatic transport fallback, groups,
+      and .NET integration. SignalR adds convenience for .NET teams at
+      the cost of platform lock-in and abstraction overhead.'
+  - q: 'Does SignalR use WebSockets internally?'
+    a:
+      'Yes. ASP.NET Core SignalR prefers WebSocket as its primary
+      transport. If WebSocket is unavailable (old proxies, restrictive
+      firewalls), it falls back to Server-Sent Events, then Long
+      Polling. You can force WebSocket-only mode by configuring the
+      transport negotiation.'
+  - q: 'Should I use SignalR or raw WebSocket for my .NET app?'
+    a:
+      'Use SignalR if you are building a .NET-to-.NET system and want
+      fast development with hub abstraction and groups. Use raw
+      WebSocket if you need cross-platform clients, maximum
+      performance, or want to avoid .NET server lock-in. Use a
+      managed service if you need guaranteed delivery, global
+      distribution, or more than three client SDKs.'
+  - q: 'What are the limitations of Azure SignalR Service?'
+    a:
+      'Azure SignalR Service is region-locked to Azure, offers a
+      maximum 99.95% SLA on the premium tier, provides only three
+      client SDKs (JavaScript, C#, Java), and does not guarantee
+      message ordering or exactly-once delivery. Scaling across
+      regions requires manual architecture work.'
+  - q: 'Can I use SignalR with non-.NET clients?'
+    a:
+      'ASP.NET Core SignalR provides official client SDKs for
+      JavaScript, C#, and Java only. Community-maintained clients
+      exist for other languages, but they lag behind the official
+      SDKs and may not support all features. Raw WebSocket or a
+      managed service with broad SDK coverage is better for
+      polyglot environments.'
+---
+
+:::note[Quick Answer]
+SignalR is Microsoft's abstraction layer over WebSocket for .NET
+applications. It adds hub-based routing, automatic transport
+fallback, and groups. Strong choice for .NET-only teams. Weak on
+delivery guarantees, global distribution, and cross-platform
+client support compared to raw WebSocket or managed services.
+:::
+
+## Three Flavors of SignalR (and Why It Matters)
+
+One of the most confusing things about SignalR is that the name
+refers to three different products with different capabilities,
+different APIs, and different deployment models. Stack Overflow
+answers, blog posts, and even Microsoft documentation frequently
+conflate them.
+
+**ASP.NET SignalR** (legacy): The original library, built for
+ASP.NET Framework. Microsoft moved this to maintenance mode in
+2019. No new features, no active development. If you see
+`Microsoft.AspNet.SignalR` in NuGet, you are looking at the
+legacy version. Do not start new projects with it.
+
+**ASP.NET Core SignalR** (current): A complete rewrite for
+ASP.NET Core. Different API surface, different protocol, not
+backward-compatible with the legacy version. This is what
+Microsoft recommends today. NuGet package:
+`Microsoft.AspNetCore.SignalR`.
+
+**Azure SignalR Service** (managed): A cloud-hosted proxy that
+offloads connection management from your ASP.NET Core app to
+Azure infrastructure. Your server logic stays the same, but
+Azure handles the WebSocket connections. Requires Azure, carries
+its own SLA and pricing model.
+
+This guide focuses on ASP.NET Core SignalR (the current version)
+and Azure SignalR Service, since the legacy version is
+effectively dead.
+
+## What SignalR Gives You
+
+For .NET teams, SignalR provides genuine value over raw
+WebSocket:
+
+**Hub abstraction**: Instead of parsing raw WebSocket frames,
+you define strongly-typed methods that clients call by name.
+The hub routes messages to the right handler automatically.
+
+```csharp
+// SignalR Hub - server-side method routing
+public class ChatHub : Hub
+{
+    public async Task SendMessage(string user, string message)
+    {
+        await Clients.All.SendAsync(
+            "ReceiveMessage", user, message
+        );
+    }
+
+    public async Task JoinGroup(string groupName)
+    {
+        await Groups.AddToGroupAsync(
+            Context.ConnectionId, groupName
+        );
+    }
+}
+```
+
+Compare that to raw WebSocket in C#, where you handle
+serialization, routing, and group management yourself:
+
+```csharp
+// Raw WebSocket - manual everything
+var buffer = new byte[1024];
+var result = await ws.ReceiveAsync(buffer, ct);
+var json = Encoding.UTF8.GetString(buffer, 0, result.Count);
+var msg = JsonSerializer.Deserialize<ChatMessage>(json);
+
+// Manual routing based on message type
+switch (msg.Type)
+{
+    case "sendMessage":
+        await BroadcastToAll(msg);
+        break;
+    case "joinGroup":
+        AddToGroup(msg.GroupName, ws);
+        break;
+}
+```
+
+**Automatic transport negotiation**: SignalR tries WebSocket
+first, falls back to Server-Sent Events, then Long Polling. For
+corporate environments with restrictive proxies, this fallback
+matters.
+
+**Groups**: Built-in broadcasting to named groups without
+maintaining your own connection registry.
+
+**Strongly-typed hubs**: Type-safe client method invocations
+that catch errors at compile time rather than runtime.
+
+## Where SignalR Breaks Down
+
+SignalR solves the protocol layer well for .NET teams, but it
+does not solve infrastructure problems. This distinction trips
+up teams that expect SignalR to handle production-grade
+messaging.
+
+### Best-effort delivery only
+
+SignalR provides no guaranteed message ordering and no
+exactly-once delivery semantics. Messages are best-effort. If
+a client disconnects and reconnects, messages sent during the
+gap are lost unless you build your own persistence and replay
+logic. For notifications or chat where losing a message means
+losing revenue or trust, this is a serious gap.
+
+### Platform lock-in
+
+The server must run ASP.NET Core. The official client SDKs cover
+JavaScript, C#, and Java only. If your architecture includes
+Python services, Go microservices, mobile Flutter apps, or IoT
+devices running embedded C, you are either writing custom
+WebSocket integration or relying on community-maintained clients
+that may not support the full SignalR protocol.
+
+### Three client SDKs
+
+SignalR ships three official client libraries. Compare this to
+the WebSocket protocol itself, which has mature client
+implementations in every language, or managed services that
+provide 25+ maintained SDKs.
+
+### Scaling requires manual work
+
+A single ASP.NET Core server handles SignalR connections for
+clients connected to that server. To scale horizontally, you
+need a backplane: Redis, SQL Server, or Azure Service Bus.
+Each option adds latency, operational complexity, and a new
+failure mode. The backplane becomes a bottleneck that you must
+monitor, tune, and scale independently.
+
+### Azure SignalR Service limitations
+
+Azure SignalR Service offloads connection management but
+introduces its own constraints:
+
+- **SLA**: 99.95% on premium tier (roughly 4.5 hours of
+  downtime per year), 99.9% on standard
+- **Single-region**: No built-in multi-region failover.
+  Global users hit a single Azure region
+- **Azure lock-in**: Cannot run on AWS, GCP, or on-premises
+- **Same delivery model**: Still best-effort, no ordering or
+  delivery guarantees beyond what SignalR provides
+
+### The documentation problem
+
+Because three different products share the "SignalR" name,
+developers frequently apply guidance for the wrong version.
+A Stack Overflow answer about ASP.NET SignalR connection
+limits does not apply to ASP.NET Core SignalR. An Azure
+SignalR Service scaling guide does not help self-hosted
+deployments. This costs teams hours of debugging.
+
+## The Three Layers of .NET Real-Time
+
+Think of .NET real-time communication as three distinct layers,
+each solving a different problem:
+
+### Layer 1: Raw WebSocket
+
+Maximum control, maximum responsibility. You handle
+serialization, routing, reconnection, scaling, and delivery
+guarantees yourself. Choose this when you need protocol-level
+control, cross-platform compatibility, or minimal overhead.
+
+**Best for**: High-performance systems, polyglot architectures,
+teams comfortable building their own messaging patterns.
+
+### Layer 2: SignalR
+
+A protocol and abstraction layer on top of WebSocket. Hub
+routing, transport fallback, groups, and strong .NET
+integration. You still handle infrastructure: servers,
+scaling, backplanes, availability, and delivery guarantees.
+
+**Best for**: .NET-to-.NET systems where development speed
+matters more than operational flexibility. Teams that accept
+Azure or self-hosted infrastructure management.
+
+### Layer 3: Managed real-time service
+
+Infrastructure handled externally. Guaranteed ordering and
+delivery, global edge distribution, dozens of SDKs, and SLAs
+above 99.99%. You write application logic; the service handles
+connections, scaling, persistence, and failover.
+
+**Best for**: Applications where message loss is unacceptable,
+global distribution is required, or the team wants to focus on
+product rather than infrastructure.
+
+[Ably][ably-home] operates at this third layer, providing
+99.999% uptime SLA, guaranteed message ordering, exactly-once
+delivery semantics, and 25+ client SDKs across every major
+platform. For teams outgrowing SignalR's operational constraints,
+it removes the infrastructure burden while delivering stronger
+reliability guarantees.
+
+## Comparison Table
+
+| Capability | Raw WebSocket | SignalR (self-hosted) | Azure SignalR Service | Ably |
+| --- | --- | --- | --- | --- |
+| **Transport** | WebSocket only | WS, SSE, Long Polling | WS, SSE, Long Polling | WS, SSE, Long Polling, MQTT |
+| **Message delivery** | Best-effort | Best-effort | Best-effort | Guaranteed ordering + exactly-once |
+| **Client SDKs** | Every language | 3 official (JS, C#, Java) | 3 official | 25+ maintained |
+| **Server platform** | Any | ASP.NET Core only | ASP.NET Core + Azure | Any (cloud service) |
+| **SLA** | Self-managed | Self-managed | 99.95% (premium) | 99.999% |
+| **Global distribution** | Self-managed | Self-managed | Single region | 635+ edge PoPs |
+| **Scaling model** | Manual | Backplane (Redis, SQL) | Azure-managed | Automatic |
+| **Message persistence** | None | None | None | 2-72 hour history |
+| **Pricing** | Server costs | Server + backplane costs | Per unit + message | Per message |
+
+## Frequently Asked Questions
+
+### What is the difference between SignalR and WebSocket?
+
+WebSocket is a transport protocol — a persistent, bidirectional
+pipe between client and server. SignalR is a Microsoft library
+that uses WebSocket as its preferred transport but adds an
+abstraction layer on top: hub-based method routing, groups,
+transport fallback, and deep .NET integration. The trade-off
+is convenience vs control. SignalR lets you ship faster on .NET
+but locks you into ASP.NET Core on the server and limits you
+to three client SDKs. Raw WebSocket works with any language on
+both ends, at the cost of implementing routing, reconnection,
+and group management yourself. See the
+[code comparison](#what-signalr-gives-you) above for a
+concrete side-by-side.
+
+### Does SignalR use WebSockets internally?
+
+Yes — WebSocket is SignalR's preferred transport on ASP.NET
+Core. The negotiation endpoint (`/negotiate`) tells the client
+which transports the server supports, and the client picks the
+best available. If WebSocket fails (corporate proxies that strip
+the `Upgrade` header, old IIS configurations), SignalR falls
+back to Server-Sent Events, then Long Polling. You can force
+WebSocket-only mode with
+`options.Transports = HttpTransportType.WebSockets` in your hub
+configuration, which eliminates fallback overhead but means
+restricted networks get no connection at all.
+
+### Should I use SignalR or raw WebSocket?
+
+It depends on your architecture, not your preference. Use
+SignalR if your server is ASP.NET Core, your clients are
+JavaScript or C#, and you want fast development with built-in
+groups and transport negotiation. Use raw WebSocket if you need
+cross-platform clients (Python, Go, Swift, Flutter), maximum
+per-frame performance, or want to avoid .NET server lock-in.
+Use a managed service if you need guaranteed delivery, global
+distribution, or multi-language SDKs — problems that neither
+SignalR nor raw WebSocket solve on their own.
+
+### What are the limitations of Azure SignalR Service?
+
+Azure SignalR Service removes the connection management burden
+from your ASP.NET Core server, but it introduces its own
+constraints. The SLA caps at 99.95% on the premium tier —
+roughly 4.5 hours of allowed downtime per year. Connections
+route to a single Azure region; global users hit that region
+regardless of their location. You are locked into Azure
+infrastructure. And critically, the delivery model stays the
+same: best-effort, no guaranteed ordering, no exactly-once
+semantics. Azure SignalR Service solves the
+_connection scaling_ problem but not the _messaging reliability_
+problem.
+
+### Can I use SignalR with non-.NET clients?
+
+Three official SDKs: JavaScript (browser + Node.js), C#, and
+Java. If your architecture includes Python services, Go
+microservices, mobile Flutter apps, or IoT devices running
+embedded C, you have two options: community-maintained clients
+(which lag behind the official SDKs and may not implement the
+full protocol) or dropping down to raw WebSocket and losing
+SignalR's hub abstraction. For polyglot environments, raw
+WebSocket with a shared message schema, or a managed service
+with broad SDK coverage, gives you more flexibility than
+trying to make SignalR work across languages it was not
+designed for.
+
+## Related Content
+
+- [C# & .NET WebSocket Guide](/guides/languages/csharp/) —
+  raw WebSocket implementation in C# with production patterns
+- [WebSocket vs SSE](/comparisons/sse/) — the transport
+  SignalR falls back to when WebSocket is unavailable
+- [WebSocket vs Long Polling](/comparisons/long-polling/) —
+  SignalR's last-resort transport compared to WebSocket
+- [WebSockets at Scale](/guides/websockets-at-scale/) —
+  architecture patterns for millions of connections
+- [Protocol Decision Guide](/comparisons/decision-guide/) —
+  interactive guide for choosing the right protocol
+
+---
+
+Written by [Matthew O'Riordan](/author/matthew-oriordan/),
+Co-founder & CEO of Ably, with experience building real-time
+systems reaching 2 billion+ devices monthly.
+
+[ably-home]:
+  https://ably.com/?utm_source=websocket-org&utm_medium=signalr-comparison

@@ -1,0 +1,349 @@
+---
+title: 'WebSocket vs REST API: When to Use Each Protocol'
+description:
+  'REST handles request-response. WebSocket handles persistent streaming.
+  Polling wastes 80x the bandwidth. Know when to use each.'
+author: "Matthew O'Riordan"
+authorRole: 'Co-founder & CEO, Ably'
+date: 2026-03-12
+lastUpdated: 2026-03-12
+category: comparisons
+keywords:
+  - websocket vs rest
+  - websocket vs rest api
+  - rest vs websocket
+  - rest api vs websocket
+  - websocket or rest api
+  - websocket rest comparison
+seo:
+  keywords:
+    - websocket vs rest
+    - websocket vs rest api
+    - rest vs websocket
+    - rest api vs websocket
+    - websocket or rest api
+    - when to use websocket vs rest
+faq:
+  - q: 'What is the difference between WebSocket and REST?'
+    a:
+      'REST is a request-response pattern over HTTP where the client
+      asks and the server answers. WebSocket is a persistent,
+      bidirectional connection where either side can send data at
+      any time. REST is stateless and cacheable; WebSocket is
+      stateful and real-time.'
+  - q: 'Should I replace my REST API with WebSockets?'
+    a:
+      'No. REST is the right choice for CRUD operations, cacheable
+      data, and stateless request-response workflows. WebSocket is
+      for live data the server needs to push without being asked.
+      Most applications need both.'
+  - q: 'Why is polling a REST API bad for real-time updates?'
+    a:
+      'Polling wastes bandwidth by sending full HTTP requests
+      repeatedly, even when nothing has changed. Benchmarks show
+      polling can produce 80x more overhead than WebSocket and
+      adds seconds of latency compared to milliseconds with
+      streaming.'
+  - q: 'Can I use Server-Sent Events instead of WebSocket?'
+    a:
+      'SSE works well for server-to-client streaming over standard
+      HTTP. It auto-reconnects, works through proxies, and needs
+      no special infrastructure. Use SSE when you only need
+      one-way push. Use WebSocket when you need bidirectional
+      communication.'
+  - q: 'What is the WebSocket signalling pattern?'
+    a:
+      'Signalling means using a WebSocket connection only to notify
+      clients that data changed, then fetching the actual data via
+      REST. It eliminates polling latency but still doubles the
+      round trips. It makes sense for large cacheable payloads
+      but wastes effort for small, frequent updates.'
+---
+
+:::note[Quick Answer]
+**REST** is for request-response: CRUD operations, fetching data,
+submitting forms. **WebSocket** is for persistent streaming: live
+updates, notifications, collaborative editing. Don't poll REST
+endpoints for real-time data — it wastes bandwidth and adds
+seconds of latency. They solve different problems, and most
+applications need both.
+:::
+
+## REST and WebSocket serve different jobs
+
+REST and WebSocket are not competing technologies in the way that,
+say, REST and GraphQL compete. They solve fundamentally different
+problems.
+
+REST gives you a stateless request-response model. The client asks
+for something, the server responds, and the connection is done.
+This maps cleanly to CRUD operations, public APIs, and any workflow
+where the client drives the interaction. REST benefits from
+caching, CDNs, and decades of tooling.
+
+WebSocket gives you a persistent, bidirectional channel. Either
+side can send data at any time without the other asking. This is
+what you need when the server has new information and needs to push
+it to the client immediately — live scores, chat messages, stock
+prices, collaborative edits.
+
+The mistake people make is trying to force one into the other's
+territory.
+
+## When REST is the right choice
+
+Most of your application should use REST (or standard HTTP).
+Specifically:
+
+- **CRUD operations** — creating, reading, updating, and deleting
+  resources. A user profile, a blog post, a payment transaction.
+  Request-response is the natural model.
+- **Stateless queries** — search results, filtered lists, paginated
+  data. Each request is independent.
+- **Cacheable data** — REST responses can be cached at every layer:
+  browser, CDN, proxy, server. WebSocket data cannot.
+- **Public APIs** — REST's self-describing URLs, standard HTTP
+  methods, and status codes make APIs discoverable and debuggable.
+  Every HTTP tool works with them.
+- **File uploads and downloads** — HTTP handles large payloads,
+  range requests, and resumable transfers natively.
+
+REST is not going away. Even applications with heavy real-time
+requirements still use REST for initial page loads, authentication,
+and configuration. The question is not "REST or WebSocket?" — it is
+"which parts of my application need each?"
+
+## When WebSocket is the right choice
+
+Use WebSocket when the server needs to send data to the client
+without being asked:
+
+- **Live data feeds** — sports scores, stock prices, sensor
+  readings. The data changes on the server's schedule, not the
+  client's.
+- **Chat and messaging** — both sides send messages
+  unpredictably. Request-response cannot model this without
+  polling.
+- **Collaborative editing** — multiple users changing the same
+  document. Every keystroke from one user needs to reach all
+  others within milliseconds.
+- **Notifications** — a new order, a deployment failure, a
+  teammate coming online. The server knows before the client.
+- **Multiplayer games** — player positions, game state, actions.
+  Latency is measured in single-digit milliseconds.
+
+The common thread: data flows from server to client (or both
+directions) at unpredictable times, and latency matters.
+
+## The polling anti-pattern
+
+The most common mistake in web architecture is polling a REST
+endpoint for real-time updates. A client sends GET requests every
+few seconds, hoping something changed. Usually, nothing did.
+
+This is shockingly wasteful. When [Ably analyzed Google's
+implementation of live sports scores][ably-polling-blog], the
+numbers were stark:
+
+| Metric | HTTP Polling | WebSocket |
+| --- | --- | --- |
+| **Total overhead (5 min)** | 68 KiB | 852 bytes |
+| **Average latency** | ~5,000 ms | ~200 ms |
+| **Data from server (5 min)** | 282 KiB | 426 bytes (with deltas) |
+| **Overhead ratio** | 80x worse | Baseline |
+
+Google was sending the entire state object every 10 seconds, even
+when only 10 bytes had changed. That is a 3,200x data overhead on
+the actual payload delta.
+
+Companies do this because REST is familiar and WebSocket feels
+hard. But that intuition is wrong. A WebSocket connection that
+receives pushed updates is simpler to maintain than a polling loop
+with retry logic, deduplication, error handling, and backoff. The
+polling loop has more failure modes, more code, and worse results.
+
+If you find yourself writing `setInterval(() => fetch(...)`, stop.
+You are building a worse version of what WebSocket gives you for
+free.
+
+## The signalling half-measure
+
+A pattern that is better than polling but still suboptimal:
+using WebSocket solely to notify clients that something changed,
+then fetching the actual data via REST.
+
+```javascript
+// The signalling pattern: WS notifies, REST delivers
+const ws = new WebSocket('wss://api.example.com/notifications');
+
+ws.onmessage = async (event) => {
+  const signal = JSON.parse(event.data);
+  // WebSocket only says "something changed"
+  // Actual data still comes via REST
+  const response = await fetch(`/api/orders/${signal.orderId}`);
+  const order = await response.json();
+  updateUI(order);
+};
+```
+
+This eliminates polling latency — the client learns about changes
+instantly. But it doubles the round trips: one WebSocket message
+to notify, one HTTP request to fetch. For every update.
+
+**When signalling makes sense:**
+
+- The payload is large (images, documents, big JSON) and benefits
+  from HTTP caching, CDN delivery, or range requests
+- You have an existing REST API you cannot change and need to
+  layer real-time on top
+- The update frequency is low (a few per minute), so the extra
+  round trip is negligible
+
+**When signalling wastes effort:**
+
+- The update payload is small (a score change, a status flag, a
+  price tick) — just send the data over the WebSocket directly
+- Updates are frequent (multiple per second) — two network round
+  trips per update adds up fast
+- You control both client and server and can design the WebSocket
+  message format from scratch
+
+If the data fits in a WebSocket frame (and almost all notification
+payloads do), send it directly. Skip the intermediate REST call.
+
+## The middle ground: SSE and HTTP streaming
+
+REST and WebSocket are not the only options. Server-Sent Events
+(SSE) and HTTP streaming sit between them.
+
+**SSE** uses a standard HTTP connection to stream events from
+server to client. It auto-reconnects on failure, supports event
+IDs for resumption, and works through proxies and CDNs that would
+buffer or block WebSocket upgrades. The trade-off: SSE is
+unidirectional. The client can only receive, not send.
+
+For use cases where the server pushes and the client listens —
+live dashboards, notification feeds, log streaming — SSE is often
+good enough. It requires no special infrastructure, no WebSocket
+library, and no protocol upgrade. The browser's `EventSource` API
+handles everything, including reconnection.
+
+**HTTP/2 streaming** allows multiplexing many streams over a single
+connection, which helps SSE overcome the old HTTP/1.1 six-connection
+limit. However, true bidirectional streaming in the browser remains
+limited — the Fetch API's `ReadableStream` is read-only.
+
+Be honest with yourself about whether your use case actually needs
+bidirectional communication. If the server is doing all the talking,
+SSE is simpler to deploy, simpler to debug, and works in more
+network environments. See the [WebSocket vs SSE](/comparisons/sse/)
+comparison for a deeper dive.
+
+## Comparison table
+
+| Feature | REST (HTTP) | WebSocket | SSE |
+| --- | --- | --- | --- |
+| **Connection model** | Request-response | Persistent bidirectional | Persistent server-to-client |
+| **Data direction** | Client-initiated | Both directions | Server to client only |
+| **Per-message overhead** | 500-2,000 bytes (headers) | 2-14 bytes (frame) | ~50 bytes (event fields) |
+| **Latency** | Network round trip per request | Sub-millisecond after connect | Sub-millisecond after connect |
+| **Browser support** | 100% | 99%+ | 97% |
+| **Proxy/CDN support** | Excellent | Good (modern infra) | Excellent |
+| **Caching** | Built-in (HTTP cache) | Not applicable | Not applicable |
+| **Auto-reconnection** | Not applicable | Manual implementation | Built-in |
+| **Binary data** | Via content types | Native support | Text only (base64 for binary) |
+| **Best for** | CRUD, APIs, cacheable data | Chat, gaming, collaboration | Feeds, dashboards, notifications |
+
+## Frequently Asked Questions
+
+### What is the difference between WebSocket and REST?
+
+REST uses HTTP's request-response model: the client sends a request,
+the server returns a response, and the exchange is complete. Every
+interaction is client-initiated and stateless — the server holds no
+memory of previous requests.
+
+WebSocket starts with an HTTP upgrade handshake, then switches to a
+persistent full-duplex channel. Both client and server can send data
+at any time with minimal framing overhead (2-14 bytes vs hundreds
+of bytes for HTTP headers). The connection is stateful and stays
+open until explicitly closed.
+
+The practical difference: with REST, the client must ask for data.
+With WebSocket, the server can push it the moment it is available.
+
+### Should I replace my REST API with WebSockets?
+
+Almost certainly not. REST handles request-response workflows
+better than WebSocket ever will. It is stateless (easy to scale),
+cacheable (browsers, CDNs, and proxies all understand HTTP
+caching), and universally supported by every tool, library, and
+framework in existence.
+
+Use WebSocket alongside REST, not instead of it. Let REST handle
+reads, writes, authentication, and configuration. Let WebSocket
+handle the live data stream. Most production applications use both.
+
+### Why is polling a REST API bad for real-time updates?
+
+Three reasons. First, bandwidth: every poll sends full HTTP headers
+(500-2,000 bytes) whether or not anything changed. Over thousands
+of clients, this multiplies fast. Second, latency: if you poll
+every 5 seconds, your average delay is 2.5 seconds — an eternity
+for live data. Third, wasted computation: every poll hits your
+server, forces it to query data, serialize a response, and send it
+back, even when the answer is "nothing new." Benchmarks show this
+pattern produces [80x more overhead than a WebSocket
+connection][ably-polling-blog].
+
+### Can I use Server-Sent Events instead of WebSocket?
+
+Yes, and you should consider it. SSE is simpler to implement,
+reconnects automatically, and works over standard HTTP without
+special proxy or load balancer configuration. If your data flows
+in one direction — server to client — SSE avoids the complexity
+of WebSocket.
+
+The limitation is directionality. If the client needs to send data
+back to the server during the session (typing indicators, cursor
+positions, game inputs), SSE cannot do that over the same
+connection. You would need a separate HTTP request for each
+client-to-server message, which defeats the purpose at high
+frequency. In that case, use WebSocket.
+
+### What is the WebSocket signalling pattern?
+
+Signalling uses a WebSocket connection to deliver instant "something
+changed" notifications to clients, which then fetch the updated
+data via a standard REST call. It replaces polling (the client
+learns about changes in milliseconds, not seconds) but still
+requires two network operations per update: the WebSocket
+notification and the REST fetch.
+
+This makes sense when the payloads are large and benefit from HTTP
+caching, or when you are retrofitting real-time onto an existing
+REST API. It does not make sense for small, frequent updates
+(scores, prices, status flags) where you should send the data
+directly over the WebSocket connection.
+
+## Related Content
+
+- [WebSocket vs HTTP](/comparisons/http/) — how WebSocket compares
+  to traditional HTTP request-response
+- [WebSocket vs SSE](/comparisons/sse/) — when server-push over
+  HTTP is enough
+- [WebSocket vs Long Polling](/comparisons/long-polling/) — why
+  WebSocket replaced Comet-style polling
+- [The Road to WebSockets](/guides/road-to-websockets/) — how HTTP
+  polling evolved into the WebSocket protocol
+- [Protocol Decision Guide](/comparisons/decision-guide/) — choose
+  the right protocol for your use case
+
+---
+
+_Written by [Matthew O'Riordan](/author/matthew-oriordan/),
+Co-founder & CEO of Ably, with experience building real-time
+systems reaching 2 billion+ devices monthly._
+
+[ably-polling-blog]:
+  https://ably.com/blog/google-polling-like-its-the-90s?utm_source=websocket-org&utm_medium=rest-comparison
