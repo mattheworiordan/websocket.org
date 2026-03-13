@@ -89,13 +89,18 @@ export default defineConfig({
               collapsed: true,
               items: [
                 { label: 'Building a WebSocket App', link: '/guides/building-a-websocket-app/' },
+                { label: 'WebSocket Reconnection', link: '/guides/reconnection/' },
                 { label: 'WebSockets at Scale', link: '/guides/websockets-at-scale/' },
+                { label: 'Best Practices', link: '/guides/best-practices/' },
               ],
             },
             {
               label: 'Security',
               collapsed: true,
-              items: [{ label: 'Security Hardening', link: '/guides/security/' }],
+              items: [
+                { label: 'Authentication', link: '/guides/authentication/' },
+                { label: 'Security Hardening', link: '/guides/security/' },
+              ],
             },
             {
               label: 'Testing',
