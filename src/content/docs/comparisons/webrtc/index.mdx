@@ -368,7 +368,7 @@ class VideoCallApp {
     this.callState = 'calling';
 
     // Request call setup via WebSocket
-    this.ws.send(
+    this.signaling.send(
       JSON.stringify({
         type: 'call_request',
         targetUserId: userId,
@@ -385,11 +385,11 @@ class VideoCallApp {
     this.updateParticipantsList(message.participants);
 
     // Initialize WebRTC connection for media
-    this.webRTCManager.createPeerConnection(userId);
+    this.setupPeerConnection(userId);
   }
 
-  // Chat via WebSocket (server-mediated)
-  async startCall(userId) {
+  // Set up WebRTC peer connection and create an offer
+  async setupPeerConnection(userId) {
     const pc = new RTCPeerConnection(this.iceConfig);
     this.peerConnections.set(userId, pc);
 

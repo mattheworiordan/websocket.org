@@ -159,8 +159,10 @@ support over HTTP/2 using the Extended CONNECT method:
 [RFC 9220](https://datatracker.ietf.org/doc/html/rfc9220) defines how WebSockets
 would work over HTTP/3. The spec was published in 2022, but as of early 2026 no
 major browser or web server has shipped a production implementation (see the
-[Implementation Reality Check](#implementation-reality-check-2025) below). In
-theory, RFC 9220 enables:
+[Implementation Reality Check](#implementation-reality-check-2026) below).
+This has no practical impact — HTTP/1.1 WebSockets are mature, universally
+supported, and remain the right choice for production. In theory, RFC 9220
+enables:
 
 - **QUIC Transport:** Built on UDP, eliminating TCP head-of-line blocking
   entirely
@@ -277,7 +279,7 @@ Key benefits:
 | **Azure**        | Front Door    | ✅ Available    | ⚠️ Limited            | HTTP/3 support, WebSocket limitations    |
 | **Fastly**       | CDN           | ✅ Full Support | ✅ Full Support       | QUIC and HTTP/3 enabled                  |
 
-### Implementation Reality Check (2025)
+### Implementation Reality Check (2026)
 
 **Important**: As of early 2026, WebSocket over HTTP/3 (RFC 9220) has **no
 production implementations** in browsers or most web servers, despite the RFC
@@ -461,15 +463,6 @@ class RealtimeConnection {
 4. **A/B Testing**: Compare protocol performance in production environments
 5. **Documentation**: Clearly document protocol requirements and limitations
 
-## WebSockets in the AI Era
-
-AI applications have emerged as a major driver of WebSocket adoption. As LLM
-products have evolved from simple token streaming into agent workflows and
-multi-device interactions, WebSockets have become the preferred transport for
-bidirectional AI communication. For a deep dive on how AI applications are
-driving renewed WebSocket adoption, see
-[WebSockets and AI](/guides/websockets-and-ai/).
-
 ## The Road Ahead
 
 The transition to HTTP/3 WebSockets and WebTransport doesn't mean WebSockets
@@ -536,6 +529,8 @@ and better congestion control, without changing the WebSocket API.
   of WebSocket and WebTransport
 - [WebSocket vs SSE](/comparisons/sse/) - Another alternative for
   server-to-client streaming
+- [WebSockets and AI](/guides/websockets-and-ai/) - How AI applications
+  are driving renewed WebSocket adoption
 - [WebSocket Libraries & Tools](/resources/websocket-resources/) - Current
   ecosystem including HTTP/3-ready libraries
 

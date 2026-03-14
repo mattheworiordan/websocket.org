@@ -33,11 +33,12 @@ faq:
       connections are achievable.'
   - q: 'How do you load balance WebSocket connections?'
     a:
-      'Use Layer 4 (TCP) or Layer 7 (HTTP) load balancing. Sticky sessions (IP
-      hash or cookie-based affinity) work as a starting point, but at high
-      scale, shared external state (Redis or a database) lets any server handle
-      any reconnecting client. This avoids the fragility of pinning clients to
-      specific servers.'
+      'Use Layer 4 (TCP) or Layer 7 (HTTP) load balancing with
+      connection-aware routing. Unlike HTTP, WebSocket connections are
+      persistent — the load balancer assigns a server at connect time and
+      that assignment lasts for the connection''s lifetime. For reconnection,
+      store session state externally (Redis or a database) so any server can
+      resume a client''s session.'
   - q: 'How do you horizontally scale WebSocket servers?'
     a:
       'Add a pub/sub backplane (Redis, Kafka, NATS, or a message broker) between

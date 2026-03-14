@@ -93,13 +93,10 @@ into the underlying mechanics of real-time communication, helping developers
 understand the challenges and considerations involved in creating responsive,
 interactive web experiences.
 
-The cursor-sharing demo we'll build represents a common pattern in modern web
-applications: real-time collaborative features where multiple users can see each
-other's actions simultaneously. This type of functionality forms the foundation
-for more complex collaborative tools like shared whiteboards, collaborative
-document editing, multiplayer games, and real-time dashboards. Understanding how
-to implement basic position tracking and broadcasting provides the groundwork
-for more sophisticated real-time features.
+The cursor-sharing demo shows a common real-time pattern: broadcasting
+user actions to all connected clients. This foundation extends to
+collaborative tools like shared whiteboards, document editing, and
+multiplayer games.
 
 ## Running the Demo
 
@@ -113,19 +110,13 @@ This demo includes two applications: a web app that we serve through
 [Snowpack](https://www.snowpack.dev/), and a Node.js web server. The NPM start
 task spins up both the API and the web server.
 
-The architecture follows a typical client-server model where the frontend
-handles user interactions and cursor position tracking, while the backend
-manages WebSocket connections and message broadcasting. Snowpack serves as our
-development server, providing fast builds and hot module replacement for a
-smooth development experience. The separation between the client application and
-the WebSocket server demonstrates how real-time functionality can be integrated
-into existing web applications without requiring a complete architectural
-overhaul.
+Snowpack serves the frontend while the Node.js backend manages
+WebSocket connections and message broadcasting.
 
 The demo should look as depicted below:
 
 ![Realtime cursor movement powered by the ws WebSockets library](../../../assets/guides/ws-cursor-demo.png)
-_Figure 4.1: Realtime cursor movement powered by the ws WebSockets library_
+Figure 4.1: Realtime cursor movement powered by the ws WebSockets library
 
 However, if you are running the demo in a browser that does not support
 WebSockets (e.g., IE9 or below), or if you are restricted by particularly tight
@@ -133,25 +124,19 @@ corporate proxies, you will get an error saying that the browser can't establish
 a connection:
 
 ![Error message returned by the browser when a WebSocket connection can't be established](../../../assets/guides/websocket-error.png)
-_Figure 4.2: Error message returned by the browser when a WebSocket connection
-can't be established_
+Figure 4.2: Error message returned by the browser when a WebSocket connection
+can't be established
 
 This is because the ws library offers no fallback transfer protocols if
 WebSockets are unavailable. If this is a requirement for your project, or you
 want to have a higher level of reliability of delivery for your messages, then
 you will need a library that offers multiple transfer protocols, such as SockJS.
 
-The limitation of native WebSocket implementations highlights an important
-consideration in real-world application development: not all environments
-support WebSockets equally. Corporate firewalls, proxy servers, and legacy
-network infrastructure can block WebSocket connections, while older browsers may
-lack WebSocket support entirely. This creates a significant reliability gap that
-can affect user experience in production environments. For applications that
-need to reach the widest possible audience or operate in restrictive network
-environments, implementing fallback mechanisms becomes essential rather than
-optional. For an analysis of current WebSocket support and whether you still
-need fallbacks in 2024, see
-[this detailed evaluation][ably-ws-compat].
+Corporate firewalls, proxy servers, and legacy network infrastructure
+can block WebSocket connections, creating reliability gaps in
+production. For applications that must work in restrictive
+environments, fallback mechanisms are essential. See
+[this evaluation of current WebSocket support][ably-ws-compat].
 
 ## SockJS — a JavaScript library to provide WebSocket-like communication
 
@@ -244,17 +229,12 @@ functional than no connection at all!
 
 ### Running the SockJS demo
 
-Run the SockJS demo the same way as before: clone, install, and start. The only
-difference is that you check out the `sockjs` branch:
-
-```bash
-> git clone -b sockjs https://github.com/ably-labs/WebSockets-cursor-sharing.git
-> npm install
-> npm run start
-```
+Run the SockJS version by checking out the `sockjs` branch of the same
+repository (`git clone -b sockjs https://github.com/ably-labs/WebSockets-cursor-sharing.git`),
+then `npm install && npm run start` as before.
 
 ![Realtime cursor movement powered by the SockJS WebSockets library](../../../assets/guides/sockjs-cursor-demo.png)
-_Figure 4.3: Realtime cursor movement powered by the SockJS WebSockets library_
+Figure 4.3: Realtime cursor movement powered by the SockJS WebSockets library
 
 ## Scaling the web app
 
