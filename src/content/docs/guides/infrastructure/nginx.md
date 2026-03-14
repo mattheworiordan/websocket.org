@@ -8,7 +8,7 @@ author: Matthew O'Riordan
 authorRole: Co-founder & CEO, Ably
 publishedDate: 2025-09-01T00:00:00.000Z
 updatedDate: 2025-09-01T00:00:00.000Z
-lastUpdated: 2026-03-10
+lastUpdated: 2026-03-14
 category: infrastructure
 tags:
   - nginx
@@ -90,59 +90,28 @@ http {
 }
 ```
 
-## Core WebSocket Configuration
-
-### Essential Headers
-
-The upgrade handshake needs these headers:
-
-```nginx
-location /ws {
-    proxy_pass http://backend;
-    proxy_http_version 1.1;
-
-    # Required WebSocket headers
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection "upgrade";
-
-    # Preserve original request information
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-
-    # Optional: Pass through custom headers
-    proxy_set_header X-Forwarded-Host $server_name;
-    proxy_set_header X-Forwarded-Port $server_port;
-}
-```
-
 ### Connection Upgrade Map
 
-Use a `map` directive to set the `Connection` header conditionally:
+If the same `location` serves both regular HTTP and WebSocket traffic,
+use a `map` to set the `Connection` header conditionally:
 
 ```nginx
-http {
-    # Connection upgrade map for better performance
-    map $http_upgrade $connection_upgrade {
-        default upgrade;
-        ''      close;
-    }
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    ''      close;
+}
 
-    server {
-        location /ws {
-            proxy_pass http://backend;
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection $connection_upgrade;
-        }
+server {
+    location /ws {
+        proxy_pass http://backend;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
     }
 }
 ```
 
 ## SSL/TLS Configuration
-
-### Basic SSL Setup
 
 Nginx terminates TLS so clients connect via `wss://` while backends
 use plain `ws://`:
@@ -152,21 +121,16 @@ server {
     listen 443 ssl http2;
     server_name ws.example.com;
 
-    # SSL Certificate Configuration
     ssl_certificate /path/to/fullchain.pem;
     ssl_certificate_key /path/to/privkey.pem;
-
-    # Modern SSL Configuration
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384;
     ssl_prefer_server_ciphers off;
 
-    # OCSP Stapling
     ssl_stapling on;
     ssl_stapling_verify on;
     ssl_trusted_certificate /path/to/chain.pem;
 
-    # SSL Session Optimization
     ssl_session_cache shared:SSL:10m;
     ssl_session_timeout 1d;
     ssl_session_tickets off;
@@ -191,46 +155,33 @@ server {
 
 ```nginx
 server {
-    # Security Headers
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header X-Content-Type-Options "nosniff" always;
-    add_header X-XSS-Protection "1; mode=block" always;
-
-    # Content Security Policy for WebSocket
     add_header Content-Security-Policy "default-src 'self'; connect-src 'self' wss://ws.example.com" always;
 }
 ```
 
 ## Load Balancing
 
+WebSocket load balancing has a constraint that HTTP load balancing
+does not: connections are long-lived and stateful. A round-robin
+strategy sends the upgrade request to one backend, but subsequent
+frames could land on a different one -- and the connection breaks.
+
 ### Sticky Sessions (IP Hash)
 
-WebSocket connections are stateful, so every frame in a session
-must reach the same backend:
+Every frame in a session must reach the same backend:
 
 ```nginx
 upstream websocket_backend {
-    ip_hash;  # Sticky sessions based on client IP
+    ip_hash;
 
     server backend1.example.com:8080 max_fails=3 fail_timeout=30s;
     server backend2.example.com:8080 max_fails=3 fail_timeout=30s;
     server backend3.example.com:8080 max_fails=3 fail_timeout=30s;
 
-    # Keepalive connections to backend
     keepalive 64;
-}
-
-server {
-    location /ws {
-        proxy_pass http://websocket_backend;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-
-        # Connection pooling
-        proxy_set_header Connection "";
-    }
 }
 ```
 
@@ -238,13 +189,12 @@ server {
 
 ```nginx
 upstream websocket_backend {
-    least_conn;  # Route to server with least connections
+    least_conn;
 
     server backend1.example.com:8080 weight=3;
     server backend2.example.com:8080 weight=2;
     server backend3.example.com:8080 weight=1;
 
-    # Backup server
     server backup.example.com:8080 backup;
 }
 ```
@@ -255,21 +205,18 @@ Active health checks require Nginx Plus. Open-source Nginx uses
 passive checks via `max_fails`:
 
 ```nginx
-upstream websocket_backend {
-    zone backend_zone 64k;
-
-    server backend1.example.com:8080;
-    server backend2.example.com:8080;
-
-    # Nginx Plus health check
-    # health_check interval=5s fails=3 passes=2 uri=/health;
-}
-
-# Alternative: Passive health checks (works with open-source Nginx)
+# Passive health checks (open-source Nginx)
 upstream websocket_backend {
     server backend1.example.com:8080 max_fails=3 fail_timeout=30s;
     server backend2.example.com:8080 max_fails=3 fail_timeout=30s;
 }
+
+# Active health checks (Nginx Plus only)
+# upstream websocket_backend {
+#     zone backend_zone 64k;
+#     server backend1.example.com:8080;
+#     health_check interval=5s fails=3 passes=2 uri=/health;
+# }
 ```
 
 ## Timeout Configuration
@@ -284,81 +231,43 @@ location /ws {
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
 
-    # Timeout Configuration
-    proxy_connect_timeout 7d;  # Connection establishment timeout
-    proxy_send_timeout 7d;     # Timeout for sending data to backend
-    proxy_read_timeout 7d;     # Timeout for reading response from backend
-
-    # Optional: Send periodic ping frames (requires 3rd party module)
-    # proxy_socket_keepalive on;
-}
-
-# Global keepalive settings
-http {
-    keepalive_timeout 65;
-    keepalive_requests 100;
-
-    # TCP keepalive (at OS level)
-    # Requires tcp_nodelay and tcp_nopush
-    tcp_nodelay on;
-    tcp_nopush on;
+    proxy_connect_timeout 7d;
+    proxy_send_timeout 7d;
+    proxy_read_timeout 7d;
 }
 ```
 
-## HTTP/2 Configuration
+A 7-day timeout is generous. The trade-off: zombie connections
+(where the client has disappeared but the TCP socket stays open)
+tie up backend resources until the timeout expires. Set your
+application's WebSocket ping/pong interval to 30-60 seconds so
+Nginx sees traffic and keeps the connection, while your backend
+detects dead clients via missing pong responses.
 
-WebSocket over HTTP/2 requires
-[RFC 8441](https://tools.ietf.org/html/rfc8441) support:
-
-```nginx
-server {
-    listen 443 ssl http2;
-    server_name ws.example.com;
-
-    # HTTP/2 specific settings
-    http2_max_field_size 16k;
-    http2_max_header_size 32k;
-    http2_max_requests 1000;
-
-    # HTTP/2 Push (if needed for related resources)
-    # http2_push /app.js;
-    # http2_push /app.css;
-
-    location /ws {
-        proxy_pass http://websocket_backend;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-    }
-}
-```
+At the OS level, enable TCP keepalive with `tcp_nodelay on` and
+`tcp_nopush on` in the `http` block. These are separate from
+WebSocket-level pings -- TCP keepalive detects dead network paths,
+while WebSocket pings detect unresponsive applications.
 
 ## HTTP/3 Configuration (Experimental)
 
-Requires an Nginx build with QUIC support:
+Requires an Nginx build with QUIC support. WebSocket-over-HTTP/3
+uses [RFC 9220](https://tools.ietf.org/html/rfc9220) extended
+CONNECT:
 
 ```nginx
 server {
-    # HTTP/3 (QUIC) - requires Nginx with QUIC support
     listen 443 quic reuseport;
     listen 443 ssl http2;
-
     server_name ws.example.com;
 
-    # Enable HTTP/3
     http3 on;
-
-    # Add Alt-Svc header for HTTP/3 discovery
     add_header Alt-Svc 'h3=":443"; ma=86400' always;
-
-    # QUIC specific settings
     quic_retry on;
-    quic_gso on;
 
-    # SSL configuration (required for QUIC)
     ssl_certificate /path/to/fullchain.pem;
     ssl_certificate_key /path/to/privkey.pem;
-    ssl_protocols TLSv1.3;  # HTTP/3 requires TLS 1.3
+    ssl_protocols TLSv1.3;
 
     location /ws {
         proxy_pass http://websocket_backend;
@@ -371,8 +280,7 @@ server {
 
 ## Buffering and Performance
 
-Disable proxy buffering for WebSocket traffic to avoid
-added latency:
+Disable proxy buffering for WebSocket traffic to avoid added latency:
 
 ```nginx
 location /ws {
@@ -381,107 +289,84 @@ location /ws {
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
 
-    # Disable buffering for real-time communication
     proxy_buffering off;
-
-    # Buffer sizes
+    proxy_request_buffering off;
     proxy_buffer_size 4k;
     proxy_buffers 8 4k;
-    proxy_busy_buffers_size 8k;
-
-    # Disable request/response buffering
-    proxy_request_buffering off;
-
-    # Optional: Limit request body size
-    client_max_body_size 10m;
-
-    # WebSocket frame size settings
-    # large_client_header_buffers 4 32k;
 }
 ```
 
-## Logging and Monitoring
+## Logging
 
-### Access Log Format
-
-Add `upgrade` and `upstream_addr` fields to track WebSocket-specific
-information:
+Add `upgrade` and `upstream_addr` fields to track WebSocket
+connections:
 
 ```nginx
 http {
-    # Custom log format for WebSocket
     log_format websocket '$remote_addr - $remote_user [$time_local] '
                         '"$request" $status $body_bytes_sent '
-                        '"$http_referer" "$http_user_agent" '
-                        'upgrade=$http_upgrade connection=$connection_upgrade '
+                        'upgrade=$http_upgrade '
                         'upstream_addr=$upstream_addr '
-                        'upstream_response_time=$upstream_response_time '
-                        'request_time=$request_time';
+                        'upstream_response_time=$upstream_response_time';
 
     access_log /var/log/nginx/websocket_access.log websocket;
 
-    # Conditional logging (skip health checks)
+    # Skip health check noise
     map $request_uri $loggable {
         ~^/health$ 0;
         default 1;
     }
-
     access_log /var/log/nginx/access.log combined if=$loggable;
 }
 ```
 
-### Error Logging
+For debugging, enable per-location debug logging:
 
 ```nginx
-# Global error log
-error_log /var/log/nginx/error.log warn;
-
-# Debug logging for specific location
 location /ws {
-    error_log /var/log/nginx/websocket_error.log debug;
+    error_log /var/log/nginx/ws_debug.log debug;
+}
+```
+
+## CORS Configuration
+
+WebSocket handshakes are regular HTTP requests, so CORS preflight
+applies if your client and server are on different origins:
+
+```nginx
+location /ws {
+    if ($request_method = 'OPTIONS') {
+        add_header 'Access-Control-Allow-Origin' '$http_origin' always;
+        add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS' always;
+        add_header 'Access-Control-Allow-Headers' 'Authorization, Content-Type, Sec-WebSocket-Protocol' always;
+        add_header 'Access-Control-Max-Age' 86400 always;
+        return 204;
+    }
+
+    add_header 'Access-Control-Allow-Origin' '$http_origin' always;
+    add_header 'Access-Control-Allow-Credentials' 'true' always;
 
     proxy_pass http://websocket_backend;
-    # ... WebSocket configuration
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
 }
 ```
 
-### Metrics Export
-
-```nginx
-# Status endpoint for monitoring
-location /nginx_status {
-    stub_status on;
-    access_log off;
-    allow 127.0.0.1;
-    allow 10.0.0.0/8;
-    deny all;
-}
-
-# JSON format status (requires nginx-module-vts or similar)
-location /status {
-    vhost_traffic_status_display;
-    vhost_traffic_status_display_format json;
-    access_log off;
-    allow 127.0.0.1;
-    deny all;
-}
-```
+Replace `'$http_origin'` with a specific domain in production.
+Using `'*'` does not work with `Access-Control-Allow-Credentials`.
 
 ## Rate Limiting
 
 ```nginx
 http {
-    # Define rate limit zones
     limit_req_zone $binary_remote_addr zone=ws_limit:10m rate=10r/s;
     limit_conn_zone $binary_remote_addr zone=ws_conn:10m;
 
     server {
         location /ws {
-            # Rate limiting
             limit_req zone=ws_limit burst=20 nodelay;
-            limit_conn ws_conn 5;  # Max 5 concurrent connections per IP
-
-            # Custom error pages for rate limiting
+            limit_conn ws_conn 5;
             limit_req_status 429;
             limit_conn_status 429;
 
@@ -494,38 +379,11 @@ http {
 }
 ```
 
-## CORS Configuration
-
-```nginx
-location /ws {
-    # CORS headers
-    if ($request_method = 'OPTIONS') {
-        add_header 'Access-Control-Allow-Origin' '*' always;
-        add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
-        add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
-        add_header 'Access-Control-Max-Age' 1728000 always;
-        add_header 'Content-Type' 'text/plain; charset=utf-8' always;
-        add_header 'Content-Length' 0 always;
-        return 204;
-    }
-
-    add_header 'Access-Control-Allow-Origin' '*' always;
-    add_header 'Access-Control-Allow-Credentials' 'true' always;
-
-    proxy_pass http://websocket_backend;
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection "upgrade";
-}
-```
-
 ## Complete Production Configuration
 
-Everything above combined into a single `nginx.conf`:
+Everything above combined into a single config:
 
 ```nginx
-# /etc/nginx/nginx.conf
-
 user nginx;
 worker_processes auto;
 error_log /var/log/nginx/error.log warn;
@@ -539,96 +397,56 @@ events {
 
 http {
     include /etc/nginx/mime.types;
-    default_type application/octet-stream;
 
-    # Logging
-    log_format websocket '$remote_addr - $remote_user [$time_local] '
-                        '"$request" $status $body_bytes_sent '
-                        '"$http_referer" "$http_user_agent" '
-                        'upgrade=$http_upgrade connection=$connection_upgrade '
-                        'upstream_addr=$upstream_addr '
-                        'upstream_response_time=$upstream_response_time '
-                        'request_time=$request_time';
+    log_format websocket '$remote_addr [$time_local] '
+                        '"$request" $status '
+                        'upgrade=$http_upgrade '
+                        'upstream=$upstream_addr';
 
     access_log /var/log/nginx/access.log websocket;
 
-    # Performance optimizations
     sendfile on;
     tcp_nopush on;
     tcp_nodelay on;
     keepalive_timeout 65;
-    types_hash_max_size 2048;
 
-    # Gzip compression (not for WebSocket frames)
-    gzip on;
-    gzip_vary on;
-    gzip_proxied any;
-    gzip_comp_level 6;
-    gzip_types text/plain text/css text/xml text/javascript application/json application/javascript application/xml+rss application/rss+xml application/atom+xml image/svg+xml text/x-js text/x-cross-domain-policy application/x-font-ttf application/x-font-opentype application/vnd.ms-fontobject image/x-icon;
-
-    # Connection upgrade map
     map $http_upgrade $connection_upgrade {
         default upgrade;
         ''      close;
     }
 
-    # Rate limiting zones
     limit_req_zone $binary_remote_addr zone=ws_limit:10m rate=10r/s;
     limit_conn_zone $binary_remote_addr zone=ws_conn:10m;
 
-    # Upstream backend
     upstream websocket_backend {
         ip_hash;
-
         server backend1.example.com:8080 max_fails=3 fail_timeout=30s;
         server backend2.example.com:8080 max_fails=3 fail_timeout=30s;
         server backend3.example.com:8080 max_fails=3 fail_timeout=30s;
-
         keepalive 64;
     }
 
-    # HTTPS Server
     server {
         listen 443 ssl http2;
-        listen 443 quic reuseport;
         server_name ws.example.com;
 
-        # SSL Configuration
         ssl_certificate /etc/ssl/certs/fullchain.pem;
         ssl_certificate_key /etc/ssl/private/privkey.pem;
         ssl_protocols TLSv1.2 TLSv1.3;
-        ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384;
-        ssl_prefer_server_ciphers off;
-
-        # SSL Optimization
         ssl_session_cache shared:SSL:10m;
         ssl_session_timeout 1d;
-        ssl_session_tickets off;
         ssl_stapling on;
         ssl_stapling_verify on;
 
-        # Security Headers
         add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-        add_header X-Frame-Options "SAMEORIGIN" always;
         add_header X-Content-Type-Options "nosniff" always;
-        add_header X-XSS-Protection "1; mode=block" always;
-        add_header Alt-Svc 'h3=":443"; ma=86400' always;
 
-        # HTTP/3 settings
-        http3 on;
-        quic_retry on;
-
-        # WebSocket endpoint
         location /ws {
-            # Rate limiting
             limit_req zone=ws_limit burst=20 nodelay;
             limit_conn ws_conn 5;
 
-            # Proxy configuration
             proxy_pass http://websocket_backend;
             proxy_http_version 1.1;
-
-            # WebSocket headers
             proxy_set_header Upgrade $http_upgrade;
             proxy_set_header Connection $connection_upgrade;
             proxy_set_header Host $host;
@@ -636,32 +454,20 @@ http {
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto $scheme;
 
-            # Timeouts
             proxy_connect_timeout 7d;
             proxy_send_timeout 7d;
             proxy_read_timeout 7d;
 
-            # Disable buffering
             proxy_buffering off;
             proxy_request_buffering off;
-
-            # Buffer sizes
-            proxy_buffer_size 4k;
-            proxy_buffers 8 4k;
-
-            # Client settings
-            client_max_body_size 10m;
-            client_body_buffer_size 128k;
         }
 
-        # Health check endpoint
         location /health {
             access_log off;
             return 200 "healthy\n";
             add_header Content-Type text/plain;
         }
 
-        # Status endpoint
         location /nginx_status {
             stub_status on;
             access_log off;
@@ -671,7 +477,6 @@ http {
         }
     }
 
-    # HTTP to HTTPS redirect
     server {
         listen 80;
         server_name ws.example.com;
@@ -684,40 +489,47 @@ http {
 
 ### Common Issues
 
-1. **Connection immediately closes**
-   - Verify `Upgrade` and `Connection` headers are set correctly
-   - Check that `proxy_http_version 1.1` is specified
+1. **Connection immediately closes** -- Verify `Upgrade` and
+   `Connection` headers are set and `proxy_http_version 1.1` is
+   specified. HTTP/1.0 does not support `Upgrade`.
 
-2. **Connection timeouts**
-   - Increase `proxy_read_timeout` and `proxy_send_timeout`
-   - Check firewall rules for long-lived connections
+2. **Connection drops after 60 seconds** -- Raise
+   `proxy_read_timeout`. Ensure your app sends ping/pong frames at
+   a shorter interval than the timeout.
 
-3. **502 Bad Gateway**
-   - Verify backend servers are running
-   - Check backend server logs
-   - Ensure correct backend port configuration
+3. **502 Bad Gateway** -- Backend is unreachable. Check that the
+   upstream servers are running and the port matches. Also verify
+   the upstream block name in `proxy_pass` matches the `upstream`
+   directive exactly.
 
-4. **Performance issues**
-   - Disable proxy buffering for realtime data
-   - Per-server connection tuning matters less than handling
-     state, reliability, and failover across servers
+4. **Performance degradation under load** -- Disable
+   `proxy_buffering` for the WebSocket location. Raise
+   `worker_connections` in the `events` block. Check
+   `ulimit -n` on the Nginx host -- each WebSocket connection
+   holds an open file descriptor on both the client and backend
+   side.
 
-### Debug Mode
+### Monitoring Active Connections
+
+Enable `stub_status` to track connection counts:
 
 ```nginx
-error_log /var/log/nginx/debug.log debug;
-
-# Or for specific location
-location /ws {
-    error_log /var/log/nginx/ws_debug.log debug;
-    # ... rest of configuration
+location /nginx_status {
+    stub_status on;
+    access_log off;
+    allow 127.0.0.1;
+    deny all;
 }
 ```
 
-### Testing WebSocket Connection
+`Active connections` in the output includes WebSocket connections.
+A steady climb with no plateau means connections are leaking -- your
+backend is not closing them properly.
+
+### Testing WebSocket Connectivity
 
 ```bash
-# Test basic connectivity
+# Test the upgrade handshake with curl
 curl -i -N \
     -H "Connection: Upgrade" \
     -H "Upgrade: websocket" \
@@ -725,9 +537,8 @@ curl -i -N \
     -H "Sec-WebSocket-Key: SGVsbG8sIHdvcmxkIQ==" \
     https://ws.example.com/ws
 
-# Using wscat
-npm install -g wscat
-wscat -c wss://ws.example.com/ws
+# Or use wscat for an interactive session
+npx wscat -c wss://ws.example.com/ws
 ```
 
 ## FAQ

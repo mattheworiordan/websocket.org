@@ -1,15 +1,15 @@
 ---
-title: 'Java WebSocket: Spring Boot & Jakarta EE Guide'
+title: 'Java WebSocket Guide: Spring Boot, Virtual Threads'
 description:
-  'Build Java WebSocket apps with Spring Boot and Jakarta EE (JSR 356). Covers
-  server endpoints, STOMP messaging, client connections, security, testing, and
-  production deployment.'
+  'Build WebSocket servers in Java with Spring Boot and Jakarta EE. Covers
+  virtual threads (Java 21+), thread pool sizing, reconnection, and
+  production gotchas.'
 sidebar:
   order: 5
 author: Matthew O'Riordan
 authorRole: Co-founder & CEO, Ably
 date: '2024-09-02'
-lastUpdated: 2026-03-10
+lastUpdated: 2026-03-14
 category: guide
 keywords:
   - java websocket
@@ -24,33 +24,36 @@ seo:
     - jakarta ee websocket
     - java websocket server
     - java websocket client
-    - jsr 356 websocket
+    - java 21 virtual threads websocket
     - stomp websocket java
     - tyrus websocket
 faq:
   - q: 'How do I add WebSockets to a Spring Boot application?'
     a:
-      'Add the spring-boot-starter-websocket dependency. Create a class
-      annotated with @ServerEndpoint or use Spring STOMP support with
-      @EnableWebSocketMessageBroker. Spring handles the upgrade handshake and
-      connection lifecycle automatically.'
-  - q: 'What is JSR 356 and how does it relate to Java WebSockets?'
+      'Add spring-boot-starter-websocket, create a WebSocketConfigurer
+      that registers a TextWebSocketHandler, and set allowed origins.
+      Spring handles the HTTP upgrade and connection lifecycle. For
+      pub/sub, add @EnableWebSocketMessageBroker with STOMP.'
+  - q: 'Should I use virtual threads for Java WebSocket servers?'
     a:
-      'JSR 356 (Jakarta WebSocket) is the standard Java API for WebSockets. It
-      defines annotations like @ServerEndpoint and @ClientEndpoint for building
-      WebSocket applications. Tyrus is the reference implementation, and all
-      major Java servers support it.'
-  - q: 'Can I use WebSockets with Jakarta EE?'
+      'Yes, if you are on Java 21+. Set spring.threads.virtual.enabled=true
+      in Spring Boot 3.2+. Virtual threads cost a few KB each versus 1 MB
+      for platform threads, letting a single server hold tens of thousands
+      of concurrent connections without thread pool tuning.'
+  - q: 'What is the difference between Spring WebSocket and Jakarta EE?'
     a:
-      'Yes. Jakarta WebSocket (formerly JSR 356) is part of Jakarta EE. Annotate
-      a class with @ServerEndpoint, implement @OnOpen, @OnMessage, @OnClose, and
-      @OnError methods, and deploy to any Jakarta EE-compatible server like
-      Tomcat, Jetty, or WildFly.'
+      'Spring WebSocket adds handler abstractions, STOMP support, and
+      integration with Spring Security on top of the Jakarta WebSocket
+      API. Jakarta EE @ServerEndpoint works on any servlet container
+      without framework dependencies. Use Spring if you already run
+      Spring Boot; use Jakarta EE for standalone deployments.'
   - q: 'How do I handle WebSocket authentication in Java?'
     a:
-      'Use a HandshakeInterceptor in Spring or a Configurator in Jakarta EE to
-      validate tokens during the HTTP upgrade. Check JWT tokens, session
-      cookies, or custom headers before accepting the WebSocket connection.'
+      'Authenticate during the HTTP upgrade handshake, before the
+      connection opens. In Spring, use a HandshakeInterceptor to validate
+      JWTs or session cookies. In Jakarta EE, override
+      ServerEndpointConfig.Configurator.modifyHandshake(). Never defer
+      auth to the first WebSocket message.'
 tags:
   - websocket
   - java
@@ -65,16 +68,17 @@ tags:
 ---
 
 :::note[Quick Answer]
-Use **Spring Boot** with `spring-boot-starter-websocket`
-for the fastest setup. For Jakarta EE, annotate a class with
-`@ServerEndpoint("/path")` and implement `@OnOpen`, `@OnMessage`, `@OnClose`
-methods. Both approaches support the standard JSR 356 WebSocket API.
+Use **Spring Boot** with `spring-boot-starter-websocket`. If you are on
+Java 21+, enable virtual threads for massive concurrency. For standalone
+containers without Spring, use Jakarta EE `@ServerEndpoint`. Both
+approaches handle the WebSocket lifecycle through annotations.
 :::
 
-Java has two main paths for WebSocket servers: Spring Boot (what most
-teams already run) and Jakarta EE's `@ServerEndpoint` (when you need
-protocol-level control). Most teams should start with Spring. If you are
-on Java 21+, virtual threads change the scalability story entirely.
+Most Java teams already run Spring Boot. If that is you, Spring's
+WebSocket support is the obvious choice -- you get handler
+abstractions, STOMP pub/sub, and Spring Security integration for
+free. Jakarta EE's `@ServerEndpoint` is the right pick when you
+want zero framework dependencies and direct protocol control.
 
 ## Spring Boot WebSocket server
 
@@ -87,7 +91,9 @@ Add the dependency:
 </dependency>
 ```
 
-Register a handler and configure allowed origins:
+Register a handler with explicit origin restrictions. Leaving
+`setAllowedOrigins("*")` in production is an open door for
+cross-site WebSocket hijacking:
 
 ```java
 @Configuration
@@ -108,9 +114,10 @@ public class WebSocketConfig implements WebSocketConfigurer {
 }
 ```
 
-Implement the handler. Track sessions explicitly so you can clean
-them up — leaked sessions are the most common source of connection
-exhaustion in Java WebSocket servers:
+The handler tracks sessions and cleans them up on close and
+error. Leaked sessions are the most common source of connection
+exhaustion in Java WebSocket servers -- every unclosed session
+holds a thread (or virtual thread) and a TCP connection:
 
 ```java
 @Component
@@ -118,7 +125,6 @@ public class ChatHandler extends TextWebSocketHandler {
 
     private final Set<WebSocketSession> sessions =
         ConcurrentHashMap.newKeySet();
-    private final ObjectMapper json = new ObjectMapper();
 
     @Override
     public void afterConnectionEstablished(
@@ -130,15 +136,9 @@ public class ChatHandler extends TextWebSocketHandler {
     protected void handleTextMessage(
             WebSocketSession session, TextMessage message)
             throws Exception {
-        JsonNode node = json.readTree(message.getPayload());
-        String type = node.path("type").asText();
-
-        if ("broadcast".equals(type)) {
-            String payload = message.getPayload();
-            for (WebSocketSession s : sessions) {
-                if (s.isOpen()) {
-                    s.sendMessage(new TextMessage(payload));
-                }
+        for (WebSocketSession s : sessions) {
+            if (s.isOpen() && !s.equals(session)) {
+                s.sendMessage(message);
             }
         }
     }
@@ -158,18 +158,17 @@ public class ChatHandler extends TextWebSocketHandler {
 }
 ```
 
-Spring also supports STOMP (a pub/sub layer on top of WebSockets) via
-`@EnableWebSocketMessageBroker`. STOMP adds topic routing and message
-acknowledgment, which is useful if you need fan-out to many subscribers.
-For point-to-point messaging or simple broadcast, raw WebSocket handlers
-are simpler and perform better — STOMP adds framing overhead and another
+Spring also offers STOMP via `@EnableWebSocketMessageBroker` --
+a pub/sub layer that adds topic routing and message
+acknowledgment. Use it when you need fan-out to many subscribers.
+For point-to-point messaging or simple broadcast, raw handlers
+are simpler and faster. STOMP adds framing overhead and a second
 protocol to debug.
 
 ## Jakarta EE @ServerEndpoint
 
-If you are not using Spring — or you want direct control over the
-WebSocket lifecycle — Jakarta EE's annotation-based API works on
-Tomcat, Jetty, and WildFly without framework dependencies:
+If you are not using Spring, Jakarta EE's annotation API works
+on Tomcat, Jetty, and WildFly without any framework:
 
 ```java
 @ServerEndpoint("/chat")
@@ -206,26 +205,24 @@ public class ChatEndpoint {
 }
 ```
 
-Use `getAsyncRemote()` instead of `getBasicRemote()`. The basic
-variant blocks the calling thread until the message is sent. Under
-load, that blocks `@OnMessage` and backs up the container's thread
-pool.
+Always use `getAsyncRemote()`, not `getBasicRemote()`. The basic
+variant blocks the calling thread until the send completes. Under
+load, that backs up your container's entire thread pool.
 
-## Java 21 virtual threads
+## Virtual threads change everything (Java 21+)
 
-Before Java 21, every WebSocket connection consumed a platform thread.
-Tomcat defaults to a pool of 200 threads, meaning 200 concurrent
-connections before requests start queuing. You could increase the pool,
-but each platform thread costs roughly 1 MB of stack memory, so 10,000
-connections means 10 GB of stack space alone.
+Before Java 21, each WebSocket connection consumed a platform
+thread. Tomcat defaults to 200 worker threads -- that is 200
+concurrent connections before requests queue. You could increase
+the pool, but each platform thread costs roughly 1 MB of stack
+memory. At 10,000 connections, that is 10 GB of stack alone.
 
-Virtual threads change this. They are managed by the JVM, cost a few
-KB each, and yield automatically on blocking I/O. A single server can
-hold hundreds of thousands of concurrent WebSocket connections without
-thread pool tuning:
+Virtual threads fix this. They cost a few KB each, yield
+automatically on blocking I/O, and let a single server hold
+hundreds of thousands of concurrent WebSocket connections:
 
 ```java
-// Spring Boot 3.2+ — enable in application.properties:
+// Spring Boot 3.2+ — one line in application.properties:
 // spring.threads.virtual.enabled=true
 
 // Or configure Tomcat directly:
@@ -237,169 +234,151 @@ public TomcatProtocolHandlerCustomizer<?> virtualThreads() {
 }
 ```
 
-With virtual threads enabled, blocking in `@OnMessage` handlers is no
-longer a scalability risk — the virtual thread yields and the carrier
-thread picks up other work. This removes the main argument for
-reactive/async WebSocket stacks in Java.
+With virtual threads, blocking in `@OnMessage` handlers is no
+longer a scalability problem. The virtual thread yields and the
+carrier thread picks up other work. This eliminates the main
+argument for reactive WebSocket stacks in Java. If you are
+starting a new project on Java 21+, skip Project Reactor and
+WebFlux for WebSockets. Virtual threads give you the same
+concurrency with straightforward blocking code.
 
-If you are still on Java 17 or earlier, size your thread pool
-carefully. Tomcat's `maxConnections` defaults to 8,192, but
-`maxThreads` defaults to 200. Long-lived WebSocket connections hold
-threads, so a mismatch between these two values leads to connection
-refusals even when `maxConnections` has not been reached.
+If you are stuck on Java 17, size your thread pool to match your
+expected connection count. Tomcat's `maxConnections` defaults to
+8,192, but `maxThreads` defaults to 200. That mismatch means
+connection refusals at 200 WebSocket clients while the connection
+limit is barely touched.
 
-## Client connections
+## Client with reconnection
 
-The standard Jakarta WebSocket client works anywhere:
-
-```java
-WebSocketContainer container =
-    ContainerProvider.getWebSocketContainer();
-Session session = container.connectToServer(
-    new Endpoint() {
-        @Override
-        public void onOpen(Session s, EndpointConfig config) {
-            s.addMessageHandler(String.class,
-                msg -> System.out.println("Received: " + msg));
-            try {
-                s.getBasicRemote().sendText("hello");
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }
-    },
-    URI.create("wss://echo.websocket.org")
-);
-```
-
-For production clients, add reconnection with exponential backoff. The
-connection _will_ drop — networks fail, servers restart, load
-balancers recycle. Without reconnection logic, your client silently
-goes dead:
+The Jakarta WebSocket client works anywhere:
 
 ```java
 public void connectWithRetry(URI uri) {
+    WebSocketContainer container =
+        ContainerProvider.getWebSocketContainer();
     int attempt = 0;
+
     while (true) {
         try {
             Session session = container.connectToServer(
                 endpoint, uri);
-            attempt = 0; // reset on success
-            awaitClose(session);
+            attempt = 0;
+            awaitClose(session); // blocks until disconnect
         } catch (Exception e) {
             attempt++;
-            long delay = Math.min(1000L * (1 << attempt),
-                30_000L);
-            Thread.sleep(delay);
+            long delay = Math.min(
+                1000L * (1 << attempt), 30_000L);
+            Thread.sleep(delay); // backoff with 30s cap
         }
     }
 }
 ```
 
-For richer client features — automatic reconnection, presence,
-message history — the
-[Ably Java SDK][ably-java]
-provides these out of the box over WebSockets.
+Without reconnection logic, your client silently goes dead after
+any network hiccup, server restart, or load balancer recycle.
+Always reconnect with exponential backoff. Fixed-interval retries
+cause connection storms -- a thousand clients reconnecting at the
+same instant will bring the server right back down.
 
-## Beyond raw WebSockets
-
-A raw WebSocket gives you a bidirectional byte pipe. That is enough
-for a demo. In production you quickly need:
-
-- **Reconnection and state recovery** — the client must reconnect and
-  pick up where it left off, not miss messages during the disconnect.
-- **Message ordering and delivery guarantees** — TCP ordering applies
-  per connection, but across reconnects, messages can be lost or
-  duplicated without an application-level protocol.
-- **Presence** — knowing which users are online requires heartbeats,
-  timeouts, and fan-out to every other connected client.
-- **Authentication and per-channel permissions** — the upgrade
-  handshake is your one chance to validate a token, but capabilities
-  need to be enforced per message.
-
-Spring STOMP adds pub/sub semantics and a simple broker, but you still
-own reconnection, ordering, and scaling the broker across multiple
-servers. For Java teams that need these guarantees without building
-them, [Ably's Pub/Sub Messaging][ably-pubsub] handles connection
-management, message integrity, and global edge delivery over
-WebSockets. There is a
-[Java client library][ably-java] and
-a [Spring integration example][ably-tutorials].
+For production clients that need automatic reconnection, presence
+tracking, and message history, the [Ably Java SDK][ably-java]
+handles these over WebSockets without manual retry logic.
 
 ## Java-specific gotchas
 
-**Thread pool exhaustion from leaked connections.** Every unclosed
-`WebSocketSession` or `Session` holds a thread (pre-Java 21) or a
-virtual thread. If your `@OnClose` or `handleTransportError` does not
-remove the session from your tracking set, the session stays open,
-the thread stays allocated, and eventually new connections are
+**Thread pool exhaustion from leaked connections.** Every
+unclosed `WebSocketSession` holds a thread (pre-Java 21) or a
+virtual thread. If `@OnClose` or `handleTransportError` does not
+remove the session from your tracking set, the session stays
+open, the thread stays allocated, and new connections get
 refused. Always clean up in both close _and_ error handlers.
 
-**Tomcat maxConnections vs maxThreads.** Tomcat accepts up to 8,192
-connections by default but only has 200 worker threads. WebSocket
-connections are long-lived, so 200 concurrent WebSockets can exhaust
-the thread pool while the connection limit is barely touched. Either
-increase `maxThreads`, switch to virtual threads (Java 21+), or use
-NIO-based async handling.
+**Tomcat maxConnections vs. maxThreads.** Tomcat accepts up to
+8,192 connections by default but only has 200 worker threads.
+WebSocket connections are long-lived, so 200 concurrent
+WebSockets exhaust the thread pool while the connection limit
+is barely touched. Either increase `maxThreads`, switch to
+virtual threads, or use NIO-based async handling.
 
-**Blocking inside @OnMessage.** With platform threads, any blocking
-call (database query, HTTP request, slow computation) inside an
-`@OnMessage` handler ties up the container thread for the duration.
-Under load, this cascades: threads block, the pool fills, new
-messages queue, and latency spikes. Offload slow work to a separate
-executor, or move to virtual threads where blocking is cheap.
+**Blocking inside @OnMessage.** Any blocking call -- database
+query, HTTP request, slow computation -- inside `@OnMessage`
+ties up the container thread. Under load, threads block, the
+pool fills, messages queue, and latency spikes. Offload slow
+work to a separate executor, or move to virtual threads where
+blocking is cheap.
 
-**Memory per connection.** Platform threads use ~1 MB of stack each.
-At 5,000 connections that is 5 GB of stack memory before you account
-for session buffers, message queues, or application state. Virtual
-threads reduce this to a few KB per connection. If you cannot upgrade
-to Java 21, profile heap and thread usage under realistic connection
-counts before going to production.
+**GC pressure under high fan-out.** Broadcasting to thousands of
+sessions creates thousands of short-lived `TextMessage` objects.
+With G1's defaults, this triggers long young-gen pauses. Use ZGC
+(Java 17+) or Shenandoah for sub-millisecond pause times on
+high-throughput WebSocket servers. In our experience running
+millions of WebSocket connections, GC tuning is the difference
+between smooth operation and periodic latency spikes.
 
-**GC pauses under high fan-out.** Broadcasting to thousands of
-sessions creates thousands of short-lived `TextMessage` objects. With
-default G1 settings this can trigger long young-gen pauses. Use
-ZGC (Java 17+) or Shenandoah for sub-millisecond pause times on
-high-throughput WebSocket servers.
+**Memory per connection.** Platform threads use ~1 MB of stack
+each. At 5,000 connections, that is 5 GB before session buffers
+or application state. Virtual threads drop this to a few KB. If
+you cannot upgrade to Java 21, profile heap and thread usage
+under realistic connection counts before deploying.
+
+## Beyond raw WebSockets
+
+A raw WebSocket gives you a bidirectional byte pipe. For a demo,
+that is enough. In production you quickly need reconnection with
+state recovery, message ordering across reconnects, presence,
+and per-channel permissions. Spring STOMP adds pub/sub semantics,
+but you still own reconnection, ordering, and scaling across
+servers.
+
+For Java teams that need these guarantees without building them,
+[Ably's Pub/Sub Messaging][ably-pubsub] handles connection
+management, message integrity, and global edge delivery over
+WebSockets. There is a [Java client library][ably-java] and
+a [Spring integration example][ably-tutorials].
 
 ## Frequently Asked Questions
 
 ### How do I add WebSockets to a Spring Boot application?
 
-Add `spring-boot-starter-websocket` to your dependencies. Create a
-`WebSocketConfigurer` that registers a `TextWebSocketHandler` at a
-path. Spring handles the HTTP upgrade, connection lifecycle, and
-session management. For pub/sub patterns, add
-`@EnableWebSocketMessageBroker` and configure STOMP endpoints — but
-only if you need topic routing. Raw handlers are simpler for
-point-to-point or broadcast.
+Add `spring-boot-starter-websocket` to your dependencies, create
+a `WebSocketConfigurer` that registers a `TextWebSocketHandler`
+at a path, and set allowed origins explicitly. Spring handles the
+HTTP upgrade and session lifecycle. For pub/sub patterns, add
+`@EnableWebSocketMessageBroker` with STOMP -- but only if you
+need topic routing. Raw handlers are simpler and faster for
+broadcast or point-to-point messaging.
 
-### What is JSR 356 and how does it relate to Java WebSockets?
+### Should I use virtual threads for Java WebSocket servers?
 
-JSR 356, now called Jakarta WebSocket, is the standard API for
-WebSockets in Java. It defines `@ServerEndpoint`, `@ClientEndpoint`,
-and lifecycle annotations (`@OnOpen`, `@OnMessage`, `@OnClose`,
-`@OnError`). Every major servlet container implements it — Tomcat,
-Jetty, WildFly, GlassFish. Spring's WebSocket support builds on top
-of it but adds its own handler abstraction.
+If you are on Java 21+, yes. One property change in Spring Boot
+3.2+ (`spring.threads.virtual.enabled=true`) switches the
+entire server to virtual threads. Each connection costs a few KB
+instead of 1 MB. You no longer need to calculate thread pool
+sizes or worry about blocking in message handlers. The only
+caveat: if your code uses `synchronized` blocks heavily, virtual
+threads can pin to carrier threads and reduce throughput. Prefer
+`ReentrantLock` in hot paths.
 
-### Can I use WebSockets with Jakarta EE?
+### What is the difference between Spring WebSocket and Jakarta EE?
 
-Yes. Annotate a POJO with `@ServerEndpoint("/path")`, implement the
-lifecycle methods, and deploy to any Jakarta EE container. No
-additional dependencies are needed — the API is part of the platform.
-Tomcat and Jetty both support it in standalone mode too, outside a
-full Jakarta EE server.
+Jakarta EE (the `@ServerEndpoint` API) is the standard that
+every servlet container implements. Spring WebSocket builds on
+it, adding its own handler abstraction, STOMP support, and
+integration with Spring Security. If you already run Spring Boot,
+use Spring WebSocket -- you get dependency injection, security
+filters, and configuration through annotations. If you run a
+standalone Tomcat or Jetty, Jakarta EE works without pulling in
+Spring's dependency tree.
 
 ### How do I handle WebSocket authentication in Java?
 
-Authenticate during the HTTP upgrade handshake, before the WebSocket
-connection is established. In Spring, implement a
-`HandshakeInterceptor` that checks a JWT or session cookie and rejects
-the upgrade with a 403 if invalid. In Jakarta EE, use a
-`ServerEndpointConfig.Configurator` to inspect headers in
-`modifyHandshake()`. Do not defer authentication to the first
-WebSocket message — by then the connection is open and consuming
+Authenticate during the HTTP upgrade handshake, before the
+WebSocket opens. In Spring, implement `HandshakeInterceptor` and
+check the JWT or session cookie. Return `false` to reject with
+a 403. In Jakarta EE, use a
+`ServerEndpointConfig.Configurator` and override
+`modifyHandshake()`. Do not defer auth to the first WebSocket
+message -- by then the connection is open and consuming server
 resources.
 
 ## Related Content
@@ -408,12 +387,12 @@ resources.
   The protocol underlying Java WebSocket implementations
 - [WebSocket API: Events, Methods & Properties](/reference/websocket-api/) -
   Browser-side API for connecting to your Java server
-- [WebSocket Security](/guides/security/) - Authentication, TLS, and
-  rate limiting for WebSocket servers
+- [WebSocket Security](/guides/security/) - Authentication, TLS,
+  and rate limiting for WebSocket servers
 - [WebSocket Libraries, Tools & Specs](/resources/websocket-resources/) -
   Curated list including Java libraries like Tyrus and Jetty
 - [WebSockets at Scale](/guides/websockets-at-scale/) - Scaling
-  patterns applicable to Java WebSocket deployments
+  patterns applicable to Java deployments
 
 [ably-java]:
   https://ably.com/docs/getting-started/setup?lang=java&utm_source=websocket-org&utm_medium=java-websocket

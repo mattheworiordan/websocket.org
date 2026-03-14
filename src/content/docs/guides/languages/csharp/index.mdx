@@ -1,0 +1,419 @@
+---
+title: "C# WebSocket Guide: .NET 8 Client, Server & SignalR"
+description:
+  "Build C# WebSocket apps with ClientWebSocket, Minimal API middleware, and
+  SignalR. .NET 8+ patterns with reconnection and CancellationToken usage."
+sidebar:
+  order: 6
+author: "Matthew O'Riordan"
+authorRole: "Co-founder & CEO, Ably"
+date: "2024-09-02"
+lastUpdated: 2026-03-14
+category: guide
+keywords:
+  - csharp websocket
+  - dotnet websocket
+  - clientwebsocket
+  - aspnet core websocket
+  - signalr vs websocket
+seo:
+  keywords:
+    - csharp websocket
+    - dotnet websocket
+    - clientwebsocket
+    - aspnet core websocket
+    - signalr vs websocket
+    - dotnet 8 websocket
+    - minimal api websocket
+faq:
+  - q: "How do I use WebSockets in C# .NET?"
+    a:
+      "Use ClientWebSocket for clients and ASP.NET Core WebSocket middleware
+      for servers. Add app.UseWebSockets() in a Minimal API, accept connections
+      with AcceptWebSocketAsync, and pass CancellationTokens through every async
+      call. For higher-level abstractions, use SignalR."
+  - q: "What is the difference between SignalR and raw WebSockets?"
+    a:
+      "WebSockets give you a bidirectional byte stream with no opinions. SignalR
+      adds reconnection, hub routing, groups, typed methods, and fallback to SSE
+      or long polling. The cost is an extra negotiation round-trip and SignalR's
+      own framing overhead."
+  - q: "Can I use WebSockets in Unity with C#?"
+    a:
+      "Yes. ClientWebSocket works on standalone builds. WebGL builds cannot use
+      it because the browser sandbox blocks raw sockets. For WebGL, use a
+      JavaScript bridge or NativeWebSocket. Test on every target platform
+      because Unity's Mono runtime has quirks."
+---
+
+:::note[Quick Answer]
+Use **ClientWebSocket** for .NET clients. Use **ASP.NET Core
+Minimal API middleware** for servers. Use **SignalR** when you want automatic
+reconnection, hub routing, and transport fallback. All three ship with .NET 8
+and need no extra packages.
+:::
+
+For .NET WebSocket work, you have three options and one clear
+recommendation for each use case. `ClientWebSocket` for clients --
+it's built into the runtime. ASP.NET Core Minimal API middleware for
+servers -- no controller ceremony, just `app.Map` and go. SignalR
+when you want the abstraction layer. Here's each one.
+
+## Client: ClientWebSocket with reconnection
+
+`ClientWebSocket` is the built-in .NET client. It connects to any
+WebSocket server, handles TLS, and supports custom headers for auth.
+
+The class is `IDisposable` but not reusable. Once closed or faulted,
+you create a new instance. This is the most common source of socket
+leaks in .NET WebSocket code -- miss a `using` block and you leak
+handles until the process runs out of ports.
+
+```csharp
+using System.Buffers;
+using System.Net.WebSockets;
+using System.Text;
+
+async Task ConnectWithRetry(Uri uri, CancellationToken ct)
+{
+    var delay = TimeSpan.FromSeconds(1);
+    var maxDelay = TimeSpan.FromSeconds(30);
+
+    while (!ct.IsCancellationRequested)
+    {
+        using var ws = new ClientWebSocket();
+        ws.Options.KeepAliveInterval = TimeSpan.FromSeconds(20);
+
+        try
+        {
+            await ws.ConnectAsync(uri, ct);
+            delay = TimeSpan.FromSeconds(1);
+            await ReceiveLoop(ws, ct);
+        }
+        catch (WebSocketException) { }
+        catch (OperationCanceledException) { break; }
+
+        await Task.Delay(delay, ct);
+        delay = TimeSpan.FromSeconds(
+            Math.Min(delay.TotalSeconds * 2, maxDelay.TotalSeconds)
+        );
+    }
+}
+```
+
+Every iteration creates a fresh `ClientWebSocket` inside `using`.
+Without that, you leak unmanaged socket handles. In long-running
+services, port exhaustion hits within hours.
+
+The receive loop rents buffers from `ArrayPool` instead of
+allocating on every read. For high-throughput clients, this cuts GC
+pressure significantly:
+
+```csharp
+async Task ReceiveLoop(ClientWebSocket ws, CancellationToken ct)
+{
+    var buffer = ArrayPool<byte>.Shared.Rent(4096);
+    try
+    {
+        while (ws.State == WebSocketState.Open)
+        {
+            var result = await ws.ReceiveAsync(buffer, ct);
+            if (result.MessageType == WebSocketMessageType.Close)
+                break;
+
+            var msg = Encoding.UTF8.GetString(
+                buffer, 0, result.Count
+            );
+            Console.WriteLine($"Received: {msg}");
+        }
+    }
+    finally
+    {
+        ArrayPool<byte>.Shared.Return(buffer);
+    }
+}
+```
+
+Pass `CancellationToken` through every async call. Without it,
+`ReceiveAsync` blocks indefinitely on a dead connection. The token
+lets you time out or shut down cleanly.
+
+## Server: Minimal API middleware
+
+ASP.NET Core has built-in WebSocket support. No SignalR, no
+controllers -- just middleware in a Minimal API. This is the right
+choice when you need raw protocol access or when your clients speak
+plain WebSocket (browsers, IoT devices, non-.NET services).
+
+```csharp
+var builder = WebApplication.CreateBuilder(args);
+var app = builder.Build();
+
+app.UseWebSockets(new WebSocketOptions
+{
+    KeepAliveInterval = TimeSpan.FromSeconds(30)
+});
+
+app.Map("/ws", async (HttpContext context) =>
+{
+    if (!context.WebSockets.IsWebSocketRequest)
+    {
+        context.Response.StatusCode = 400;
+        return;
+    }
+
+    using var ws = await context.WebSockets
+        .AcceptWebSocketAsync();
+    var ct = context.RequestAborted;
+    var buffer = ArrayPool<byte>.Shared.Rent(4096);
+
+    try
+    {
+        while (ws.State == WebSocketState.Open)
+        {
+            var result = await ws.ReceiveAsync(buffer, ct);
+            if (result.MessageType ==
+                WebSocketMessageType.Close)
+                break;
+
+            await ws.SendAsync(
+                buffer.AsMemory(0, result.Count),
+                result.MessageType,
+                result.EndOfMessage, ct
+            );
+        }
+    }
+    finally
+    {
+        ArrayPool<byte>.Shared.Return(buffer);
+    }
+});
+
+app.Run();
+```
+
+Notice `context.RequestAborted` -- this `CancellationToken` fires
+when the client disconnects or the server shuts down. Without it,
+orphaned receive loops pile up during deploys.
+
+This gives you a raw pipe. No reconnection, no routing, no message
+framing beyond what the protocol provides. You track connections,
+handle cleanup, and manage all error recovery yourself.
+
+## SignalR: when you want the abstraction
+
+SignalR sits on top of WebSockets and adds hub routing, automatic
+reconnection, groups, typed methods, and transport fallback. Think
+of it as Socket.IO for .NET. Use it when you want to ship fast and
+don't need protocol-level control.
+
+### Server hub
+
+```csharp
+using Microsoft.AspNetCore.SignalR;
+
+public class ChatHub : Hub
+{
+    public override async Task OnConnectedAsync()
+    {
+        await Clients.Others.SendAsync(
+            "UserJoined", Context.ConnectionId
+        );
+    }
+
+    public async Task Send(string user, string message)
+    {
+        await Clients.All.SendAsync(
+            "Receive", user, message
+        );
+    }
+
+    public async Task JoinRoom(string room)
+    {
+        await Groups.AddToGroupAsync(
+            Context.ConnectionId, room
+        );
+    }
+}
+```
+
+### Wiring it up
+
+```csharp
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddSignalR();
+var app = builder.Build();
+app.MapHub<ChatHub>("/chat");
+app.Run();
+```
+
+### Client
+
+```csharp
+using Microsoft.AspNetCore.SignalR.Client;
+
+var connection = new HubConnectionBuilder()
+    .WithUrl("https://localhost:5001/chat")
+    .WithAutomaticReconnect()
+    .Build();
+
+connection.On<string, string>("Receive", (user, msg) =>
+    Console.WriteLine($"{user}: {msg}")
+);
+
+connection.Reconnecting += _ =>
+{
+    Console.WriteLine("Reconnecting...");
+    return Task.CompletedTask;
+};
+
+await connection.StartAsync();
+await connection.InvokeAsync("Send", "Alice", "Hello");
+```
+
+SignalR's `WithAutomaticReconnect()` retries at 0, 2, 10, and 30
+second intervals by default. You don't write retry loops, but you
+do need to handle `Reconnecting` and `Reconnected` events to
+update UI state or re-subscribe to groups.
+
+## SignalR vs raw WebSockets: when to choose which
+
+Use SignalR unless you have a reason not to. It handles the boring
+parts -- reconnection, transport negotiation, message routing --
+and covers 80% of use cases.
+
+Go raw when: you need a custom binary protocol, your clients are
+non-.NET and don't speak the SignalR wire format, or you need to
+minimize per-message overhead for latency-critical workloads.
+SignalR adds a negotiation round-trip and its own JSON/MessagePack
+framing, which adds measurable latency on high-frequency streams.
+
+The third option is skipping self-hosted WebSocket infrastructure
+entirely. Managed services like
+[Ably](https://ably.com/?utm_source=websocket-org&utm_medium=csharp-guide)
+handle connection state, reconnection, message ordering, and
+multi-region failover so you don't run WebSocket servers at all.
+The trade-off is less control and a per-message cost, but you skip
+the operational burden of horizontal scaling, Redis backplanes,
+and deploy-time connection drops.
+
+## .NET-specific gotchas
+
+**Async disposal matters.** `ClientWebSocket` is `IDisposable`.
+`HubConnection` is `IAsyncDisposable`. If you run a SignalR client
+inside a `BackgroundService`, stop and dispose it in `StopAsync` --
+not in a finalizer. Otherwise the app shuts down with open
+connections and the server sees abrupt disconnects:
+
+```csharp
+public class SignalRWorker : BackgroundService
+{
+    private readonly HubConnection _conn;
+
+    public SignalRWorker() =>
+        _conn = new HubConnectionBuilder()
+            .WithUrl("https://example.com/hub")
+            .WithAutomaticReconnect()
+            .Build();
+
+    protected override async Task ExecuteAsync(
+        CancellationToken ct)
+    {
+        await _conn.StartAsync(ct);
+        await Task.Delay(Timeout.Infinite, ct);
+    }
+
+    public override async Task StopAsync(CancellationToken ct)
+    {
+        await _conn.StopAsync(ct);
+        await _conn.DisposeAsync();
+        await base.StopAsync(ct);
+    }
+}
+```
+
+**CancellationToken propagation.** Every async WebSocket method
+accepts a `CancellationToken`. Pass it. Without it, `ReceiveAsync`
+blocks forever on a dead connection. `ConnectAsync` with no token
+hangs if DNS is slow. In hosted services, wire up the
+`stoppingToken` from `ExecuteAsync` so everything cancels on
+shutdown.
+
+**Buffer management with ArrayPool.** The default 4KB receive
+buffer allocates on every call. Under load, this generates garbage
+that triggers Gen 0 collections. Rent from `ArrayPool<byte>.Shared`
+and return in a `finally` block. For messages larger than your
+buffer, loop on `ReceiveAsync` until `EndOfMessage` is true --
+SignalR handles reassembly automatically, raw `ClientWebSocket`
+does not.
+
+**Sync-over-async kills throughput.** Calling `.Result` or
+`.Wait()` on WebSocket async methods blocks a thread pool thread.
+Under load, this starves the pool and freezes the app. Always
+`await`. If you're in a synchronous context that truly cannot be
+made async (rare in modern .NET), use `Task.Run` to offload.
+
+**Connection count is a distraction.** Teams benchmark how many
+connections a single Kestrel instance can hold -- 10K? 50K? The
+number matters less than what happens when you deploy. Every
+restart drops every connection. The real problems are state
+management, message reliability during deploys, and failover speed.
+For production concerns at scale, see the
+[WebSockets at Scale](/guides/websockets-at-scale/) guide.
+
+## Frequently asked questions
+
+### How do I use WebSockets in C# .NET?
+
+Two paths. For clients, create a `ClientWebSocket`, call
+`ConnectAsync` with a URI and `CancellationToken`, then loop on
+`ReceiveAsync`. For servers, add `app.UseWebSockets()` in an
+ASP.NET Core Minimal API, check `IsWebSocketRequest`, and call
+`AcceptWebSocketAsync`. In both cases, pass `CancellationToken`
+through every async call so you get clean shutdown. If you don't
+need raw protocol access, use SignalR instead -- it handles
+reconnection and routing so you write less infrastructure code.
+
+### What is the difference between SignalR and raw WebSockets?
+
+WebSockets give you a bidirectional byte stream. You handle
+framing, reconnection, routing, and serialization yourself. SignalR
+layers a protocol on top: hub-based routing, automatic reconnection
+with configurable backoff, groups for broadcasting, strongly typed
+method calls, and transport fallback to SSE or long polling when
+WebSockets are blocked. The cost is an extra HTTP negotiation
+round-trip on connect and per-message overhead from SignalR's JSON
+or MessagePack framing. For most apps that trade-off is worth it.
+For low-latency binary protocols, go raw.
+
+### Can I use WebSockets in Unity with C#?
+
+`ClientWebSocket` works on standalone builds (Windows, macOS,
+Linux, Android, iOS). WebGL builds cannot use it -- the browser
+sandbox blocks raw socket access. For WebGL, use a JavaScript
+bridge via `jslib` or a Unity-specific library like NativeWebSocket.
+Be aware that Unity ships an older Mono runtime on some platforms,
+which affects TLS support and async behavior. Test on every target
+platform, not just the editor.
+
+### Should I use SignalR or raw WebSockets?
+
+Start with SignalR. It handles reconnection, transport negotiation,
+and message routing with minimal code. Drop down to raw WebSockets
+only when you need a custom binary protocol, when you're
+interoperating with non-.NET clients that don't speak SignalR's
+wire format, or when you need to eliminate SignalR's per-message
+framing overhead for latency-sensitive workloads.
+
+## Related content
+
+- [Java WebSocket Guide](/guides/languages/java/) -- Spring Boot
+  and Jakarta EE WebSocket patterns
+- [JavaScript WebSocket Guide](/guides/languages/javascript/) --
+  Browser API and Node.js server patterns
+- [Building a WebSocket App](/guides/building-a-websocket-app/) --
+  Hands-on tutorial with cursor sharing
+- [WebSocket Security Guide](/guides/security/) -- Authentication,
+  TLS, and protection patterns
+- [WebSockets at Scale](/guides/websockets-at-scale/) --
+  Architecture for millions of connections

@@ -1,9 +1,9 @@
 ---
-title: 'WebSocket vs HTTP: Persistent Connections vs Request-Response'
+title: 'WebSocket vs HTTP: When to Use Each Protocol'
 description:
-  'Compare WebSockets and HTTP. HTTP uses request-response for APIs
-  and page loads. WebSockets maintain persistent bidirectional
-  connections for real-time data. Choose based on your use case.'
+  'HTTP uses request-response. WebSocket maintains a persistent
+  bidirectional connection. Compare the two and know when each
+  is the right choice.'
 author: "Matthew O'Riordan"
 authorRole: 'Co-founder & CEO, Ably'
 date: 2025-01-07
@@ -304,61 +304,16 @@ That's a **98.8% reduction** in protocol overhead!
 - Microservice communication
 - Stateless operations
 
-**Example scenarios:**
-
-```javascript
-// Fetching user profile
-GET /api/users/123
-
-// Submitting a form
-POST /api/contact
-Content-Type: application/json
-{"name": "John", "message": "Hello"}
-
-// Downloading a file
-GET /downloads/report.pdf
-```
-
 ### When to Use WebSockets
 
 ✅ **Perfect for:**
 
-- Real-time chat applications
-- Live sports scores
+- Real-time chat and notifications
 - Multiplayer gaming
-- Collaborative editing
+- Collaborative editing (Google Docs-style)
 - Financial trading platforms
-- Live location tracking
+- Live dashboards and location tracking
 - IoT device streams
-- Real-time notifications
-
-**Example scenarios:**
-
-```javascript
-// Real-time chat
-ws.send(
-  JSON.stringify({
-    type: 'message',
-    text: 'Hello everyone!',
-    timestamp: Date.now(),
-  })
-);
-
-// Live trading data
-ws.onmessage = (event) => {
-  const data = JSON.parse(event.data);
-  updatePriceChart(data.symbol, data.price);
-};
-
-// Multiplayer game state
-ws.send(
-  JSON.stringify({
-    type: 'player_move',
-    position: { x: 100, y: 200 },
-    velocity: { x: 5, y: 0 },
-  })
-);
-```
 
 ### The Gray Area: Hybrid Approaches
 
@@ -396,7 +351,7 @@ db.createMessage(req.body); res.status(201).json(message); });
 
 app.listen(3000);
 
-````
+```
 </TabItem>
 <TabItem label="Python">
 ```python
@@ -416,7 +371,7 @@ def create_message():
 
 if __name__ == '__main__':
     app.run(port=3000)
-````
+```
 
 </TabItem>
 <TabItem label="Go">
@@ -428,19 +383,31 @@ import (
     "net/http"
 )
 
-func getMessages(w http.ResponseWriter, r \*http.Request) { messages :=
-db.GetMessages() json.NewEncoder(w).Encode(messages) }
+func getMessages(w http.ResponseWriter, r *http.Request) {
+    messages := db.GetMessages()
+    json.NewEncoder(w).Encode(messages)
+}
 
-func createMessage(w http.ResponseWriter, r \*http.Request) { var message
-Message json.NewDecoder(r.Body).Decode(&message) created :=
-db.CreateMessage(message) w.WriteHeader(http.StatusCreated)
-json.NewEncoder(w).Encode(created) }
+func createMessage(w http.ResponseWriter, r *http.Request) {
+    var message Message
+    json.NewDecoder(r.Body).Decode(&message)
+    created := db.CreateMessage(message)
+    w.WriteHeader(http.StatusCreated)
+    json.NewEncoder(w).Encode(created)
+}
 
-func main() { http.HandleFunc("/api/messages", func(w http.ResponseWriter, r
-\*http.Request) { switch r.Method { case "GET": getMessages(w, r) case "POST":
-createMessage(w, r) } }) http.ListenAndServe(":3000", nil) }
-
-````
+func main() {
+    http.HandleFunc("/api/messages", func(w http.ResponseWriter, r *http.Request) {
+        switch r.Method {
+        case "GET":
+            getMessages(w, r)
+        case "POST":
+            createMessage(w, r)
+        }
+    })
+    http.ListenAndServe(":3000", nil)
+}
+```
 </TabItem>
 </Tabs>
 
@@ -476,7 +443,7 @@ wss.on('connection', (ws) => {
     clients.delete(ws);
   });
 });
-````
+```
 
 </TabItem>
 <TabItem label="Python">
@@ -502,7 +469,7 @@ start_server = websockets.serve(handler, "localhost", 8080)
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()
 
-````
+```
 </TabItem>
 <TabItem label="Go">
 ```go
@@ -514,158 +481,87 @@ import (
     "sync"
 )
 
-var upgrader = websocket.Upgrader{
-    CheckOrigin: func(r *http.Request) bool { return true },
-}
-
-type Hub struct {
-    clients map[*websocket.Conn]bool
-    mutex   sync.RWMutex
-}
-
-var hub = Hub{
-    clients: make(map[*websocket.Conn]bool),
-}
+var (
+    upgrader = websocket.Upgrader{}
+    clients  = struct {
+        sync.RWMutex
+        m map[*websocket.Conn]bool
+    }{m: make(map[*websocket.Conn]bool)}
+)
 
 func handleWebSocket(w http.ResponseWriter, r *http.Request) {
-    conn, err := upgrader.Upgrade(w, r, nil)
-    if err != nil {
-        return
-    }
+    conn, _ := upgrader.Upgrade(w, r, nil)
     defer conn.Close()
 
-    hub.mutex.Lock()
-    hub.clients[conn] = true
-    hub.mutex.Unlock()
+    clients.Lock()
+    clients.m[conn] = true
+    clients.Unlock()
 
     for {
         var msg map[string]interface{}
-        err := conn.ReadJSON(&msg)
-        if err != nil {
+        if conn.ReadJSON(&msg) != nil {
             break
         }
-
-        // Broadcast to all clients
-        hub.mutex.RLock()
-        for client := range hub.clients {
-            client.WriteJSON(msg)
+        clients.RLock()
+        for c := range clients.m {
+            c.WriteJSON(msg)
         }
-        hub.mutex.RUnlock()
+        clients.RUnlock()
     }
 
-    hub.mutex.Lock()
-    delete(hub.clients, conn)
-    hub.mutex.Unlock()
+    clients.Lock()
+    delete(clients.m, conn)
+    clients.Unlock()
 }
 
 func main() {
     http.HandleFunc("/ws", handleWebSocket)
     http.ListenAndServe(":8080", nil)
 }
-````
+```
 
 </TabItem>
 </Tabs>
 
-### Client-Side Implementation
+### Client-Side: Polling vs WebSocket
 
 <Tabs>
-<TabItem label="HTTP (Fetch API)">
+<TabItem label="HTTP Polling">
 ```javascript
-// HTTP: Polling for updates
-class HTTPPoller {
-  constructor(url, interval = 1000) {
-    this.url = url;
-    this.interval = interval;
-    this.lastMessageId = 0;
-  }
-  
-  async start() {
-    this.polling = setInterval(async () => {
-      try {
-        const response = await fetch(
-          `${this.url}?since=${this.lastMessageId}`
-        );
-        const messages = await response.json();
+// Poll every second — simple but wasteful
+let lastId = 0;
+setInterval(async () => {
+  const res = await fetch(`/api/messages?since=${lastId}`);
+  const messages = await res.json();
+  messages.forEach((msg) => {
+    handleMessage(msg);
+    lastId = Math.max(lastId, msg.id);
+  });
+}, 1000);
+```
 
-        messages.forEach(msg => {
-          this.onMessage(msg);
-          this.lastMessageId = Math.max(this.lastMessageId, msg.id);
-        });
-      } catch (error) {
-        console.error('Polling error:', error);
-      }
-    }, this.interval);
-
-}
-
-stop() { clearInterval(this.polling); }
-
-onMessage(message) { console.log('New message:', message); } }
-
-// Usage const poller = new HTTPPoller('/api/messages', 1000); poller.start();
-
-````
 </TabItem>
 <TabItem label="WebSocket">
 ```javascript
-// WebSocket: Real-time updates
-class WebSocketClient {
-  constructor(url) {
-    this.url = url;
-    this.reconnectDelay = 1000;
-    this.maxReconnectDelay = 30000;
-  }
+// Persistent connection with reconnection
+const url = 'wss://example.com/socket';
+let reconnectDelay = 1000;
 
-  connect() {
-    this.ws = new WebSocket(this.url);
+function connect() {
+  const ws = new WebSocket(url);
 
-    this.ws.onopen = () => {
-      console.log('Connected');
-      this.reconnectDelay = 1000; // Reset delay
-    };
+  ws.onopen = () => (reconnectDelay = 1000);
+  ws.onmessage = (e) => handleMessage(JSON.parse(e.data));
+  ws.onclose = () => {
+    setTimeout(connect, reconnectDelay);
+    reconnectDelay = Math.min(reconnectDelay * 2, 30000);
+  };
 
-    this.ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      this.onMessage(message);
-    };
-
-    this.ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
-    };
-
-    this.ws.onclose = () => {
-      console.log('Disconnected');
-      this.reconnect();
-    };
-  }
-
-  reconnect() {
-    setTimeout(() => {
-      console.log('Reconnecting...');
-      this.connect();
-      this.reconnectDelay = Math.min(
-        this.reconnectDelay * 2,
-        this.maxReconnectDelay
-      );
-    }, this.reconnectDelay);
-  }
-
-  send(data) {
-    if (this.ws.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify(data));
-    }
-  }
-
-  onMessage(message) {
-    console.log('New message:', message);
-  }
+  return ws;
 }
 
-// Usage
-const client = new WebSocketClient('wss://example.com/socket');
-client.connect();
-````
+const ws = connect();
+```
 
 </TabItem>
 </Tabs>
