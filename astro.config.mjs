@@ -187,6 +187,7 @@ export default defineConfig({
             {
               label: 'Protocol & Transport',
               items: [
+                { label: 'WebSocket Handshake', link: '/reference/handshake/' },
                 { label: 'WebSocket Headers', link: '/reference/headers/' },
                 { label: 'WebSocket Ports', link: '/reference/ports/' },
                 { label: 'wss vs ws', link: '/reference/wss-vs-ws/' },
