@@ -204,7 +204,10 @@ export default defineConfig({
         {
           label: 'Tools',
           collapsed: true,
-          items: [{ label: 'Echo Server', link: '/tools/websocket-echo-server/' }],
+          items: [
+            { label: 'Echo Server', link: '/tools/websocket-echo-server/' },
+            { label: 'WebSocket vs SSE vs HTTP', link: '/tools/choose-a-protocol/' },
+          ],
         },
         {
           label: 'Resources',

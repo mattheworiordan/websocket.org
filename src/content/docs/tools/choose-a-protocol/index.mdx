@@ -1,0 +1,552 @@
+---
+title: "WebSocket vs SSE vs HTTP: Which Should You Use?"
+description:
+  "Answer five questions about your project and we will recommend a
+  realtime protocol. You already know which one. Spoiler: it is
+  WebSockets."
+author: Matthew O'Riordan
+authorRole: "Co-founder & CEO, Ably"
+date: 2026-04-07
+lastUpdated: 2026-04-07
+category: tool
+keywords:
+  - websocket vs sse
+  - which protocol to use
+  - realtime protocol comparison
+  - websocket or http
+  - choose websocket
+seo:
+  keywords:
+    - which realtime protocol
+    - websocket vs sse vs polling
+    - websocket or http streaming
+    - choose a protocol
+    - realtime protocol decision
+faq:
+  - q: "How do I choose between WebSocket, SSE, and HTTP polling?"
+    a:
+      "Consider three factors: do you need bidirectional communication
+      (WebSocket), server-to-client only (SSE), or infrequent updates
+      (polling)? Then factor in latency requirements, browser support
+      needs, and infrastructure complexity. Our interactive tool walks
+      you through the decision."
+  - q: "When should I use WebSocket over HTTP?"
+    a:
+      "Use WebSocket when you need low-latency bidirectional
+      communication: chat, multiplayer games, collaborative editing,
+      live dashboards with user interaction, or any case where the
+      client and server both send data frequently. Use HTTP when
+      communication is request-response or updates are infrequent."
+  - q: "Is WebSocket always the best choice for realtime?"
+    a:
+      "No. Server-Sent Events (SSE) are simpler for server-to-client
+      streaming like news feeds or notifications. HTTP/2 push covers
+      some use cases. But for bidirectional, low-latency communication
+      at scale, WebSocket remains the default choice."
+---
+
+<div id="protocol-advisor" class="protocol-advisor">
+  <div class="tool-header">
+    <span class="tool-badge">Interactive Tool</span>
+    <span class="tool-header-text">5 questions. Based on latency, traffic patterns, and environment constraints.</span>
+  </div>
+  <div id="question-container" class="question-container">
+    <div class="progress-row">
+      <div class="progress-bar">
+        <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+      </div>
+      <span id="step-counter" class="step-counter">1/5</span>
+    </div>
+    <h2 id="question-text" class="question-text">Does your application need to send data from client to server?</h2>
+    <div id="options-container" class="options-container">
+    </div>
+  </div>
+
+  <div id="result-container" class="result-container" style="display: none;">
+    <div id="analyzing" class="analyzing">
+      <div class="spinner"></div>
+      <p class="analyzing-text">Analyzing your requirements...</p>
+      <p class="analyzing-subtext" id="analyzing-detail">Cross-referencing protocol specifications...</p>
+    </div>
+    <div id="result-reveal" class="result-reveal" style="display: none;">
+      <h2 class="result-title">The answer is WebSockets.</h2>
+      <p class="result-subtitle">It's always WebSockets.</p>
+      <p class="result-explanation">
+        Look, you're on <strong>websocket.org</strong>. What did you expect?
+        We ran your answers through our extremely unbiased protocol
+        analysis engine and — shock — WebSockets won. Again.
+      </p>
+      <div class="result-your-answers" id="your-answers">
+      </div>
+      <button id="try-again-btn" class="try-again-btn">Try Different Answers (It Won't Help)</button>
+    </div>
+  </div>
+
+  </div>
+
+<div id="serious-section" class="serious-section">
+
+## OK but seriously
+
+WebSocket is the right default for most realtime web apps,
+but it genuinely isn't always the right choice.
+[The Decision Matrix](/comparisons/decision-guide/) gives
+you an honest, side-by-side comparison of WebSocket, SSE, HTTP polling,
+WebTransport, gRPC, MQTT, and WebRTC — with actual trade-offs, not
+a punchline.
+
+For specific comparisons:
+
+- [WebSocket vs SSE](/comparisons/sse/) — when server-to-client is enough
+- [WebSocket vs HTTP](/comparisons/http/) — the real overhead numbers
+- [WebSocket vs Long Polling](/comparisons/long-polling/) — why polling still exists
+- [WebSocket vs WebTransport](/comparisons/webtransport/) — the next generation
+- [WebSocket vs MQTT](/comparisons/mqtt/) — IoT and constrained devices
+
+</div>
+
+<style>{`
+  .protocol-advisor {
+    max-width: 580px;
+    margin: 1.5rem auto 2rem;
+    border: 1px solid var(--sl-color-gray-5, #cbd5e1);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--sl-color-bg-nav, #fff);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+  }
+
+  .tool-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.7rem 1.25rem;
+    background: var(--sl-color-gray-7, #f8fafc);
+    border-bottom: 1px solid var(--sl-color-gray-6, #e2e8f0);
+  }
+
+  .tool-badge {
+    flex-shrink: 0;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: white;
+    background: var(--sl-color-accent, #0d9488);
+    border-radius: 3px;
+    padding: 0.2rem 0.5rem;
+    line-height: 1;
+  }
+
+  .tool-header-text {
+    font-size: 0.8rem;
+    color: var(--sl-color-gray-2, #64748b);
+    line-height: 1.3;
+  }
+
+  .question-container {
+    padding: 1.25rem 1.5rem 1.5rem;
+  }
+
+  .progress-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .progress-bar {
+    flex: 1;
+    height: 3px;
+    background: var(--sl-color-gray-6, #e2e8f0);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--sl-color-accent, #0d9488);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  .step-counter {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--sl-color-gray-3, #94a3b8);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .question-text {
+    font-size: 1.15rem;
+    line-height: 1.35;
+    margin: 0 0 1rem;
+  }
+
+  .options-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .option-btn {
+    display: block;
+    width: 100%;
+    padding: 0.7rem 1rem;
+    text-align: left;
+    background: transparent;
+    border: 1px solid var(--sl-color-gray-5, #cbd5e1);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: var(--sl-color-text, inherit);
+    transition: border-color 0.15s, background-color 0.15s;
+    font-family: inherit;
+  }
+
+  .option-btn:hover {
+    border-color: var(--sl-color-accent, #0d9488);
+    background: var(--sl-color-gray-7, #f8fafc);
+  }
+
+  .option-btn:active {
+    transform: scale(0.99);
+  }
+
+  .result-container {
+    text-align: center;
+    padding: 2rem 1.5rem;
+  }
+
+  .analyzing {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--sl-color-gray-6, #e2e8f0);
+    border-top-color: var(--sl-color-accent, #0d9488);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .analyzing-text {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .analyzing-subtext {
+    font-size: 0.8rem;
+    color: var(--sl-color-gray-3, #94a3b8);
+    margin: 0;
+    min-height: 1.2em;
+  }
+
+  .result-reveal {
+    animation: fadeInUp 0.5s ease;
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-title {
+    font-size: 1.6rem;
+    margin: 0 0 0.15rem;
+  }
+
+  .result-subtitle {
+    font-size: 1rem;
+    color: var(--sl-color-gray-3, #94a3b8);
+    font-style: italic;
+    margin: 0 0 1.25rem;
+  }
+
+  .result-explanation {
+    font-size: 0.9rem;
+    line-height: 1.55;
+    max-width: 440px;
+    margin: 0 auto 1.5rem;
+    text-align: left;
+    color: var(--sl-color-gray-2, #64748b);
+  }
+
+  .result-your-answers {
+    text-align: left;
+    background: var(--sl-color-gray-7, #f8fafc);
+    border: 1px solid var(--sl-color-gray-6, #e2e8f0);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
+    font-size: 0.8rem;
+  }
+
+  .result-your-answers h3 {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--sl-color-gray-3, #94a3b8);
+    margin: 0 0 0.5rem;
+  }
+
+  .answer-item {
+    padding: 0.3rem 0;
+    border-bottom: 1px solid var(--sl-color-gray-6, #e2e8f0);
+    line-height: 1.4;
+  }
+
+  .answer-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .answer-label {
+    color: var(--sl-color-gray-3, #94a3b8);
+  }
+
+  .try-again-btn {
+    padding: 0.55rem 1.25rem;
+    background: var(--sl-color-accent, #0d9488);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity 0.15s;
+  }
+
+  .try-again-btn:hover {
+    opacity: 0.85;
+  }
+
+  .serious-section {
+    max-width: 580px;
+    margin: 2rem auto 0;
+  }
+`}</style>
+
+<script>{`
+  const questions = [
+    {
+      text: "Does your application need to send data from client to server?",
+      options: [
+        "Yes, frequently (chat, collaborative editing, gaming)",
+        "Occasionally (form submissions, user actions)",
+        "No, server pushes data to the client only"
+      ],
+      short: "Bidirectional"
+    },
+    {
+      text: "What latency does your use case require?",
+      options: [
+        "Sub-100ms (gaming, trading, live collaboration)",
+        "Under 1 second (chat, notifications, dashboards)",
+        "A few seconds is fine (feeds, analytics, monitoring)"
+      ],
+      short: "Latency"
+    },
+    {
+      text: "How many concurrent connections do you expect?",
+      options: [
+        "Thousands to millions (public-facing product)",
+        "Hundreds to thousands (internal tool, SaaS app)",
+        "Fewer than 100 (prototype, small team tool)"
+      ],
+      short: "Scale"
+    },
+    {
+      text: "Which environments must you support?",
+      options: [
+        "Browsers only",
+        "Browsers + mobile apps",
+        "Browsers + mobile + IoT / embedded devices",
+        "Server-to-server only (no browsers)"
+      ],
+      short: "Environment"
+    },
+    {
+      text: "How important is built-in reconnection and state recovery?",
+      options: [
+        "Critical \u2014 users must not miss messages",
+        "Nice to have \u2014 we can rebuild state on reconnect",
+        "Not important \u2014 connections are short-lived"
+      ],
+      short: "Reliability"
+    }
+  ];
+
+  const analyzingMessages = [
+    "Cross-referencing protocol specifications...",
+    "Pretending to consider alternatives...",
+    "Running latency simulations...",
+    "Consulting the WebSocket elders...",
+    "Calculating TCP overhead differentials...",
+    "Benchmarking against 47 alternative protocols...",
+    "Factoring in solar flare probability...",
+    "Almost there..."
+  ];
+
+  let currentQuestion = 0;
+  let answers = [];
+
+  const questionText = document.getElementById("question-text");
+  const optionsContainer = document.getElementById("options-container");
+  const stepCounter = document.getElementById("step-counter");
+  const progressFill = document.getElementById("progress-fill");
+  const questionContainer = document.getElementById("question-container");
+  const resultContainer = document.getElementById("result-container");
+  const analyzingEl = document.getElementById("analyzing");
+  const analyzingDetail = document.getElementById("analyzing-detail");
+  const resultReveal = document.getElementById("result-reveal");
+  const yourAnswers = document.getElementById("your-answers");
+  const seriousSection = document.getElementById("serious-section");
+  const tryAgainBtn = document.getElementById("try-again-btn");
+
+  // Hide for interactive users; crawlers see it by default
+  seriousSection.style.display = "none";
+
+  function renderQuestion() {
+    const q = questions[currentQuestion];
+    questionText.textContent = q.text;
+    stepCounter.textContent = (currentQuestion + 1) + "/" + questions.length;
+    progressFill.style.width = ((currentQuestion / questions.length) * 100) + "%";
+
+    optionsContainer.innerHTML = "";
+    q.options.forEach(function(opt) {
+      const btn = document.createElement("button");
+      btn.className = "option-btn";
+      btn.textContent = opt;
+      btn.addEventListener("click", function() { selectAnswer(opt); });
+      optionsContainer.appendChild(btn);
+    });
+  }
+
+  function selectAnswer(answer) {
+    answers.push({
+      question: questions[currentQuestion].short,
+      answer: answer
+    });
+
+    currentQuestion++;
+
+    if (currentQuestion < questions.length) {
+      renderQuestion();
+    } else {
+      showResult();
+    }
+  }
+
+  function showResult() {
+    questionContainer.style.display = "none";
+    resultContainer.style.display = "block";
+
+    let msgIndex = 0;
+    const msgInterval = setInterval(function() {
+      msgIndex++;
+      if (msgIndex < analyzingMessages.length) {
+        analyzingDetail.textContent = analyzingMessages[msgIndex];
+      }
+    }, 500);
+
+    setTimeout(function() {
+      clearInterval(msgInterval);
+      analyzingEl.style.display = "none";
+
+      let answersHtml = "<h3>Your answers</h3>";
+      answers.forEach(function(a) {
+        answersHtml += '<div class="answer-item"><span class="answer-label">' + a.question + ':</span> ' + a.answer + '</div>';
+      });
+      yourAnswers.innerHTML = answersHtml;
+
+      resultReveal.style.display = "block";
+      seriousSection.style.display = "block";
+    }, 3500);
+  }
+
+  tryAgainBtn.addEventListener("click", function() {
+    currentQuestion = 0;
+    answers = [];
+    resultContainer.style.display = "none";
+    resultReveal.style.display = "none";
+    analyzingEl.style.display = "flex";
+    seriousSection.style.display = "none";
+    questionContainer.style.display = "block";
+    renderQuestion();
+  });
+
+  renderQuestion();
+`}</script>
+
+## Frequently Asked Questions
+
+### How do I choose between WebSocket, SSE, and HTTP polling?
+
+Start with what your application actually does. If the client and
+server both send data frequently — chat messages, game state,
+collaborative edits — WebSocket is the default choice. If only the
+server pushes updates and the client just listens — news feeds, stock
+tickers, notification streams — SSE is simpler and works over standard
+HTTP. If updates happen every 30+ seconds and you don't need instant
+delivery, HTTP polling is the simplest option and the easiest to cache,
+load balance, and debug.
+
+The [protocol comparison overview](/comparisons/) has the full breakdown.
+The [decision matrix](/comparisons/decision-guide/) maps specific use
+cases to recommended protocols.
+
+### When should I use WebSocket over HTTP?
+
+When the overhead of HTTP matters. Every HTTP request carries
+~600 bytes of headers. A WebSocket frame adds 2-6 bytes. If you're
+sending 100 messages per second, that's the difference between 60 KB/s
+of headers alone versus almost nothing. WebSocket also eliminates the
+latency of establishing new connections — the handshake happens once,
+then frames flow over the persistent connection.
+
+The practical threshold: if your application sends or receives more
+than one message every few seconds, or if latency under 100ms matters,
+WebSocket is the right choice. Below that frequency, HTTP or SSE
+is simpler and cheaper to operate. See the
+[HTTP vs WebSocket comparison](/comparisons/http/) for the full
+numbers.
+
+### Is WebSocket always the best choice for realtime?
+
+No. SSE is better when you only need server-to-client streaming —
+it works over standard HTTP/2 (no upgrade handshake, no special proxy
+config), reconnects automatically, and is simpler to load balance.
+MQTT is better for IoT devices with constrained bandwidth and
+unreliable networks. WebRTC is better for peer-to-peer audio/video.
+And for new projects that can require modern browsers, WebTransport
+offers multiplexed streams over QUIC without head-of-line blocking.
+
+WebSocket's advantage is breadth: it works in every browser, every
+proxy understands it (with the right config), every cloud provider
+supports it, and the library ecosystem is the largest of any realtime
+protocol. For most realtime web applications, it's the pragmatic
+default.
+
+## Related Content
+
+- [Protocol Decision Matrix](/comparisons/decision-guide/) — the
+  real comparison, without the punchline
+- [WebSocket vs SSE](/comparisons/sse/) — when server-push is enough
+- [WebSocket vs HTTP](/comparisons/http/) — overhead numbers and
+  use case boundaries
+- [WebSocket Protocol Deep Dive](/guides/websocket-protocol/) — how
+  WebSocket works at the wire level
+- [Echo Server](/tools/websocket-echo-server/) — test your WebSocket
+  connections for free
