@@ -108,6 +108,29 @@ export default defineConfig({
               items: [{ label: 'Autobahn TestSuite', link: '/guides/testing/autobahn/' }],
             },
             {
+              label: 'Troubleshooting',
+              collapsed: true,
+              items: [
+                {
+                  label: '403 Forbidden Errors',
+                  link: '/guides/troubleshooting/403/',
+                },
+                {
+                  label: 'Connection Refused',
+                  link: '/guides/troubleshooting/connection-refused/',
+                },
+                { label: 'CORS & Cross-Origin', link: '/guides/troubleshooting/cors/' },
+                {
+                  label: 'Debugging in Chrome DevTools',
+                  link: '/guides/troubleshooting/debugging-chrome/',
+                },
+                {
+                  label: 'Timeout & Dropped Connections',
+                  link: '/guides/troubleshooting/timeout/',
+                },
+              ],
+            },
+            {
               label: 'Infrastructure',
               collapsed: true,
               items: [
