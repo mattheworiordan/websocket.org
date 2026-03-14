@@ -141,6 +141,18 @@ export default defineConfig({
               ],
             },
             {
+              label: 'Frameworks',
+              collapsed: true,
+              items: [
+                { label: 'React', link: '/guides/frameworks/react/' },
+                { label: 'Next.js', link: '/guides/frameworks/nextjs/' },
+                { label: 'Express.js', link: '/guides/frameworks/express/' },
+                { label: 'Django', link: '/guides/frameworks/django/' },
+                { label: 'FastAPI', link: '/guides/frameworks/fastapi/' },
+                { label: 'Spring Boot', link: '/guides/frameworks/spring-boot/' },
+              ],
+            },
+            {
               label: 'Languages',
               collapsed: true,
               items: [
