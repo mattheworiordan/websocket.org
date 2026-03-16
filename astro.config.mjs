@@ -182,6 +182,7 @@ export default defineConfig({
             { label: 'WebSocket vs REST API', link: '/comparisons/rest/' },
             { label: 'Socket.IO vs WebSocket', link: '/comparisons/socket-io/' },
             { label: 'SignalR vs WebSocket', link: '/comparisons/signalr/' },
+            { label: 'Managed Services Compared', link: '/comparisons/managed-services/' },
             { label: 'Decision Matrix', link: '/comparisons/decision-guide/' },
           ],
         },
