@@ -90,6 +90,9 @@ export default defineConfig({
               items: [
                 { label: 'Building a WebSocket App', link: '/guides/building-a-websocket-app/' },
                 { label: 'WebSocket Reconnection', link: '/guides/reconnection/' },
+                { label: 'Heartbeat & Keep-Alive', link: '/guides/heartbeat/' },
+                { label: 'Error Handling', link: '/guides/error-handling/' },
+                { label: 'Connection Limits', link: '/guides/connection-limits/' },
                 { label: 'WebSockets at Scale', link: '/guides/websockets-at-scale/' },
                 { label: 'Best Practices', link: '/guides/best-practices/' },
               ],
@@ -150,6 +153,15 @@ export default defineConfig({
                 { label: 'Django', link: '/guides/frameworks/django/' },
                 { label: 'FastAPI', link: '/guides/frameworks/fastapi/' },
                 { label: 'Spring Boot', link: '/guides/frameworks/spring-boot/' },
+              ],
+            },
+            {
+              label: 'Use Cases',
+              collapsed: true,
+              items: [
+                { label: 'Building a Chat App', link: '/guides/use-cases/chat/' },
+                { label: 'Real-time Notifications', link: '/guides/use-cases/notifications/' },
+                { label: 'AI/LLM Token Streaming', link: '/guides/use-cases/ai-streaming/' },
               ],
             },
             {
