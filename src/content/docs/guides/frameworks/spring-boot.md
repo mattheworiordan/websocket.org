@@ -6,8 +6,8 @@ description:
   broker relay, and multi-instance scaling.'
 author: Matthew O'Riordan
 authorRole: Co-founder & CEO, Ably
-date: '2026-04-16'
-lastUpdated: 2026-04-16
+date: '2026-03-23'
+lastUpdated: 2026-03-23
 category: guide
 keywords:
   - spring boot websocket

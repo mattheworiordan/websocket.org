@@ -6,8 +6,8 @@ description:
   context providers, and reconnection."
 author: Matthew O'Riordan
 authorRole: Co-founder & CEO, Ably
-date: 2026-04-09
-lastUpdated: 2026-04-09
+date: 2026-03-23
+lastUpdated: 2026-03-23
 category: guide
 keywords:
   - react websocket

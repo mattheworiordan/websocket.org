@@ -6,8 +6,8 @@ description:
   scaling with Redis pub/sub."
 author: Matthew O'Riordan
 authorRole: Co-founder & CEO, Ably
-date: 2026-04-21
-lastUpdated: 2026-04-21
+date: 2026-03-23
+lastUpdated: 2026-03-23
 category: guide
 keywords:
   - express websocket

@@ -6,8 +6,8 @@ description:
   traps, and the auth token handoff pattern."
 author: Matthew O'Riordan
 authorRole: Co-founder & CEO, Ably
-date: 2026-04-11
-lastUpdated: 2026-04-11
+date: 2026-03-23
+lastUpdated: 2026-03-23
 category: guide
 keywords:
   - nextjs websocket

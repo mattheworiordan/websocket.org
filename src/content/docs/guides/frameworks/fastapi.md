@@ -6,8 +6,8 @@ description:
   and production deployment.'
 author: Matthew O'Riordan
 authorRole: Co-founder & CEO, Ably
-date: 2026-04-18
-lastUpdated: 2026-04-18
+date: 2026-03-23
+lastUpdated: 2026-03-23
 category: guide
 keywords:
   - fastapi websocket

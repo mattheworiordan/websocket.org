@@ -6,8 +6,8 @@ description:
   Daphne or Uvicorn.'
 author: Matthew O'Riordan
 authorRole: Co-founder & CEO, Ably
-date: '2026-04-14'
-lastUpdated: 2026-04-14
+date: '2026-03-23'
+lastUpdated: 2026-03-23
 category: guide
 keywords:
   - django websocket
