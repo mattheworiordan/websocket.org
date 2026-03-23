@@ -273,11 +273,11 @@ Key benefits:
 
 | Provider         | Service       | HTTP/3 Support  | WebSocket over HTTP/3 | Notes                                    |
 | ---------------- | ------------- | --------------- | --------------------- | ---------------------------------------- |
-| **Cloudflare**   | CDN           | ✅ Full Support | ✅ Full Support       | Automatic HTTP/3 upgrade                 |
-| **AWS**          | CloudFront    | ✅ Available    | ⚠️ Limited            | HTTP/3 enabled, WebSocket support varies |
-| **Google Cloud** | Load Balancer | ✅ Available    | ⚠️ Beta               | HTTP/3 in preview                        |
-| **Azure**        | Front Door    | ✅ Available    | ⚠️ Limited            | HTTP/3 support, WebSocket limitations    |
-| **Fastly**       | CDN           | ✅ Full Support | ✅ Full Support       | QUIC and HTTP/3 enabled                  |
+| **Cloudflare**   | CDN           | ✅ Full Support | ✅ Full Support       | Automatic HTTP/3 upgrade                  |
+| **AWS**          | CloudFront    | ✅ Available    | ❌ Not Available      | HTTP/3 enabled, WebSockets HTTP/1 only    |
+| **Google Cloud** | Load Balancer | ✅ Available    | ⚠️ Beta               | HTTP/3 in preview                         |
+| **Azure**        | Front Door    | ✅ Available    | ⚠️ Limited            | HTTP/3 support, WebSocket limitations     |
+| **Fastly**       | CDN           | ✅ Full Support | ✅ Full Support       | QUIC and HTTP/3 enabled                   |
 
 ### Implementation Reality Check (2026)
 
