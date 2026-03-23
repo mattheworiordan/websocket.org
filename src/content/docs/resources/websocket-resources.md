@@ -259,7 +259,7 @@ For a comprehensive comparison of the best WebSocket libraries for Node.js, see
   Step-by-step tutorial
 - [WebSocket Security - Cross-Site Hijacking](https://www.christian-schneider.net/CrossSiteWebSocketHijacking.html) -
   Security best practices
-- [Exponential Backoff in JavaScript](https://advancedweb.hu/exponential-backoff-javascript/) -
+- [Exponential Backoff in JavaScript][exponential-backoff] -
   Reconnection strategies
 - [Patterns for Building Realtime Features][ably-realtime-patterns] -
   Architectural patterns and best practices
@@ -392,6 +392,7 @@ and HTTP/3 respectively.
 - [WebSockets at Scale](/guides/websockets-at-scale/) - Architecture patterns
   for scaling WebSocket connections
 
+[exponential-backoff]: https://advancedweb.hu/how-to-implement-an-exponential-backoff-retry-strategy-in-javascript/
 [ably-realtime-patterns]: https://ably.com/blog/patterns-for-building-realtime-features?utm_source=websocket-org&utm_medium=websocket-resources
 [ably-fault-tolerance]: https://www.ably.io/blog/engineering-fault-tolerance/?utm_source=websocket-org&utm_medium=websocket-resources
 [ably-scaling-challenge]: https://ably.com/topic/the-challenge-of-scaling-websockets?utm_source=websocket-org&utm_medium=websocket-resources
