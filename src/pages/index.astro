@@ -1,0 +1,2932 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="WebSocket.org — The independent WebSocket reference"
+  description="The independent, practitioner-built reference for WebSocket technology. Protocol internals, production patterns, scaling guides, and honest protocol comparisons with real code."
+>
+  <Fragment slot="head">
+    <!-- GA4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BZ0LYEZXEJ"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+      gtag('config', 'G-BZ0LYEZXEJ');
+    </script>
+
+    <!-- JSON-LD structured data -->
+    <script type="application/ld+json" is:inline>
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "name": "WebSocket.org",
+            "url": "https://websocket.org",
+            "description": "The independent, practitioner-built reference for WebSocket technology."
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "What is a WebSocket?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "A WebSocket is a persistent, full-duplex communication channel over a single TCP connection. Unlike HTTP request-response, WebSockets keep the connection open so the server can push data to the client instantly without polling."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "When should I use WebSockets instead of HTTP?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Use WebSockets when you need real-time, bidirectional data flow: live chat, multiplayer games, collaborative editing, financial tickers, or AI token streaming. For standard page loads and REST APIs, HTTP is the better fit."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Are WebSockets supported in all browsers?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. Every modern browser supports WebSockets, with global coverage above 99%. Chrome, Firefox, Safari, and Edge have supported the protocol since 2012-2015."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How do WebSockets compare to Server-Sent Events (SSE)?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "SSE is simpler but only supports server-to-client communication. WebSockets provide full-duplex bidirectional messaging, binary data support, and lower overhead per message."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What is the WebSocket protocol?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "The WebSocket protocol (RFC 6455) defines a framing mechanism over TCP that starts with an HTTP upgrade handshake, then switches to a lightweight binary frame format for bidirectional messaging with minimal overhead."
+                }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+
+    <!-- OG / Social meta -->
+    <meta property="og:image" content="https://websocket.org/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="WebSocket.org — The independent WebSocket reference" />
+    <meta
+      name="twitter:description"
+      content="The independent, practitioner-built reference for WebSocket technology."
+    />
+    <meta name="twitter:image" content="https://websocket.org/og-image.png" />
+  </Fragment>
+
+  <style>
+    /* ============================================================
+       RESET & BASE
+    ============================================================ */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --teal: #0d9488;
+      --teal-hover: #0f766e;
+      --teal-dark: #134e4a;
+      --teal-light-bg: #f0fdfa;
+      --teal-light-accent: #99f6e4;
+      --teal-lighter: #ccfbf1;
+
+      --text-heading: #111827;
+      --text-body-dark: #1f2937;
+      --text-body: #374151;
+      --text-muted: #4b5563;
+      --text-light: #6b7280;
+
+      --border: #e5e7eb;
+      --border-dark: #d1d5db;
+
+      --bg-page: #ffffff;
+      --bg-subtle: #fafbfc;
+      --bg-card: #f9fafb;
+      --bg-surface: #f3f4f6;
+      --bg-code: #f8fafc;
+
+      --green: #059669;
+      --yellow: #d97706;
+      --red: #dc2626;
+      --blue: #2563eb;
+      --gray: #9ca3af;
+
+      --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, 'Courier New', monospace;
+    }
+
+    body {
+      background: var(--bg-page);
+      color: var(--text-body);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* ============================================================
+       NAV
+    ============================================================ */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-page);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--text-heading);
+      letter-spacing: -0.02em;
+    }
+
+    .nav-logo span {
+      color: var(--teal);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: color 0.15s;
+    }
+
+    .nav-links a:hover {
+      color: var(--teal);
+    }
+
+    .nav-github {
+      display: flex;
+      align-items: center;
+      color: var(--text-muted) !important;
+    }
+
+    .nav-github:hover {
+      color: var(--text-heading) !important;
+    }
+
+    /* Search button */
+    .nav-search-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition:
+        border-color 0.15s,
+        background 0.15s;
+      font-family: inherit;
+    }
+
+    .nav-search-btn:hover {
+      border-color: var(--teal-light-accent);
+      background: var(--teal-light-bg);
+      color: var(--teal);
+    }
+
+    .nav-search-shortcut {
+      font-size: 0.72rem;
+      color: var(--text-light);
+      background: var(--bg-page);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: var(--font-mono);
+    }
+
+    /* Hamburger */
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 6px;
+    }
+
+    .nav-hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--text-muted);
+      border-radius: 2px;
+      transition: background 0.15s;
+    }
+
+    .nav-hamburger:hover span {
+      background: var(--teal);
+    }
+
+    .nav-mobile-menu {
+      display: none;
+      position: absolute;
+      top: 60px;
+      left: 0;
+      right: 0;
+      background: var(--bg-page);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      z-index: 99;
+      flex-direction: column;
+      gap: 0;
+      list-style: none;
+      margin: 0;
+    }
+
+    .nav-mobile-menu.open {
+      display: flex;
+    }
+
+    .nav-mobile-menu li {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-mobile-menu li:last-child {
+      border-bottom: none;
+    }
+
+    .nav-mobile-menu a {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      padding: 10px 0;
+      transition: color 0.15s;
+    }
+
+    .nav-mobile-menu a:hover {
+      color: var(--teal);
+    }
+
+    /* ============================================================
+       SEARCH DIALOG
+    ============================================================ */
+    #searchDialog {
+      border: none;
+      border-radius: 12px;
+      padding: 0;
+      width: 90%;
+      max-width: 640px;
+      max-height: 80vh;
+      overflow: hidden;
+      box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.15),
+        0 4px 16px rgba(0, 0, 0, 0.08);
+      position: fixed;
+      top: 10vh;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    #searchDialog::backdrop {
+      background: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(2px);
+    }
+
+    .search-dialog-inner {
+      display: flex;
+      flex-direction: column;
+      max-height: 80vh;
+    }
+
+    .search-dialog-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-subtle);
+    }
+
+    .search-dialog-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.02em;
+    }
+
+    .search-dialog-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-light);
+      font-size: 1.1rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      transition:
+        background 0.15s,
+        color 0.15s;
+      line-height: 1;
+    }
+
+    .search-dialog-close:hover {
+      background: var(--bg-surface);
+      color: var(--text-heading);
+    }
+
+    #searchTarget {
+      padding: 12px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    /* ============================================================
+       HERO SECTION
+    ============================================================ */
+    .hero {
+      background: var(--bg-page);
+      padding: 64px 24px 72px;
+    }
+
+    .hero-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 56px;
+      align-items: center;
+    }
+
+    .hero-text {
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--teal-light-bg);
+      border: 1px solid var(--teal-lighter);
+      color: var(--teal-dark);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+    }
+
+    .hero-eyebrow-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    .hero-title {
+      font-size: clamp(2.25rem, 4vw, 3.25rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      color: var(--text-heading);
+      margin-bottom: 20px;
+    }
+
+    .hero-title span {
+      color: var(--teal);
+    }
+
+    .hero-tagline {
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+      max-width: 440px;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--teal);
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 11px 22px;
+      border-radius: 8px;
+      transition:
+        background 0.15s,
+        transform 0.1s;
+      border: 1.5px solid var(--teal);
+    }
+
+    .btn-primary:hover {
+      background: var(--teal-hover);
+      border-color: var(--teal-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--teal);
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 11px 22px;
+      border-radius: 8px;
+      border: 1.5px solid var(--teal-light-accent);
+      transition:
+        border-color 0.15s,
+        background 0.15s,
+        transform 0.1s;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--teal);
+      background: var(--teal-light-bg);
+      transform: translateY(-1px);
+    }
+
+    /* ============================================================
+       DASHBOARD
+    ============================================================ */
+    .dashboard {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.05),
+        0 8px 24px rgba(0, 0, 0, 0.06),
+        0 2px 8px rgba(13, 148, 136, 0.04);
+      overflow: hidden;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+    }
+
+    /* Dashboard title bar */
+    .db-titlebar {
+      background: var(--bg-subtle);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .db-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .db-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .db-dot-red {
+      background: #fc5f57;
+    }
+    .db-dot-yel {
+      background: #fdbc40;
+    }
+    .db-dot-grn {
+      background: #33c748;
+    }
+
+    .db-titlebar-label {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-light);
+      letter-spacing: 0.01em;
+    }
+
+    /* Connection status bar */
+    .db-status-bar {
+      padding: 12px 16px;
+      background: var(--bg-page);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .db-status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-shrink: 0;
+    }
+
+    .db-status-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      transition: background 0.3s;
+    }
+
+    .db-status-dot.connecting {
+      background: var(--yellow);
+      animation: pulse-yellow 1s infinite;
+    }
+
+    .db-status-dot.open {
+      background: var(--green);
+    }
+
+    .db-status-dot.closing {
+      background: var(--yellow);
+    }
+
+    .db-status-dot.closed {
+      background: var(--gray);
+    }
+
+    @keyframes pulse-yellow {
+      0%,
+      100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.4;
+      }
+    }
+
+    .db-status-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transition: color 0.3s;
+    }
+
+    .db-status-label.connecting {
+      color: var(--yellow);
+    }
+    .db-status-label.open {
+      color: var(--green);
+    }
+    .db-status-label.closing {
+      color: var(--yellow);
+    }
+    .db-status-label.closed {
+      color: var(--gray);
+    }
+
+    .db-url {
+      font-size: 0.73rem;
+      color: var(--text-muted);
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .db-url-scheme {
+      color: var(--teal);
+    }
+
+    .db-status-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .db-uptime {
+      font-size: 0.72rem;
+      color: var(--text-light);
+    }
+
+    .db-uptime-val {
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    .db-protocol-badge {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--teal-dark);
+      background: var(--teal-light-bg);
+      border: 1px solid var(--teal-lighter);
+      padding: 2px 7px;
+      border-radius: 4px;
+      letter-spacing: 0.03em;
+    }
+
+    /* Metrics row */
+    .db-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .db-metric {
+      padding: 12px 14px;
+      border-right: 1px solid var(--border);
+    }
+
+    .db-metric:last-child {
+      border-right: none;
+    }
+
+    .db-metric-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-light);
+      margin-bottom: 6px;
+    }
+
+    .db-metric-value {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .db-metric-number {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-heading);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .db-metric-unit {
+      font-size: 0.68rem;
+      color: var(--text-light);
+      font-weight: 500;
+      margin-left: 2px;
+    }
+
+    /* Sparkline canvas */
+    .db-sparkline {
+      display: block;
+    }
+
+    /* Message counters */
+    .db-msg-counters {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .db-msg-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.7rem;
+    }
+
+    .db-msg-arrow-up {
+      color: var(--teal);
+      font-weight: 700;
+    }
+    .db-msg-arrow-down {
+      color: #475569;
+      font-weight: 700;
+    }
+
+    .db-msg-count {
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+      color: var(--text-body-dark);
+    }
+
+    .db-msg-sublabel {
+      color: var(--text-light);
+      font-size: 0.65rem;
+    }
+
+    /* Frame types */
+    .db-frames {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .db-frame-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.68rem;
+    }
+
+    .db-frame-type {
+      color: var(--text-light);
+      flex-shrink: 0;
+    }
+
+    .db-frame-count {
+      color: var(--text-body-dark);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Message feed */
+    .db-feed-header {
+      padding: 8px 16px 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-subtle);
+    }
+
+    .db-feed-title {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-light);
+    }
+
+    .db-feed-live {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.63rem;
+      color: var(--green);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .db-feed-live-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse-green 1.5s infinite;
+    }
+
+    @keyframes pulse-green {
+      0%,
+      100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.3;
+      }
+    }
+
+    .db-feed {
+      height: 168px;
+      overflow: hidden;
+      position: relative;
+      padding: 8px 0 0;
+    }
+
+    .db-feed-inner {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 0 16px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .db-feed-line {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 0.7rem;
+      line-height: 1.6;
+      transition: opacity 0.4s;
+    }
+
+    .db-feed-line.fade-out {
+      opacity: 0;
+    }
+
+    .db-feed-ts {
+      color: var(--gray);
+      flex-shrink: 0;
+      font-size: 0.66rem;
+    }
+
+    .db-feed-dir-client {
+      color: var(--teal);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .db-feed-dir-server {
+      color: #475569;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .db-feed-type {
+      color: var(--text-light);
+      font-size: 0.64rem;
+      flex-shrink: 0;
+      min-width: 38px;
+    }
+
+    .db-feed-payload {
+      color: var(--text-body-dark);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .db-feed-payload.client {
+      color: var(--teal-dark);
+    }
+
+    .db-feed-payload.server {
+      color: #334155;
+    }
+
+    /* ============================================================
+       SECTIONS
+    ============================================================ */
+    section {
+      padding: 64px 24px;
+    }
+
+    .section-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: clamp(1.5rem, 2.5vw, 2rem);
+      font-weight: 700;
+      color: var(--text-heading);
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+      margin-bottom: 40px;
+    }
+
+    /* ============================================================
+       SECTION 2: EXPLORE CATEGORIES
+    ============================================================ */
+    .explore-section {
+      background: var(--bg-page);
+    }
+
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .category-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      transition:
+        border-color 0.2s,
+        box-shadow 0.2s,
+        transform 0.15s;
+      opacity: 0;
+      transform: translateY(16px);
+    }
+
+    .category-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+      transition:
+        opacity 0.45s ease,
+        transform 0.45s ease,
+        border-color 0.2s,
+        box-shadow 0.2s;
+    }
+
+    .category-card:hover {
+      border-color: var(--teal-light-accent);
+      box-shadow: 0 4px 16px rgba(13, 148, 136, 0.08);
+    }
+
+    .category-card.browse-all-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: var(--bg-subtle);
+      border-style: dashed;
+    }
+
+    .category-card.browse-all-card:hover {
+      border-color: var(--teal);
+      background: var(--teal-light-bg);
+    }
+
+    .category-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--teal-light-bg);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+      color: var(--teal);
+    }
+
+    .category-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--teal);
+      margin-bottom: 6px;
+    }
+
+    .category-card p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      line-height: 1.55;
+    }
+
+    .category-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .category-links a {
+      font-size: 0.82rem;
+      color: var(--teal);
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: color 0.15s;
+    }
+
+    .category-links a:hover {
+      color: var(--teal-hover);
+    }
+
+    .category-links a::before {
+      content: '→';
+      font-size: 0.75rem;
+      opacity: 0.7;
+    }
+
+    .browse-all-link {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--teal);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition:
+        color 0.15s,
+        gap 0.15s;
+    }
+
+    .browse-all-link:hover {
+      color: var(--teal-hover);
+      gap: 10px;
+    }
+
+    /* ============================================================
+       TRY IT SECTION
+    ============================================================ */
+    .try-it-section {
+      background: var(--bg-subtle);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .try-it-grid {
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      gap: 20px;
+    }
+
+    .try-it-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 28px;
+      transition:
+        border-color 0.2s,
+        box-shadow 0.2s,
+        transform 0.15s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .try-it-card:hover {
+      border-color: var(--teal-light-accent);
+      box-shadow: 0 4px 16px rgba(13, 148, 136, 0.08);
+      transform: translateY(-2px);
+    }
+
+    .try-it-card.primary {
+      border-left: 4px solid var(--teal);
+    }
+
+    .try-it-card.primary:hover {
+      border-left-color: var(--teal-hover);
+    }
+
+    .try-it-card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-heading);
+      margin-bottom: 8px;
+    }
+
+    .try-it-card p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      flex: 1;
+      margin-bottom: 18px;
+    }
+
+    .try-it-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--teal);
+      transition:
+        color 0.15s,
+        gap 0.15s;
+    }
+
+    .try-it-cta:hover {
+      color: var(--teal-hover);
+      gap: 10px;
+    }
+
+    /* ============================================================
+       SECTION 3: PROTOCOL COMPARISON
+    ============================================================ */
+    .protocol-section {
+      background: var(--bg-card);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .protocol-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+    }
+
+    .protocol-col {
+      padding: 32px 28px;
+      position: relative;
+    }
+
+    .protocol-col + .protocol-col {
+      border-left: 1px solid var(--border);
+    }
+
+    .protocol-col h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-heading);
+      margin-bottom: 6px;
+    }
+
+    .protocol-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    /* Animated protocol diagrams */
+    .proto-diagram {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      min-height: 120px;
+    }
+
+    .proto-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      opacity: 0;
+    }
+
+    .proto-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--text-light);
+      width: 34px;
+      flex-shrink: 0;
+      text-align: right;
+    }
+
+    .proto-arrow-track {
+      flex: 1;
+      position: relative;
+      height: 20px;
+    }
+
+    .proto-arrow-line {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 2px;
+      background: var(--teal-light-accent);
+      transform-origin: left center;
+      width: 0;
+      border-radius: 2px;
+    }
+
+    .proto-arrow-head {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.75rem;
+      right: 0;
+      color: var(--teal);
+      opacity: 0;
+      line-height: 1;
+    }
+
+    .proto-pause {
+      height: 6px;
+    }
+
+    /* SSE one-direction */
+    .proto-col-sse .proto-arrow-line {
+      background: #a78bfa;
+    }
+
+    .proto-col-sse .proto-arrow-head {
+      color: #7c3aed;
+    }
+
+    /* WS bidirectional */
+    .proto-col-ws .proto-row {
+      margin-bottom: 6px;
+    }
+
+    .proto-col-ws .proto-arrow-line {
+      background: var(--teal);
+      opacity: 0.8;
+    }
+
+    .proto-col-ws .proto-arrow-head {
+      color: var(--teal);
+    }
+
+    .proto-col-ws .proto-arrow-line.reverse {
+      transform-origin: right center;
+      right: 0;
+      left: auto;
+    }
+
+    .proto-col-ws .proto-arrow-head.left-head {
+      left: 0;
+      right: auto;
+    }
+
+    /* ============================================================
+       SECTION 4: WHAT'S NEW
+    ============================================================ */
+    .new-section {
+      background: var(--bg-page);
+    }
+
+    .featured-card {
+      background: linear-gradient(135deg, var(--teal-light-bg) 0%, #fff 100%);
+      border: 1px solid var(--teal-lighter);
+      border-radius: 12px;
+      padding: 32px;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      max-width: 720px;
+      transition:
+        box-shadow 0.2s,
+        transform 0.15s;
+    }
+
+    .featured-card:hover {
+      box-shadow: 0 6px 24px rgba(13, 148, 136, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .featured-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--teal-dark);
+      background: var(--teal-lighter);
+      padding: 4px 10px;
+      border-radius: 20px;
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+
+    .featured-card h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-heading);
+      margin-bottom: 8px;
+    }
+
+    .featured-card p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .featured-icon {
+      font-size: 2.5rem;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    /* ============================================================
+       SECTION 5: INFRASTRUCTURE
+    ============================================================ */
+    .infra-section {
+      background: var(--bg-subtle);
+      border-top: 1px solid var(--border);
+    }
+
+    .infra-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .infra-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      transition:
+        border-color 0.2s,
+        box-shadow 0.2s,
+        transform 0.15s;
+    }
+
+    .infra-card:hover {
+      border-color: var(--teal-light-accent);
+      box-shadow: 0 4px 12px rgba(13, 148, 136, 0.07);
+      transform: translateY(-2px);
+    }
+
+    .infra-card-name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-heading);
+      margin-bottom: 4px;
+    }
+
+    .infra-card-desc {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* ============================================================
+       FAQ SECTION
+    ============================================================ */
+    .faq-section {
+      background: var(--bg-page);
+      border-top: 1px solid var(--border);
+    }
+
+    .faq-list {
+      max-width: 800px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .faq-item:last-child {
+      border-bottom: none;
+    }
+
+    .faq-item summary {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 24px;
+      cursor: pointer;
+      font-size: 0.97rem;
+      font-weight: 600;
+      color: var(--text-heading);
+      user-select: none;
+      transition:
+        background 0.15s,
+        color 0.15s;
+    }
+
+    .faq-item summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .faq-item summary:hover {
+      background: var(--teal-light-bg);
+      color: var(--teal-dark);
+    }
+
+    .faq-item[open] summary {
+      background: var(--teal-light-bg);
+      color: var(--teal-dark);
+    }
+
+    .faq-toggle {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--bg-surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--teal);
+      line-height: 1;
+      transition: background 0.15s;
+    }
+
+    .faq-item[open] .faq-toggle {
+      background: var(--teal-lighter);
+    }
+
+    .faq-toggle-plus {
+      display: block;
+    }
+    .faq-toggle-minus {
+      display: none;
+    }
+
+    .faq-item[open] .faq-toggle-plus {
+      display: none;
+    }
+    .faq-item[open] .faq-toggle-minus {
+      display: block;
+    }
+
+    .faq-answer {
+      padding: 0 24px 20px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.75;
+      border-top: 1px solid var(--teal-lighter);
+    }
+
+    .faq-answer a {
+      color: var(--teal);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .faq-answer a:hover {
+      color: var(--teal-hover);
+    }
+
+    /* ============================================================
+       SECTION 6: FOOTER CTA
+    ============================================================ */
+    .footer-cta {
+      background: var(--teal-light-bg);
+      border-top: 1px solid var(--teal-lighter);
+      text-align: center;
+      padding: 72px 24px;
+    }
+
+    .footer-cta h2 {
+      font-size: clamp(1.5rem, 2.5vw, 2rem);
+      font-weight: 700;
+      color: var(--teal-dark);
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+
+    .footer-cta p {
+      font-size: 1rem;
+      color: var(--teal-hover);
+      margin-bottom: 28px;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.65;
+    }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    .site-footer {
+      background: var(--bg-card);
+      border-top: 1px solid var(--border);
+      padding: 24px;
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--text-light);
+    }
+
+    .site-footer a {
+      color: var(--teal);
+    }
+
+    .site-footer a:hover {
+      color: var(--teal-hover);
+    }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 900px) {
+      .hero-inner {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-text {
+        text-align: center;
+      }
+
+      .hero-tagline {
+        max-width: none;
+      }
+
+      .hero-ctas {
+        justify-content: center;
+      }
+
+      .category-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .try-it-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .protocol-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .protocol-col + .protocol-col {
+        border-left: none;
+        border-top: 1px solid var(--border);
+      }
+
+      .infra-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .featured-card {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .nav-links {
+        display: none;
+      }
+
+      .nav-hamburger {
+        display: flex;
+      }
+
+      .db-metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .db-metric {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .db-metric:last-child {
+        border-bottom: none;
+      }
+
+      .infra-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .db-status-meta {
+        display: none;
+      }
+
+      .faq-item summary {
+        padding: 14px 16px;
+        font-size: 0.9rem;
+      }
+
+      .faq-answer {
+        padding: 0 16px 16px;
+      }
+    }
+  </style>
+
+  <!-- SEARCH DIALOG -->
+  <dialog id="searchDialog" aria-label="Search">
+    <div class="search-dialog-inner">
+      <div class="search-dialog-header">
+        <span class="search-dialog-title">Search WebSocket.org</span>
+        <button class="search-dialog-close" id="searchClose" aria-label="Close search"
+          >&#x2715;</button
+        >
+      </div>
+      <div id="searchTarget"></div>
+    </div>
+  </dialog>
+
+  <!-- NAV -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo">WebSocket<span>.org</span></a>
+      <ul class="nav-links">
+        <li><a href="/guides/road-to-websockets/">Guides</a></li>
+        <li><a href="/comparisons/">Comparisons</a></li>
+        <li><a href="/reference/websocket-api/">Reference</a></li>
+        <li><a href="/tools/websocket-echo-server/">Tools</a></li>
+        <li>
+          <button class="nav-search-btn" id="searchBtn" aria-label="Search (⌘K)" type="button">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path>
+            </svg>
+            Search
+            <span class="nav-search-shortcut">⌘K</span>
+          </button>
+        </li>
+        <li>
+          <a
+            href="https://github.com/mattheworiordan/websocket.org"
+            class="nav-github"
+            aria-label="GitHub repository"
+            target="_blank"
+            rel="noopener"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path
+                d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"
+              ></path>
+            </svg>
+          </a>
+        </li>
+      </ul>
+      <!-- Hamburger for mobile -->
+      <button
+        class="nav-hamburger"
+        id="navHamburger"
+        aria-label="Toggle navigation menu"
+        aria-expanded="false"
+        type="button"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <!-- Mobile dropdown menu -->
+    <ul class="nav-mobile-menu" id="navMobileMenu">
+      <li><a href="/guides/road-to-websockets/">Guides</a></li>
+      <li><a href="/comparisons/">Comparisons</a></li>
+      <li><a href="/reference/websocket-api/">Reference</a></li>
+      <li><a href="/tools/websocket-echo-server/">Tools</a></li>
+      <li><a href="/tools/websocket-echo-server/">Echo Server</a></li>
+      <li>
+        <a href="https://github.com/mattheworiordan/websocket.org" target="_blank" rel="noopener"
+          >GitHub</a
+        >
+      </li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" aria-label="Hero">
+    <div class="hero-inner">
+      <!-- Left: text -->
+      <div class="hero-text">
+        <div class="hero-eyebrow">
+          <span class="hero-eyebrow-dot"></span>
+          Independent WebSocket reference
+        </div>
+        <h1 class="hero-title">WebSocket<span>.org</span></h1>
+        <p class="hero-tagline">
+          The independent, practitioner-built reference for WebSocket technology. Protocol
+          internals, production patterns, scaling guides, and honest protocol comparisons with real
+          code.
+        </p>
+        <div class="hero-ctas">
+          <a href="/guides/road-to-websockets/" class="btn-primary">
+            Start Reading
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              aria-hidden="true"
+            >
+              <path d="M5 12h14M12 5l7 7-7 7"></path>
+            </svg>
+          </a>
+          <a href="/reference/websocket-api/" class="btn-secondary"> API Reference </a>
+        </div>
+      </div>
+
+      <!-- Right: dashboard -->
+      <div class="dashboard" role="region" aria-label="Live WebSocket connection monitor">
+        <!-- macOS-style title bar -->
+        <div class="db-titlebar">
+          <div class="db-dots">
+            <span class="db-dot db-dot-red"></span>
+            <span class="db-dot db-dot-yel"></span>
+            <span class="db-dot db-dot-grn"></span>
+          </div>
+          <span class="db-titlebar-label">ws-monitor — websocket.org</span>
+        </div>
+
+        <!-- Connection status bar -->
+        <div class="db-status-bar">
+          <div class="db-status-indicator">
+            <span class="db-status-dot" id="statusDot"></span>
+            <span class="db-status-label" id="statusLabel"></span>
+          </div>
+          <div class="db-url">
+            <span class="db-url-scheme">ws://</span>websocket.org/demo
+          </div>
+          <div class="db-status-meta">
+            <span class="db-uptime">
+              uptime&nbsp;<span class="db-uptime-val" id="uptimeVal">00:00:00</span>
+            </span>
+            <span class="db-protocol-badge">RFC 6455</span>
+          </div>
+        </div>
+
+        <!-- Metrics row -->
+        <div class="db-metrics">
+          <!-- Latency -->
+          <div class="db-metric">
+            <div class="db-metric-label">Latency</div>
+            <div class="db-metric-value">
+              <div>
+                <span class="db-metric-number" id="latencyVal">12</span><span class="db-metric-unit"
+                  >ms</span
+                >
+              </div>
+              <canvas
+                class="db-sparkline"
+                id="sparklineCanvas"
+                width="110"
+                height="28"
+                aria-hidden="true"></canvas>
+            </div>
+          </div>
+
+          <!-- Messages -->
+          <div class="db-metric">
+            <div class="db-metric-label">Messages</div>
+            <div class="db-metric-value">
+              <div class="db-msg-counters">
+                <div class="db-msg-row">
+                  <span class="db-msg-arrow-up">↑</span>
+                  <span class="db-msg-count" id="msgSent">0</span>
+                  <span class="db-msg-sublabel">sent</span>
+                </div>
+                <div class="db-msg-row">
+                  <span class="db-msg-arrow-down">↓</span>
+                  <span class="db-msg-count" id="msgRecv">0</span>
+                  <span class="db-msg-sublabel">recv</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Frames -->
+          <div class="db-metric">
+            <div class="db-metric-label">Frames</div>
+            <div class="db-frames">
+              <div class="db-frame-row">
+                <span class="db-frame-type">TEXT</span>
+                <span class="db-frame-count" id="frameText">0</span>
+              </div>
+              <div class="db-frame-row">
+                <span class="db-frame-type">BINARY</span>
+                <span class="db-frame-count" id="frameBinary">0</span>
+              </div>
+              <div class="db-frame-row">
+                <span class="db-frame-type">PING/PONG</span>
+                <span class="db-frame-count" id="framePing">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message feed -->
+        <div class="db-feed-header">
+          <span class="db-feed-title">Message Feed</span>
+          <span class="db-feed-live">
+            <span class="db-feed-live-dot"></span>
+            LIVE
+          </span>
+        </div>
+
+        <div class="db-feed" aria-live="polite" aria-label="Live message feed">
+          <div class="db-feed-inner" id="feedInner">
+            <!-- Lines injected by JS -->
+          </div>
+        </div>
+      </div><!-- /dashboard -->
+    </div>
+  </section>
+
+  <!-- SECTION 2: EXPLORE -->
+  <section class="explore-section" aria-labelledby="explore-heading">
+    <div class="section-inner">
+      <p class="section-label">Resources</p>
+      <h2 class="section-title" id="explore-heading">Explore WebSockets</h2>
+      <div class="category-grid">
+        <div class="category-card" data-reveal>
+          <div class="category-icon" aria-hidden="true">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path>
+            </svg>
+          </div>
+          <h3>Understand the Protocol</h3>
+          <p>From HTTP upgrade to binary frames — the complete picture.</p>
+          <ul class="category-links">
+            <li><a href="/guides/road-to-websockets/">Road to WebSockets</a></li>
+            <li><a href="/guides/websocket-protocol/">WebSocket Protocol</a></li>
+            <li><a href="/reference/websocket-api/">API Reference</a></li>
+            <li><a href="/reference/close-codes/">Close Codes</a></li>
+          </ul>
+        </div>
+
+        <div class="category-card" data-reveal>
+          <div class="category-icon" aria-hidden="true">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"
+              ></polyline>
+            </svg>
+          </div>
+          <h3>Build Something</h3>
+          <p>Hands-on guides from first connection to production scale.</p>
+          <ul class="category-links">
+            <li><a href="/guides/building-a-websocket-app/">First App</a></li>
+            <li><a href="/guides/websockets-at-scale/">At Scale</a></li>
+            <li><a href="/guides/security/">Security</a></li>
+            <li><a href="/guides/testing/autobahn/">Testing</a></li>
+            <li><a href="/guides/frameworks/react/">Frameworks</a></li>
+            <li><a href="/guides/troubleshooting/403/">Troubleshooting</a></li>
+          </ul>
+        </div>
+
+        <div class="category-card" data-reveal>
+          <div class="category-icon" aria-hidden="true">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M18 20V10M12 20V4M6 20v-6"></path>
+            </svg>
+          </div>
+          <h3>Compare Protocols</h3>
+          <p>Not everything needs a WebSocket. Pick the right tool.</p>
+          <ul class="category-links">
+            <li><a href="/comparisons/sse/">vs SSE</a></li>
+            <li><a href="/comparisons/http/">vs HTTP</a></li>
+            <li><a href="/comparisons/webtransport/">vs WebTransport</a></li>
+            <li><a href="/comparisons/">All Comparisons</a></li>
+          </ul>
+        </div>
+
+        <div class="category-card" data-reveal>
+          <div class="category-icon" aria-hidden="true">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect x="2" y="3" width="20" height="14" rx="2"></rect><path d="M8 21h8M12 17v4"
+              ></path>
+            </svg>
+          </div>
+          <h3>By Language</h3>
+          <p>Production-ready patterns for your stack.</p>
+          <ul class="category-links">
+            <li><a href="/guides/languages/javascript/">JavaScript</a></li>
+            <li><a href="/guides/languages/python/">Python</a></li>
+            <li><a href="/guides/languages/go/">Go</a></li>
+            <li><a href="/guides/languages/rust/">Rust</a></li>
+            <li><a href="/guides/languages/java/">Java</a></li>
+            <li><a href="/guides/languages/csharp/">C#</a></li>
+            <li><a href="/guides/languages/php/">PHP</a></li>
+          </ul>
+        </div>
+
+        <div class="category-card" data-reveal>
+          <div class="category-icon" aria-hidden="true">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="3"></circle><path
+                d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"
+              ></path>
+            </svg>
+          </div>
+          <h3>Use Cases</h3>
+          <p>Real-world patterns for common WebSocket applications.</p>
+          <ul class="category-links">
+            <li><a href="/guides/use-cases/chat/">Chat App</a></li>
+            <li><a href="/guides/use-cases/notifications/">Notifications</a></li>
+            <li><a href="/guides/use-cases/ai-streaming/">AI Streaming</a></li>
+          </ul>
+        </div>
+
+        <div class="category-card browse-all-card" data-reveal>
+          <p style="margin-bottom:12px">
+            Explore the full guide library — implementation patterns, framework integrations, and
+            more.
+          </p>
+          <a href="/guides/road-to-websockets/" class="browse-all-link">
+            Browse all guides
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              aria-hidden="true"
+            >
+              <path d="M5 12h14M12 5l7 7-7 7"></path>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRY IT SECTION -->
+  <section class="try-it-section" aria-labelledby="try-it-heading">
+    <div class="section-inner">
+      <p class="section-label">Interactive Tools</p>
+      <h2 class="section-title" id="try-it-heading">Try It</h2>
+      <div class="try-it-grid">
+        <div class="try-it-card primary" data-reveal>
+          <h3>WebSocket Echo Server</h3>
+          <p>
+            Test WebSocket connections in real time. Send messages and see them echoed back
+            instantly — no signup, no setup.
+          </p>
+          <a href="/tools/websocket-echo-server/" class="try-it-cta">
+            Try it now
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              aria-hidden="true"
+            >
+              <path d="M5 12h14M12 5l7 7-7 7"></path>
+            </svg>
+          </a>
+        </div>
+
+        <div class="try-it-card" data-reveal>
+          <h3>WebSocket vs SSE vs HTTP</h3>
+          <p>Answer a few questions about your use case and get a protocol recommendation.</p>
+          <a href="/tools/choose-a-protocol/" class="try-it-cta">
+            Find your protocol
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              aria-hidden="true"
+            >
+              <path d="M5 12h14M12 5l7 7-7 7"></path>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 3: PROTOCOL COMPARISON -->
+  <section class="protocol-section" aria-labelledby="protocol-heading">
+    <div class="section-inner">
+      <p class="section-label">How it works</p>
+      <h2 class="section-title" id="protocol-heading">Why WebSockets?</h2>
+      <div class="protocol-grid">
+        <div class="protocol-col">
+          <h3>HTTP</h3>
+          <p class="protocol-desc">
+            One request, one response. Connection closes. Every interaction has overhead.
+          </p>
+          <div class="proto-diagram" id="protoHttp">
+            <div class="proto-row">
+              <span class="proto-label">C</span>
+              <div class="proto-arrow-track">
+                <div class="proto-arrow-line" style="background:#6b7280"></div>
+                <div class="proto-arrow-head" style="color:#6b7280">→</div>
+              </div>
+              <span style="font-size:0.68rem;color:var(--text-light);flex-shrink:0">S</span>
+            </div>
+            <div class="proto-pause"></div>
+            <div class="proto-row">
+              <span class="proto-label">S</span>
+              <div class="proto-arrow-track">
+                <div class="proto-arrow-line" style="background:#6b7280"></div>
+                <div class="proto-arrow-head" style="color:#6b7280">←</div>
+              </div>
+              <span style="font-size:0.68rem;color:var(--text-light);flex-shrink:0">C</span>
+            </div>
+            <div class="proto-pause" style="height:16px"></div>
+            <div class="proto-row">
+              <span class="proto-label">C</span>
+              <div class="proto-arrow-track">
+                <div class="proto-arrow-line" style="background:#6b7280"></div>
+                <div class="proto-arrow-head" style="color:#6b7280">→</div>
+              </div>
+              <span style="font-size:0.68rem;color:var(--text-light);flex-shrink:0">S</span>
+            </div>
+            <div class="proto-pause"></div>
+            <div class="proto-row">
+              <span class="proto-label">S</span>
+              <div class="proto-arrow-track">
+                <div class="proto-arrow-line" style="background:#6b7280"></div>
+                <div class="proto-arrow-head" style="color:#6b7280">←</div>
+              </div>
+              <span style="font-size:0.68rem;color:var(--text-light);flex-shrink:0">C</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="protocol-col proto-col-sse">
+          <h3>Server-Sent Events</h3>
+          <p class="protocol-desc">
+            Server streams to client only. Great for push — can't send back.
+          </p>
+          <div class="proto-diagram" id="protoSse">
+            <div class="proto-row">
+              <span class="proto-label">S</span>
+              <div class="proto-arrow-track">
+                <div class="proto-arrow-line" style="background:#a78bfa"></div>
+                <div class="proto-arrow-head" style="color:#7c3aed">→</div>
+              </div>
+              <span style="font-size:0.68rem;color:var(--text-light);flex-shrink:0">C</span>
+            </div>
+            <div class="proto-row">
+              <span class="proto-label">S</span>
+              <div class="proto-arrow-track">
+                <div class="proto-arrow-line" style="background:#a78bfa"></div>
+                <div class="proto-arrow-head" style="color:#7c3aed">→</div>
+              </div>
+              <span style="font-size:0.68rem;color:var(--text-light);flex-shrink:0">C</span>
+            </div>
+            <div class="proto-row">
+              <span class="proto-label">S</span>
+              <div class="proto-arrow-track">
+                <div class="proto-arrow-line" style="background:#a78bfa"></div>
+                <div class="proto-arrow-head" style="color:#7c3aed">→</div>
+              </div>
+              <span style="font-size:0.68rem;color:var(--text-light);flex-shrink:0">C</span>
+            </div>
+            <div class="proto-row">
+              <span class="proto-label">S</span>
+              <div class="proto-arrow-track">
+                <div class="proto-arrow-line" style="background:#a78bfa"></div>
+                <div class="proto-arrow-head" style="color:#7c3aed">→</div>
+              </div>
+              <span style="font-size:0.68rem;color:var(--text-light);flex-shrink:0">C</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="protocol-col proto-col-ws">
+          <h3>WebSocket</h3>
+          <p class="protocol-desc">Full-duplex, persistent. Both sides send whenever they want.</p>
+          <div class="proto-diagram" id="protoWs">
+            <div class="proto-row">
+              <span class="proto-label">C</span>
+              <div class="proto-arrow-track">
+                <div class="proto-arrow-line" style="background:var(--teal)"></div>
+                <div class="proto-arrow-head" style="color:var(--teal)">→</div>
+              </div>
+              <span style="font-size:0.68rem;color:var(--text-light);flex-shrink:0">S</span>
+            </div>
+            <div class="proto-row">
+              <span class="proto-label">S</span>
+              <div class="proto-arrow-track">
+                <div class="proto-arrow-line" style="background:var(--teal)"></div>
+                <div class="proto-arrow-head" style="color:var(--teal)">←</div>
+              </div>
+              <span style="font-size:0.68rem;color:var(--text-light);flex-shrink:0">C</span>
+            </div>
+            <div class="proto-row">
+              <span class="proto-label">C</span>
+              <div class="proto-arrow-track">
+                <div class="proto-arrow-line" style="background:var(--teal)"></div>
+                <div class="proto-arrow-head" style="color:var(--teal)">→</div>
+              </div>
+              <span style="font-size:0.68rem;color:var(--text-light);flex-shrink:0">S</span>
+            </div>
+            <div class="proto-row">
+              <span class="proto-label">S</span>
+              <div class="proto-arrow-track">
+                <div class="proto-arrow-line" style="background:var(--teal)"></div>
+                <div class="proto-arrow-head" style="color:var(--teal)">←</div>
+              </div>
+              <span style="font-size:0.68rem;color:var(--text-light);flex-shrink:0">C</span>
+            </div>
+            <div class="proto-row">
+              <span class="proto-label">C</span>
+              <div class="proto-arrow-track">
+                <div class="proto-arrow-line" style="background:var(--teal)"></div>
+                <div class="proto-arrow-head" style="color:var(--teal)">→</div>
+              </div>
+              <span style="font-size:0.68rem;color:var(--text-light);flex-shrink:0">S</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 4: WHAT'S NEW -->
+  <section class="new-section" aria-labelledby="new-heading">
+    <div class="section-inner">
+      <p class="section-label">Latest</p>
+      <h2 class="section-title" id="new-heading">What's New</h2>
+      <a href="/guides/websockets-and-ai/" class="featured-card">
+        <div class="featured-icon" aria-hidden="true">🤖</div>
+        <div>
+          <span class="featured-badge">New Guide</span>
+          <h3>WebSockets and AI</h3>
+          <p>
+            Token streaming, tool-call interleaving, bidirectional agent communication. How modern
+            AI systems use WebSockets — and when they don't.
+          </p>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- SECTION 5: INFRASTRUCTURE -->
+  <section class="infra-section" aria-labelledby="infra-heading">
+    <div class="section-inner">
+      <p class="section-label">Infrastructure</p>
+      <h2 class="section-title" id="infra-heading">Deploy and Operate</h2>
+      <div class="infra-grid">
+        <a href="/guides/infrastructure/nginx/" class="infra-card">
+          <div class="infra-card-name">Nginx</div>
+          <div class="infra-card-desc">Proxy configuration, timeouts, upstream headers</div>
+        </a>
+        <a href="/guides/infrastructure/aws/alb/" class="infra-card">
+          <div class="infra-card-name">AWS ALB</div>
+          <div class="infra-card-desc">Load balancer settings for persistent connections</div>
+        </a>
+        <a href="/guides/infrastructure/cloudflare/" class="infra-card">
+          <div class="infra-card-name">Cloudflare</div>
+          <div class="infra-card-desc">Tunnels, Workers, and WebSocket proxying</div>
+        </a>
+        <a href="/guides/infrastructure/kubernetes/" class="infra-card">
+          <div class="infra-card-name">Kubernetes</div>
+          <div class="infra-card-desc">Ingress controllers, session affinity, scaling</div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ SECTION -->
+  <section class="faq-section" aria-labelledby="faq-heading">
+    <div class="section-inner">
+      <p class="section-label">FAQ</p>
+      <h2 class="section-title" id="faq-heading">Common Questions</h2>
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary>
+            What is a WebSocket?
+            <span class="faq-toggle" aria-hidden="true">
+              <span class="faq-toggle-plus">+</span>
+              <span class="faq-toggle-minus">−</span>
+            </span>
+          </summary>
+          <div class="faq-answer">
+            A WebSocket is a persistent, full-duplex communication channel over a single TCP
+            connection defined by RFC 6455. The connection starts with an HTTP upgrade handshake,
+            then switches to a lightweight binary frame format. Unlike HTTP request-response, the
+            server can push data to the client at any time without the client asking for it. That
+            makes WebSockets the foundation for live chat, real-time dashboards, multiplayer games,
+            collaborative editing, and AI token streaming. The protocol has been stable and
+            universally supported since 2011. Read our <a href="/guides/road-to-websockets/"
+              >Road to WebSockets</a
+            > guide for the full history.
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            When should I use WebSockets instead of HTTP?
+            <span class="faq-toggle" aria-hidden="true">
+              <span class="faq-toggle-plus">+</span>
+              <span class="faq-toggle-minus">−</span>
+            </span>
+          </summary>
+          <div class="faq-answer">
+            Use WebSockets when your application needs low-latency, bidirectional data flow between
+            client and server. Concrete use cases: live chat, multiplayer games, collaborative
+            editors, financial tickers, IoT telemetry, and AI token streaming where users send
+            prompts and receive partial responses in real time. Stick with HTTP for standard page
+            loads, REST API calls, file uploads, and any interaction where the client initiates
+            every exchange. If you only need server-to-client updates and the data rate is low, <a
+              href="/comparisons/sse/">SSE</a
+            > is a simpler alternative. For detailed trade-offs see our <a href="/comparisons/http/"
+              >WebSockets vs HTTP</a
+            > comparison.
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            Are WebSockets supported in all browsers?
+            <span class="faq-toggle" aria-hidden="true">
+              <span class="faq-toggle-plus">+</span>
+              <span class="faq-toggle-minus">−</span>
+            </span>
+          </summary>
+          <div class="faq-answer">
+            Yes. Every modern browser has supported WebSockets since at least 2013. Chrome 16+,
+            Firefox 11+, Safari 7+, Edge 12+, and all mobile browsers. Global support is above 99%
+            according to caniuse.com. The only scenario where WebSockets get blocked is behind
+            certain corporate proxies that strip the HTTP upgrade header. Libraries like Socket.IO
+            handle that by falling back to HTTP long-polling, or managed services like <a
+              href="https://ably.com?utm_source=websocket-org&utm_medium=homepage"
+              target="_blank"
+              rel="noopener">Ably</a
+            > negotiate the best available transport automatically. See our full <a
+              href="/reference/browser-support/">browser support table</a
+            >.
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            How do WebSockets compare to Server-Sent Events (SSE)?
+            <span class="faq-toggle" aria-hidden="true">
+              <span class="faq-toggle-plus">+</span>
+              <span class="faq-toggle-minus">−</span>
+            </span>
+          </summary>
+          <div class="faq-answer">
+            SSE is a unidirectional protocol: the server pushes data to the client over a standard
+            HTTP connection. It is simpler to set up and works through most proxies without
+            configuration. WebSockets provide full-duplex bidirectional messaging, binary data
+            support, and lower per-message overhead. For AI streaming, SSE works when traffic is
+            purely server-to-client, but WebSockets win when you need client-to-server signals like
+            cancellation, live steering, or tool-call responses during generation. Our <a
+              href="/comparisons/sse/">WebSockets vs SSE</a
+            > comparison covers the decision matrix in detail.
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            What is the WebSocket protocol?
+            <span class="faq-toggle" aria-hidden="true">
+              <span class="faq-toggle-plus">+</span>
+              <span class="faq-toggle-minus">−</span>
+            </span>
+          </summary>
+          <div class="faq-answer">
+            The WebSocket protocol (RFC 6455) defines a framing layer over TCP. A client sends a
+            standard HTTP request with an <code>Upgrade: websocket</code> header. If the server agrees,
+            the connection switches from HTTP to the WebSocket frame format. Each frame carries an opcode
+            (text, binary, ping, pong, close), a payload length, and optional masking. The result is
+            a persistent, low-overhead channel that avoids the cost of repeated HTTP handshakes. For
+            the full technical breakdown, read our <a href="/guides/websocket-protocol/"
+              >WebSocket Protocol</a
+            > guide.
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 6: FOOTER CTA -->
+  <section class="footer-cta" aria-labelledby="footer-cta-heading">
+    <h2 id="footer-cta-heading">Start with the Road to WebSockets</h2>
+    <p>
+      A complete, no-fluff walkthrough from HTTP to persistent bidirectional connections. The
+      fastest path from zero to production-ready.
+    </p>
+    <a href="/guides/road-to-websockets/" class="btn-primary" style="display:inline-flex">
+      Read the Guide
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+        aria-hidden="true"
+      >
+        <path d="M5 12h14M12 5l7 7-7 7"></path>
+      </svg>
+    </a>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <p>
+      &copy; <span id="copyrightYear">2026</span>
+      <a href="/">WebSocket.org</a> &mdash; Independent reference for WebSocket developers &mdash;
+      <a href="https://github.com/mattheworiordan/websocket.org" target="_blank" rel="noopener"
+        >GitHub</a
+      > &middot;
+      <a href="/tools/websocket-echo-server/">Echo Server</a> &middot;
+      <a href="/guides/road-to-websockets/">Once Upon a Socket</a> &middot;
+      <a href="/resources/community/">Community</a>
+    </p>
+  </footer>
+
+  <script is:inline>
+    // ============================================================
+    // DASHBOARD STATE MACHINE
+    // ============================================================
+
+    // States: CONNECTING -> OPEN -> CLOSING -> CLOSED -> CONNECTING...
+    const STATES = {
+      CONNECTING: 'connecting',
+      OPEN: 'open',
+      CLOSING: 'closing',
+      CLOSED: 'closed',
+    };
+
+    const STATE_DURATIONS = {
+      [STATES.CONNECTING]: 1800,
+      [STATES.OPEN]: 22000,
+      [STATES.CLOSING]: 600,
+      [STATES.CLOSED]: 1200,
+    };
+
+    const STATE_LABELS = {
+      [STATES.CONNECTING]: 'CONNECTING',
+      [STATES.OPEN]: 'OPEN',
+      [STATES.CLOSING]: 'CLOSING',
+      [STATES.CLOSED]: 'CLOSED',
+    };
+
+    let currentState = STATES.CONNECTING;
+    let stateTimer = null;
+
+    // ---- counters (reset on reconnect)
+    let msgSent = 0;
+    let msgRecv = 0;
+    let frameText = 0;
+    let frameBinary = 0;
+    let framePingPong = 0; // single paired counter — PING and PONG always equal
+    let uptimeSeconds = 0;
+    let uptimeTimer = null;
+
+    // ---- DOM refs
+    const statusDot = document.getElementById('statusDot');
+    const statusLabel = document.getElementById('statusLabel');
+    const uptimeVal = document.getElementById('uptimeVal');
+    const latencyEl = document.getElementById('latencyVal');
+    const msgSentEl = document.getElementById('msgSent');
+    const msgRecvEl = document.getElementById('msgRecv');
+    const frameTextEl = document.getElementById('frameText');
+    const frameBinEl = document.getElementById('frameBinary');
+    const framePingEl = document.getElementById('framePing');
+    const feedInner = document.getElementById('feedInner');
+
+    function padZ(n) {
+      return String(n).padStart(2, '0');
+    }
+
+    function fmtUptime(s) {
+      const h = Math.floor(s / 3600);
+      const m = Math.floor((s % 3600) / 60);
+      const sec = s % 60;
+      return `${padZ(h)}:${padZ(m)}:${padZ(sec)}`;
+    }
+
+    function applyState(state) {
+      statusDot.className = `db-status-dot ${state}`;
+      statusLabel.className = `db-status-label ${state}`;
+      statusLabel.textContent = STATE_LABELS[state];
+    }
+
+    function resetCounters() {
+      msgSent = 0;
+      msgRecv = 0;
+      frameText = 0;
+      frameBinary = 0;
+      framePingPong = 0;
+      uptimeSeconds = 0;
+      updateCounterEls();
+    }
+
+    function updateCounterEls() {
+      msgSentEl.textContent = msgSent;
+      msgRecvEl.textContent = msgRecv;
+      frameTextEl.textContent = frameText;
+      frameBinEl.textContent = frameBinary;
+      framePingEl.textContent = framePingPong;
+    }
+
+    function transitionTo(state) {
+      currentState = state;
+      applyState(state);
+
+      if (state === STATES.CLOSED) {
+        clearInterval(uptimeTimer);
+        uptimeTimer = null;
+      }
+
+      if (state === STATES.OPEN) {
+        // start uptime counter
+        uptimeTimer = setInterval(() => {
+          uptimeSeconds++;
+          uptimeVal.textContent = fmtUptime(uptimeSeconds);
+        }, 1000);
+      }
+
+      if (stateTimer) clearTimeout(stateTimer);
+      stateTimer = setTimeout(() => {
+        const next = {
+          [STATES.CONNECTING]: STATES.OPEN,
+          [STATES.OPEN]: STATES.CLOSING,
+          [STATES.CLOSING]: STATES.CLOSED,
+          [STATES.CLOSED]: STATES.CONNECTING,
+        }[state];
+
+        if (next === STATES.CONNECTING) {
+          resetCounters();
+          clearFeed();
+        }
+        transitionTo(next);
+      }, STATE_DURATIONS[state]);
+    }
+
+    // ============================================================
+    // SPARKLINE
+    // ============================================================
+    const canvas = document.getElementById('sparklineCanvas');
+    const ctx = canvas.getContext('2d');
+    const sparkData = [];
+    const SPARK_POINTS = 22;
+    let currentLatency = 12;
+
+    function nextLatency(prev) {
+      const delta = (Math.random() - 0.48) * 5;
+      return Math.max(7, Math.min(30, Math.round(prev + delta)));
+    }
+
+    // Seed sparkline
+    for (let i = 0; i < SPARK_POINTS; i++) {
+      currentLatency = nextLatency(currentLatency);
+      sparkData.push(currentLatency);
+    }
+
+    function drawSparkline() {
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      if (sparkData.length < 2) return;
+
+      const minV = Math.min(...sparkData) - 2;
+      const maxV = Math.max(...sparkData) + 2;
+      const range = maxV - minV || 1;
+
+      const step = w / (SPARK_POINTS - 1);
+
+      // gradient fill
+      const grad = ctx.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, 'rgba(13,148,136,0.18)');
+      grad.addColorStop(1, 'rgba(13,148,136,0)');
+
+      ctx.beginPath();
+      sparkData.forEach((v, i) => {
+        const x = i * step;
+        const y = h - ((v - minV) / range) * (h - 4) - 2;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      // close path for fill
+      const lastX = (SPARK_POINTS - 1) * step;
+      const lastY = h - ((sparkData[sparkData.length - 1] - minV) / range) * (h - 4) - 2;
+      ctx.lineTo(lastX, h);
+      ctx.lineTo(0, h);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // line
+      ctx.beginPath();
+      sparkData.forEach((v, i) => {
+        const x = i * step;
+        const y = h - ((v - minV) / range) * (h - 4) - 2;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.strokeStyle = '#0d9488';
+      ctx.lineWidth = 1.5;
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+
+      // current dot
+      const cx = lastX;
+      const cy = lastY;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#0d9488';
+      ctx.fill();
+    }
+
+    // rAF loop for sparkline
+    let lastSparkUpdate = 0;
+    function sparkLoop(ts) {
+      if (ts - lastSparkUpdate > 1100) {
+        currentLatency = nextLatency(currentLatency);
+        sparkData.push(currentLatency);
+        if (sparkData.length > SPARK_POINTS) sparkData.shift();
+        latencyEl.textContent = currentLatency;
+        lastSparkUpdate = ts;
+      }
+      drawSparkline();
+      sparkRAF = requestAnimationFrame(sparkLoop);
+    }
+    let sparkRAF = requestAnimationFrame(sparkLoop);
+
+    // ============================================================
+    // MESSAGE FEED
+    // ============================================================
+    const MAX_FEED_LINES = 7;
+    const feedLines = [];
+
+    function nowTs() {
+      const d = new Date();
+      return `${padZ(d.getHours())}:${padZ(d.getMinutes())}:${padZ(d.getSeconds())}.${String(d.getMilliseconds()).padStart(3, '0')}`;
+    }
+
+    const MESSAGE_TEMPLATES = [
+      // client -> server
+      { dir: 'client', type: 'TEXT', payload: '"subscribe" {"channel":"updates"}' },
+      { dir: 'client', type: 'TEXT', payload: '"heartbeat" {"ts":1711814585}' },
+      { dir: 'client', type: 'TEXT', payload: '"query" {"metric":"connections","window":"5m"}' },
+      { dir: 'client', type: 'TEXT', payload: '"auth" {"token":"eyJhb..."}' },
+      { dir: 'client', type: 'TEXT', payload: '"publish" {"channel":"events","data":"..."}' },
+      { dir: 'client', type: 'PING', payload: null },
+      // server -> client
+      { dir: 'server', type: 'TEXT', payload: '"subscribed" {"channel":"updates","id":"ch_29x"}' },
+      { dir: 'server', type: 'TEXT', payload: '"message" {"data":"Pool: 2.4M active"}' },
+      { dir: 'server', type: 'TEXT', payload: '"event" {"type":"connect","peer":"10.0.1.42"}' },
+      { dir: 'server', type: 'TEXT', payload: '"metrics" {"latency_p99":"18ms","msgs_sec":4210}' },
+      { dir: 'server', type: 'TEXT', payload: '"ack" {"id":"pub_7741","status":"ok"}' },
+      {
+        dir: 'server',
+        type: 'BINARY',
+        payload: '[1.2KB] frame_seq=' + (4800 + Math.floor(Math.random() * 200)),
+      },
+      { dir: 'server', type: 'PONG', payload: `[${currentLatency}ms]` },
+    ];
+
+    let templateIdx = 0;
+    // Track pending PING so PONG always pairs with it
+    let pendingPing = false;
+
+    function buildFeedLine(tpl) {
+      const ts = nowTs();
+      const dir = tpl.dir === 'client' ? '→' : '←';
+      const dirCls = tpl.dir === 'client' ? 'db-feed-dir-client' : 'db-feed-dir-server';
+      const payloadCls = tpl.dir === 'client' ? 'client' : 'server';
+      const payload = tpl.payload
+        ? `<span class="db-feed-payload ${payloadCls}">${tpl.payload}</span>`
+        : '';
+
+      const line = document.createElement('div');
+      line.className = 'db-feed-line';
+      line.innerHTML =
+        `<span class="db-feed-ts">${ts}</span>` +
+        `<span class="${dirCls}">${dir}</span>` +
+        `<span class="db-feed-type">${tpl.type}</span>` +
+        payload;
+      return line;
+    }
+
+    function clearFeed() {
+      feedLines.length = 0;
+      feedInner.innerHTML = '';
+      pendingPing = false;
+    }
+
+    function addFeedLine(tpl) {
+      const lineEl = buildFeedLine(tpl);
+      feedLines.push(lineEl);
+      feedInner.appendChild(lineEl);
+
+      // Trim old lines
+      if (feedLines.length > MAX_FEED_LINES) {
+        const old = feedLines.shift();
+        old.classList.add('fade-out');
+        setTimeout(() => {
+          if (old.parentNode) old.parentNode.removeChild(old);
+        }, 420);
+      }
+    }
+
+    function pushFeedLine() {
+      if (currentState !== STATES.OPEN) return;
+
+      // If there's a pending PING, force the PONG next (keeps them paired)
+      let tpl;
+      if (pendingPing) {
+        tpl = { dir: 'server', type: 'PONG', payload: `[${currentLatency}ms]` };
+        pendingPing = false;
+        // PONG increments the shared PING/PONG counter (already incremented on PING)
+        msgRecv++;
+        updateCounterEls();
+        addFeedLine(tpl);
+        return;
+      }
+
+      tpl = MESSAGE_TEMPLATES[templateIdx % MESSAGE_TEMPLATES.length];
+      templateIdx++;
+
+      // Update counters
+      if (tpl.dir === 'client') {
+        msgSent++;
+        if (tpl.type === 'TEXT') {
+          frameText++;
+        }
+        if (tpl.type === 'BINARY') {
+          frameBinary++;
+        }
+        if (tpl.type === 'PING') {
+          framePingPong++; // paired counter increments once for the PING/PONG pair
+          pendingPing = true;
+        }
+      } else {
+        // Skip PONG templates from the pool — handled above via pendingPing
+        if (tpl.type === 'PONG') {
+          tpl = MESSAGE_TEMPLATES[templateIdx % MESSAGE_TEMPLATES.length];
+          templateIdx++;
+          // re-check, use next non-PONG template
+          if (tpl.type === 'PONG') {
+            tpl = { dir: 'server', type: 'TEXT', payload: '"keepalive" {"ts":' + Date.now() + '}' };
+          }
+        }
+        msgRecv++;
+        if (tpl.type === 'TEXT') {
+          frameText++;
+        }
+        if (tpl.type === 'BINARY') {
+          frameBinary++;
+        }
+      }
+      updateCounterEls();
+      addFeedLine(tpl);
+    }
+
+    // Irregular intervals — feels more realistic
+    function scheduleFeedLine() {
+      if (currentState === STATES.OPEN) {
+        pushFeedLine();
+      }
+      const delay = 900 + Math.random() * 1400;
+      setTimeout(scheduleFeedLine, delay);
+    }
+
+    // ============================================================
+    // PROTOCOL ANIMATION (IntersectionObserver)
+    // ============================================================
+    function animateProtoRows(container, delayBetween, repeatDelay) {
+      const rows = container.querySelectorAll('.proto-row');
+
+      function runCycle() {
+        rows.forEach((r) => {
+          r.style.opacity = '0';
+          const line = r.querySelector('.proto-arrow-line');
+          const head = r.querySelector('.proto-arrow-head');
+          if (line) {
+            line.style.width = '0';
+            line.style.transition = 'none';
+          }
+          if (head) {
+            head.style.opacity = '0';
+            head.style.transition = 'none';
+          }
+        });
+
+        rows.forEach((row, i) => {
+          setTimeout(() => {
+            row.style.transition = 'opacity 0.2s';
+            row.style.opacity = '1';
+            const line = row.querySelector('.proto-arrow-line');
+            const head = row.querySelector('.proto-arrow-head');
+            if (line) {
+              requestAnimationFrame(() => {
+                line.style.transition = 'width 0.35s ease-out';
+                line.style.width = '100%';
+              });
+            }
+            if (head) {
+              setTimeout(() => {
+                head.style.transition = 'opacity 0.15s';
+                head.style.opacity = '1';
+              }, 350);
+            }
+          }, i * delayBetween);
+        });
+
+        setTimeout(runCycle, repeatDelay);
+      }
+
+      runCycle();
+    }
+
+    // ============================================================
+    // CARD REVEAL (IntersectionObserver)
+    // ============================================================
+    function initReveal() {
+      const cards = document.querySelectorAll('[data-reveal]');
+      if (!('IntersectionObserver' in window)) {
+        cards.forEach((c) => c.classList.add('visible'));
+        return;
+      }
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const card = entry.target;
+              const idx = Array.from(cards).indexOf(card);
+              setTimeout(() => card.classList.add('visible'), idx * 100);
+              observer.unobserve(card);
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+
+      cards.forEach((c) => observer.observe(c));
+    }
+
+    function initProtoAnimations() {
+      const cols = [
+        { id: 'protoHttp', delay: 420, repeat: 3200 },
+        { id: 'protoSse', delay: 320, repeat: 2600 },
+        { id: 'protoWs', delay: 150, repeat: 1400 },
+      ];
+
+      if (!('IntersectionObserver' in window)) {
+        cols.forEach((c) => {
+          const el = document.getElementById(c.id);
+          if (el) animateProtoRows(el, c.delay, c.repeat);
+        });
+        return;
+      }
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const col = cols.find((c) => c.id === entry.target.id);
+              if (col) animateProtoRows(entry.target, col.delay, col.repeat);
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.2 }
+      );
+
+      cols.forEach((c) => {
+        const el = document.getElementById(c.id);
+        if (el) observer.observe(el);
+      });
+    }
+
+    // ============================================================
+    // SEARCH (Pagefind)
+    // ============================================================
+    let pagefindInitialized = false;
+
+    async function openSearch() {
+      const dialog = document.getElementById('searchDialog');
+      if (!dialog) return;
+      dialog.showModal();
+
+      if (!pagefindInitialized) {
+        pagefindInitialized = true;
+
+        // Load Pagefind CSS
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = '/pagefind/pagefind-ui.css';
+        document.head.appendChild(link);
+
+        try {
+          const { PagefindUI } = await import('/pagefind/pagefind-ui.js');
+          new PagefindUI({
+            element: '#searchTarget',
+            bundlePath: '/pagefind/',
+            showImages: false,
+            showSubResults: true,
+          });
+        } catch (e) {
+          // Pagefind not built yet (dev mode)
+          document.getElementById('searchTarget').innerHTML =
+            '<p style="padding:16px;color:var(--text-muted);font-size:0.88rem;">Search index not available in development mode. Run a production build to enable search.</p>';
+        }
+      }
+    }
+
+    function initSearch() {
+      const dialog = document.getElementById('searchDialog');
+      const openBtn = document.getElementById('searchBtn');
+      const closeBtn = document.getElementById('searchClose');
+
+      if (openBtn) {
+        openBtn.addEventListener('click', openSearch);
+      }
+
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => dialog && dialog.close());
+      }
+
+      // Close on backdrop click
+      if (dialog) {
+        dialog.addEventListener('click', (e) => {
+          if (e.target === dialog) dialog.close();
+        });
+      }
+
+      // Cmd+K / Ctrl+K
+      document.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+          e.preventDefault();
+          openSearch();
+        }
+        if (e.key === 'Escape' && dialog && dialog.open) {
+          dialog.close();
+        }
+      });
+    }
+
+    // ============================================================
+    // MOBILE NAV
+    // ============================================================
+    function initMobileNav() {
+      const hamburger = document.getElementById('navHamburger');
+      const mobileMenu = document.getElementById('navMobileMenu');
+
+      if (!hamburger || !mobileMenu) return;
+
+      hamburger.addEventListener('click', () => {
+        const isOpen = mobileMenu.classList.toggle('open');
+        hamburger.setAttribute('aria-expanded', String(isOpen));
+      });
+
+      // Close when a link is clicked
+      mobileMenu.querySelectorAll('a').forEach((link) => {
+        link.addEventListener('click', () => {
+          mobileMenu.classList.remove('open');
+          hamburger.setAttribute('aria-expanded', 'false');
+        });
+      });
+    }
+
+    // ============================================================
+    // BOOT
+    // ============================================================
+    applyState(STATES.CONNECTING);
+    transitionTo(STATES.CONNECTING);
+    setTimeout(scheduleFeedLine, 2200); // start feed after connecting -> open
+    initReveal();
+    initProtoAnimations();
+    initSearch();
+    initMobileNav();
+
+    // Dynamic copyright year
+    const yearEl = document.getElementById('copyrightYear');
+    if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+    // Pause animations when tab is hidden
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        cancelAnimationFrame(sparkRAF);
+      } else {
+        sparkRAF = requestAnimationFrame(sparkLoop);
+      }
+    });
+  </script>
+</BaseLayout>

@@ -40,7 +40,7 @@ faq:
     a: 'gRPC excels at structured service-to-service RPC with strong typing and code generation. WebSockets are better for pushing real-time event streams to clients. Many architectures use both: gRPC between backend services and WebSockets for client-facing connections.'
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
 :::note[Quick Answer]
 For most real-time web apps, **start with WebSockets**. They give you
@@ -60,75 +60,79 @@ running infrastructure that handles
 listed here.
 
 <CardGrid>
-  <Card title="[WebSockets vs HTTP](/comparisons/http/)">
-    The fundamental comparison between persistent connections and
-    request-response patterns. Essential reading for understanding
-    real-time communication basics.
-
-    **[Compare WebSockets vs HTTP →](/comparisons/http/)**
-
-  </Card>
-
-  <Card title="[WebSockets vs SSE](/comparisons/sse/)">
-    Server-Sent Events offer a simpler alternative for
-    server-to-client streaming. Learn when SSE is the better choice
-    and when it falls short.
-
-    **[Compare WebSockets vs Server-Sent Events →](/comparisons/sse/)**
-
-  </Card>
-
-  <Card title="[WebSockets vs Long Polling](/comparisons/long-polling/)">
-    Understanding the evolution from polling techniques to WebSockets,
-    and when legacy approaches still make sense.
-
-    **[Compare WebSockets vs Long Polling →](/comparisons/long-polling/)**
-
-  </Card>
-
-  <Card title="[WebSockets vs WebTransport](/comparisons/webtransport/)">
-    The next generation of real-time web communication built on QUIC
-    and HTTP/3. A look at what is production-ready today.
-
-    **[Compare WebSockets vs WebTransport →](/comparisons/webtransport/)**
-
-  </Card>
+  <LinkCard
+    title="WebSockets vs HTTP"
+    href="/comparisons/http/"
+    description={
+      "The fundamental comparison between persistent connections and " +
+      "request-response patterns. Essential reading for understanding " +
+      "real-time communication basics."
+    }
+  />
+  <LinkCard
+    title="WebSockets vs SSE"
+    href="/comparisons/sse/"
+    description={
+      "Server-Sent Events offer a simpler alternative for " +
+      "server-to-client streaming. Learn when SSE is the better " +
+      "choice and when it falls short."
+    }
+  />
+  <LinkCard
+    title="WebSockets vs Long Polling"
+    href="/comparisons/long-polling/"
+    description={
+      "Understanding the evolution from polling techniques to " +
+      "WebSockets, and when legacy approaches still make sense."
+    }
+  />
+  <LinkCard
+    title="WebSockets vs WebTransport"
+    href="/comparisons/webtransport/"
+    description={
+      "The next generation of real-time web communication built " +
+      "on QUIC and HTTP/3. A look at what is production-ready today."
+    }
+  />
 </CardGrid>
 
 ## Specialized Protocols
 
 <CardGrid>
-  <Card title="[WebSockets vs MQTT](/comparisons/mqtt/)">
-    IoT and message broker comparisons. Critical for embedded systems
-    and device communication.
-
-    **[Compare WebSockets vs MQTT →](/comparisons/mqtt/)**
-
-  </Card>
-
-  <Card title="[WebSockets vs WebRTC](/comparisons/webrtc/)">
-    Peer-to-peer vs client-server architectures. Essential for video,
-    audio, and direct data channels.
-
-    **[Compare WebSockets vs WebRTC →](/comparisons/webrtc/)**
-
-  </Card>
-
-  <Card title="[WebSockets vs gRPC](/comparisons/grpc/)">
-    Microservices and RPC patterns. Important for backend service
-    communication.
-
-    **[Compare WebSockets vs gRPC →](/comparisons/grpc/)**
-
-  </Card>
+  <LinkCard
+    title="WebSockets vs MQTT"
+    href="/comparisons/mqtt/"
+    description={
+      "IoT and message broker comparisons. Critical for " +
+      "embedded systems and device communication."
+    }
+  />
+  <LinkCard
+    title="WebSockets vs WebRTC"
+    href="/comparisons/webrtc/"
+    description={
+      "Peer-to-peer vs client-server architectures. Essential " +
+      "for video, audio, and direct data channels."
+    }
+  />
+  <LinkCard
+    title="WebSockets vs gRPC"
+    href="/comparisons/grpc/"
+    description={
+      "Microservices and RPC patterns. Important for " +
+      "backend service communication."
+    }
+  />
 </CardGrid>
 
-<Card title="[Interactive Decision Guide](/comparisons/decision-guide/)">
-  Can't decide which technology to use? Our decision guide walks you
-  through the key factors and gives recommendations based on your
-  requirements. **[Launch Real-Time Protocol Decision Guide
-  →](/comparisons/decision-guide/)**
-</Card>
+<LinkCard
+  title="Interactive Decision Guide"
+  href="/comparisons/decision-guide/"
+  description={
+    "Can't decide which technology to use? Walk through the " +
+    "key factors and get recommendations based on your requirements."
+  }
+/>
 
 ## At a Glance: Protocol Comparison Matrix
 
