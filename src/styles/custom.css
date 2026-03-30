@@ -424,17 +424,36 @@ site-search button kbd {
   border-color: #e5e7eb !important;
 }
 
-/* --- Pagefind/Starlight search — force light theme ---
-   Starlight maps --pagefind-ui-background to --sl-color-black (#1e293b)
-   which makes result cards dark. Override the CSS variables on the
-   Starlight search container, which is the only reliable approach since
-   Pagefind uses Svelte-scoped classes with high specificity. */
+/* --- Starlight search — force light theme ---
+   Starlight's Search component uses --sl-color-black as the result card
+   background and --sl-color-white as the result link text color. In our
+   light-only theme these values are dark (#1e293b) and white (#ffffff)
+   respectively — producing dark cards with white text.
+
+   Fix: override the Starlight color tokens inside the search container
+   so result cards get light backgrounds and dark text. We also override
+   the Pagefind UI variables for consistency.
+
+   The Starlight component uses :where(.astro-xxx) scoping which adds
+   zero specificity, so a plain #id selector in our custom CSS wins. */
 #starlight__search {
+  /* Swap light/dark so cards are light */
+  --sl-color-black: #ffffff;
+  --sl-color-white: #1f2937;
+  --sl-color-gray-1: #374151;
+  --sl-color-gray-2: #4b5563;
+
+  /* Pagefind UI variables */
   --pagefind-ui-primary: #0d9488;
   --pagefind-ui-text: #374151;
   --pagefind-ui-background: #ffffff;
   --pagefind-ui-border: #e5e7eb;
   --pagefind-ui-tag: #f3f4f6;
+}
+
+/* Search input text must be visible (dark on white) */
+#starlight__search .pagefind-ui__search-input {
+  color: #374151 !important;
 }
 
 /* --- Page title (uses --sl-color-white which is white in our theme) --- */
