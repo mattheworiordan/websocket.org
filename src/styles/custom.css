@@ -424,94 +424,17 @@ site-search button kbd {
   border-color: #e5e7eb !important;
 }
 
-/* --- Pagefind search results — force light theme --- */
-
-/* Search modal dialog */
-dialog[aria-label='Search'],
-[data-pagefind-ui] {
-  --pagefind-ui-scale: 0.9;
+/* --- Pagefind/Starlight search — force light theme ---
+   Starlight maps --pagefind-ui-background to --sl-color-black (#1e293b)
+   which makes result cards dark. Override the CSS variables on the
+   Starlight search container, which is the only reliable approach since
+   Pagefind uses Svelte-scoped classes with high specificity. */
+#starlight__search {
   --pagefind-ui-primary: #0d9488;
   --pagefind-ui-text: #374151;
   --pagefind-ui-background: #ffffff;
   --pagefind-ui-border: #e5e7eb;
   --pagefind-ui-tag: #f3f4f6;
-  --pagefind-ui-border-width: 1px;
-  --pagefind-ui-border-radius: 8px;
-  --pagefind-ui-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-/* Result cards — override dark theme */
-.pagefind-ui__result {
-  background: #ffffff !important;
-  border: 1px solid #e5e7eb !important;
-  border-radius: 8px !important;
-  padding: 12px 16px !important;
-}
-
-.pagefind-ui__result:hover {
-  border-color: #99f6e4 !important;
-  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.08) !important;
-}
-
-/* Result group heading (page title) */
-.pagefind-ui__result-link,
-.pagefind-ui__result-title {
-  color: #1f2937 !important;
-  font-weight: 600 !important;
-}
-
-.pagefind-ui__result-link:hover {
-  color: #0d9488 !important;
-}
-
-/* Result nested (sub-results / sections) */
-.pagefind-ui__result-nested {
-  background: #fafbfc !important;
-  border-color: #e5e7eb !important;
-}
-
-.pagefind-ui__result-nested .pagefind-ui__result-link {
-  color: #374151 !important;
-}
-
-.pagefind-ui__result-nested .pagefind-ui__result-link:hover {
-  color: #0d9488 !important;
-}
-
-/* Result excerpt text */
-.pagefind-ui__result-excerpt {
-  color: #6b7280 !important;
-}
-
-/* Search input */
-.pagefind-ui__search-input {
-  background: #ffffff !important;
-  color: #374151 !important;
-  border-color: #e5e7eb !important;
-  border-radius: 8px !important;
-}
-
-.pagefind-ui__search-input:focus {
-  border-color: #0d9488 !important;
-  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.15) !important;
-  outline: none !important;
-}
-
-/* Result count */
-.pagefind-ui__message {
-  color: #6b7280 !important;
-  font-size: 0.82rem !important;
-}
-
-/* Pagefind button */
-.pagefind-ui__button {
-  background: #0d9488 !important;
-  color: #ffffff !important;
-  border-radius: 6px !important;
-}
-
-.pagefind-ui__button:hover {
-  background: #0f766e !important;
 }
 
 /* --- Page title (uses --sl-color-white which is white in our theme) --- */
