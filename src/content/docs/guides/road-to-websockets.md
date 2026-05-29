@@ -429,8 +429,10 @@ Example\r\n
 \r\n
 ```
 
-:::note When chunked transfer encoding is used, each server response includes
-`Transfer-Encoding: chunked`, while the `Content-Length` header is omitted. :::
+:::note
+When chunked transfer encoding is used, each server response includes
+`Transfer-Encoding: chunked`, while the `Content-Length` header is omitted.
+:::
 
 [Server-Sent Events (SSE)][go-ably-irg] is another option you can
 leverage to implement HTTP streaming. SSE is a server push technology commonly
