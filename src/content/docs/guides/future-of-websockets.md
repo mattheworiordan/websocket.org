@@ -230,7 +230,7 @@ Key benefits:
 | **Google Cloud** | Load Balancer | ✅ Available    | ⚠️ Beta               | HTTP/3 in preview                        |
 | **Azure**        | Front Door    | ✅ Available    | ⚠️ Limited            | HTTP/3 support, WebSocket limitations    |
 | **Fastly**       | CDN           | ✅ Full Support | ✅ Full Support       | QUIC and HTTP/3 enabled                  |
-| **Vercel**       | Sandbox       | ❌ Not Available| ❌ Not Available      | Sandbox-only at this time.               |
+| **Vercel**       | CDN       | ❌ Not Available| ❌ Not Available      | ✅ Full                |
 
 ### Implementation Reality Check (2025)
 
