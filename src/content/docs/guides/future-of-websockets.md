@@ -7,7 +7,7 @@ description:
 author: Matthew O'Riordan
 authorRole: Co-founder & CEO, Ably
 date: '2024-09-02'
-lastUpdated: 2026-03-10
+lastUpdated: 2026-06-29
 category: guide
 keywords:
   - future of websockets
@@ -278,6 +278,7 @@ Key benefits:
 | **Google Cloud** | Load Balancer | ✅ Available    | ⚠️ Beta               | HTTP/3 in preview                         |
 | **Azure**        | Front Door    | ✅ Available    | ⚠️ Limited            | HTTP/3 support, WebSocket limitations     |
 | **Fastly**       | CDN           | ✅ Full Support | ✅ Full Support       | QUIC and HTTP/3 enabled                   |
+| **Vercel**       | Functions/Sandbox | ❌ Not Available | ❌ Not Available      | HTTP/2; Functions 30 min, Sandbox 24 h |
 
 ### Implementation Reality Check (2026)
 
