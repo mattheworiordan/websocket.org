@@ -86,12 +86,12 @@ Vercel-specific upgrade path.
 
 This means:
 
-- There is no standard `app/api/websocket/route.ts` API that
-  automatically gives every Next.js deployment a WebSocket endpoint
-- API Routes handle HTTP requests unless the hosting runtime exposes
-  a WebSocket upgrade hook
-- On Vercel, use Vercel Functions with Fluid Compute and
-  `@vercel/functions` instead of a custom Next.js server
+- There is no `app/api/websocket/route.ts` that gives you a
+  WebSocket endpoint
+- API Routes (both App Router and Pages Router) handle HTTP
+  requests, not persistent connections
+- On Vercel, your code runs in Functions that are subject
+  to request duration limits
 
 ## Client components: where WebSocket code lives
 
@@ -168,9 +168,9 @@ your client component code once on the server. Guard accordingly.
 
 ## Custom server approach
 
-If you want a WebSocket server integrated with your Next.js
-process, you need a custom server. This replaces Next.js's built-in
-server with your own Node.js `http` server.
+When self-hosting Next.js you can create a custom server.
+This replaces Next.js's built-in server with your
+own Node.js `http` server.
 
 ```js
 // server.js
@@ -323,7 +323,7 @@ What still matters on Vercel:
 - **Custom servers** -- Vercel ignores `server.js`; use a Function
   route instead
 - **Function duration** -- connections close when the Function
-  reaches its maximum duration (30 minutes)
+  reaches its [maximum duration](https://vercel.com/docs/functions/configuring-functions/duration#duration-limits)
 - **Instance-local memory** -- one connection is pinned to one
   Function instance, but a reconnect can reach another instance
 - **Protocol level** -- Vercel supports WebSockets over HTTP/2, not
@@ -338,10 +338,48 @@ share state.
 
 Use Vercel Functions for small Vercel-native WebSocket endpoints,
 low coordination needs, and apps that can reconnect cleanly when a
-function reaches its maximum duration. Use a separate WebSocket
-server or managed realtime service when you need long-lived rooms,
-global fanout, replay, presence, or transport fallback across many
-instances and deployments.
+function reaches its [maximum duration](https://vercel.com/docs/functions/configuring-functions/duration#duration-limits).
+
+The server code looks like the following:
+
+```ts
+// server.ts
+import http from 'http';
+import { Server } from 'socket.io';
+
+const server = http.createServer();
+const io = new Server(server);
+
+io.on('connection', (socket) => {
+  socket.on('message', (data) => {
+    socket.send(data);
+  });
+});
+
+export default server;
+```
+
+The client code looks like the following:
+
+```ts
+import { io } from 'socket.io-client';
+
+const socket = io('https://your-domain.com', {
+  // Socket.IO appends /socket.io to the path by default,
+  // so the full path becomes /api/socket-io/socket.io
+  path: '/api/socket-io/socket.io',
+  transports: ['websocket'], // required — Socket.IO defaults to HTTP long-polling
+});
+```
+
+New WebSocket connections are not guaranteed to reach the same
+Vercel Function instance. If a client reconnects, it may connect
+to a different instance. After a new deployment, new connections
+may reach the new deployment while existing connections remain
+on the previous deployment until they close.
+
+Store durable state, presence, counters, rooms, and pub/sub
+coordination in an external data store such as Redis.
 
 ## Socket.IO with Next.js
 
@@ -371,15 +409,6 @@ app.prepare().then(() => {
   httpServer.listen(3000);
 });
 ```
-
-That custom-server version still has the same trade-off: no Vercel
-custom server deployment. On Vercel Functions, put Socket.IO behind
-a Function and configure the client to use the WebSocket transport
-directly; do not rely on Socket.IO's HTTP long-polling fallback.
-
-If you want Socket.IO's features, especially rooms and automatic
-reconnection, without coordinating state across function instances,
-managed services provide the same capabilities.
 
 ## Reconnection across route changes
 
@@ -528,10 +557,8 @@ to attach `ws` to a Pages API response object.
 Not with the default cross-platform Next.js API. Next.js does not
 expose the underlying HTTP server, so there is nowhere portable to
 attach a `WebSocketServer`. On Vercel, use
-`experimental_upgradeWebSocket()` in a Function route. The custom
-server approach (using `server.js` with the `ws` library) works for
-local development and self-hosted deployments, but it does not deploy
-as a Vercel custom server.
+`experimental_upgradeWebSocket()` in a Function route. When
+self-hosting, use a custom server.
 
 ### Do WebSockets work on Vercel?
 
