@@ -29,37 +29,40 @@ seo:
 faq:
   - q: "Can I run a WebSocket server inside Next.js?"
     a:
-      "Not with the default Next.js server API. Next.js does not expose
-      standard WebSocket upgrade handling, but Vercel Functions support
-      WebSockets through experimental_upgradeWebSocket() with Fluid
-      Compute. Use a custom server only for self-hosted deployments."
+      "Not with the default cross-platform Next.js API. Next.js does not expose
+      the underlying HTTP server, so there is nowhere portable to attach a
+      `WebSocketServer`. On Vercel, use `experimental_upgradeWebSocket()` in a
+      Function route. When self-hosting, use a custom server."
   - q: "Do WebSockets work on Vercel?"
     a:
-      "Yes. Vercel Functions can serve WebSocket connections when
-      Fluid Compute is enabled. A connection is pinned to one function
-      instance until it closes; reconnects may land on another
-      instance, so keep rooms, presence, and pub/sub state outside
-      function memory."
+      "Yes. Vercel Functions can serve WebSocket connections when Fluid Compute
+      is enabled. In Next.js, use `experimental_upgradeWebSocket()` from
+      `@vercel/functions` because Next.js does not expose upgrade handling
+      itself. Keep shared state outside memory: reconnects can land on a
+      different function instance, and connections close when a function reaches
+      its maximum duration."
   - q: "How do I use WebSockets in Next.js App Router?"
     a:
-      "WebSocket code must go in client components marked with the
-      'use client' directive. The WebSocket API is browser-only and
-      unavailable during server-side rendering. Guard instantiation
-      with typeof window !== 'undefined' to avoid hydration errors."
+      "All WebSocket code must be in client components. Add `\"use client\"` at
+      the top of the file. Create the WebSocket connection inside `useEffect` to
+      avoid SSR issues. If you need the connection to persist across route
+      changes, lift it to a React context provider in your root layout."
   - q: "Why does my WebSocket code crash during SSR?"
     a:
-      "Next.js renders components on the server first. The WebSocket
-      constructor does not exist in Node.js's global scope the same
-      way it does in browsers. Accessing window or new WebSocket()
-      during SSR throws a ReferenceError. Use useEffect or a typeof
-      window guard."
+      "Next.js pre-renders client components on the server to generate initial
+      HTML. During this server render, browser APIs like `WebSocket`, `window`,
+      and `localStorage` do not exist. If your code calls `new WebSocket()` at
+      the module level or outside of `useEffect`, it throws a `ReferenceError`.
+      The fix: only instantiate WebSocket inside `useEffect`, which exclusively
+      runs in the browser."
   - q: "Should I use Socket.IO with Next.js?"
     a:
-      "Socket.IO works with Next.js, and Vercel Functions can run it
-      when the client uses the WebSocket transport directly. A
-      traditional custom Next.js server still does not deploy to
-      Vercel. For rooms, presence, and cross-instance fanout, use
-      external state or a managed realtime service."
+      "Socket.IO gives you reconnection, rooms, namespaces, and HTTP
+      long-polling fallback. These are real features that take effort to build
+      yourself. With a self-hosted Next.js custom server, Socket.IO is a
+      reasonable choice. On Vercel Functions, configure the client to use the
+      WebSocket transport directly and keep room or presence state outside the
+      function instance."
 ---
 
 :::note[Quick Answer]
