@@ -384,4 +384,4 @@ endpoint but cannot help once the connection is upgraded.
   is enough and WebSocket is overkill
 
 [managed-services]:
-  https://ably.com/websockets?utm_source=websocket-org&utm_medium=best-practices
+  https://ably.com/topic/websockets?utm_source=websocket-org&utm_medium=best-practices

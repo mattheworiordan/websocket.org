@@ -356,4 +356,4 @@ cellular NAT drops.
   — timeout limits and proxy behavior
 
 [managed-ws]:
-  https://ably.com/websockets?utm_source=websocket-org&utm_medium=timeout
+  https://ably.com/topic/websockets?utm_source=websocket-org&utm_medium=timeout

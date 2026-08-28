@@ -597,7 +597,7 @@ _This guide is maintained by
 [Matthew O'Riordan](https://twitter.com/mattyoriordan), Co-founder & CEO of
 [Ably][ably-platform], the realtime data platform.
 For corrections or suggestions, please
-[open an issue](https://github.com/websockets/websocket.org/issues)._
+[open an issue](https://github.com/mattheworiordan/websocket.org/issues)._
 
 [ably-platform]:
   https://ably.com?utm_source=websocket-org&utm_medium=nginx-websocket

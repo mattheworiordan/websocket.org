@@ -420,4 +420,4 @@ connections active with pings.
   understand what the server is telling you when connections drop
 
 [ably-realtime]:
-  https://ably.com/websockets?utm_source=websocket-org&utm_medium=connection-refused
+  https://ably.com/topic/websockets?utm_source=websocket-org&utm_medium=connection-refused

@@ -62,6 +62,20 @@ export default defineConfig({
             content: '#0d9488',
           },
         },
+        {
+          tag: 'meta',
+          attrs: {
+            property: 'og:image',
+            content: 'https://websocket.org/og-image.png',
+          },
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            name: 'twitter:image',
+            content: 'https://websocket.org/og-image.png',
+          },
+        },
       ],
       customCss: ['./src/styles/custom.css'],
       social: [

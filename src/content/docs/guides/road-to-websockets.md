@@ -729,7 +729,7 @@ overhead and enables true real-time data exchange.
 [go-ably-n6l]: https://go.ably.com/n6l?utm_source=websocket-org&utm_medium=road-to-websockets
 [go-ably-tqm]: https://go.ably.com/tqm?utm_source=websocket-org&utm_medium=road-to-websockets
 [go-ably-mc2]: https://go.ably.com/mc2?utm_source=websocket-org&utm_medium=road-to-websockets
-[go-ably-7a4]: https://go.ably.com/7a4?utm_source=websocket-org&utm_medium=road-to-websockets
+[go-ably-7a4]: https://en.wikipedia.org/wiki/Ajax_(programming)
 [go-ably-kva]: https://go.ably.com/kva?utm_source=websocket-org&utm_medium=road-to-websockets
 [go-ably-wjk]: https://go.ably.com/wjk?utm_source=websocket-org&utm_medium=road-to-websockets
 [go-ably-2bg]: https://go.ably.com/2bg?utm_source=websocket-org&utm_medium=road-to-websockets

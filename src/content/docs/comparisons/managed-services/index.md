@@ -141,15 +141,11 @@ is how the protocol works.
 - Proven scale -- 2 billion+ devices reached and 30 billion+
   connections served per month
 - Multiple products beyond pub/sub:
-  [Chat](https://ably.com/products/chat?utm_source=websocket-org&utm_medium=managed-services)
-  (with AI moderation),
-  [Spaces](https://ably.com/products/spaces?utm_source=websocket-org&utm_medium=managed-services)
-  (live cursors, avatar stacks, component locking),
-  [AI Transport](https://ably.com/products/ai?utm_source=websocket-org&utm_medium=managed-services)
-  (resumable token streaming, multi-agent coordination),
-  [LiveObjects](https://ably.com/products/liveobjects?utm_source=websocket-org&utm_medium=managed-services)
-  (CRDT-based collaborative state), and
-  [LiveSync](https://ably.com/products/livesync?utm_source=websocket-org&utm_medium=managed-services)
+  [Chat][ably-chat] (with AI moderation),
+  [Spaces][ably-spaces] (live cursors, avatar stacks, component
+  locking), [AI Transport][ably-ai] (resumable token streaming,
+  multi-agent coordination), [LiveObjects][ably-liveobjects]
+  (CRDT-based collaborative state), and [LiveSync][ably-livesync]
   (PostgreSQL-to-frontend sync)
 - Consumption-based pricing -- pay for what you use, like AWS.
   No tier thresholds, no paying for capacity you do not need
@@ -541,3 +537,14 @@ or submit a pull request. We will review and update promptly.
   library abstraction layer is enough vs needing a service
 - [Decision Matrix](/comparisons/decision-guide/) -- Choosing
   between WebSocket protocols and transports
+
+[ably-chat]:
+  https://ably.com/chat?utm_source=websocket-org&utm_medium=managed-services
+[ably-spaces]:
+  https://ably.com/spaces?utm_source=websocket-org&utm_medium=managed-services
+[ably-ai]:
+  https://ably.com/ai?utm_source=websocket-org&utm_medium=managed-services
+[ably-liveobjects]:
+  https://ably.com/liveobjects?utm_source=websocket-org&utm_medium=managed-services
+[ably-livesync]:
+  https://ably.com/livesync?utm_source=websocket-org&utm_medium=managed-services

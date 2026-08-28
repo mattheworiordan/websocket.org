@@ -574,7 +574,7 @@ separate message subscription mechanism works well.
 
 If you need managed WebSocket infrastructure with built-in
 reconnection and state recovery, services like
-[Ably](https://ably.com/websockets?utm_source=websocket-org&utm_medium=react),
+[Ably](https://ably.com/topic/websockets?utm_source=websocket-org&utm_medium=react),
 [Pusher](https://pusher.com/websockets), and
 [PubNub](https://www.pubnub.com/) provide React SDKs that handle
 connection management so you can focus on application logic.

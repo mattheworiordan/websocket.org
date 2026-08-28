@@ -1059,4 +1059,4 @@ _This guide is maintained by
 [Matthew O'Riordan](https://twitter.com/mattyoriordan), Co-founder & CEO of
 [Ably](https://ably.com?utm_source=websocket-org&utm_medium=cloudflare), the real-time data platform. For corrections or
 suggestions, please
-[open an issue](https://github.com/websockets/websocket.org/issues)._
+[open an issue](https://github.com/mattheworiordan/websocket.org/issues)._

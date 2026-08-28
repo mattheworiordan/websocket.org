@@ -446,7 +446,7 @@ does not need a bidirectional protocol.
 are building a product where real-time is a core feature and you
 need to handle thousands of connections with presence, message
 history, and guaranteed delivery, consider a managed service like
-[Ably](https://ably.com/solutions/websockets?utm_source=websocket-org&utm_medium=django),
+[Ably](https://ably.com/solutions/realtime?utm_source=websocket-org&utm_medium=django),
 [Pusher](https://pusher.com/), or
 [PubNub](https://www.pubnub.com/). They handle the WebSocket
 infrastructure, scaling, and edge cases (connection recovery,

@@ -106,11 +106,11 @@ The most popular WebSocket libraries by language:
 
 - [AWS ALB WebSocket Guide](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/ALB-websocket.html) -
   Application Load Balancer WebSocket support
-- [Google Cloud Load Balancer WebSocket](https://cloud.google.com/load-balancing/docs/websocket) -
+- [Google Cloud Load Balancer WebSocket](https://cloud.google.com/load-balancing/docs/https#websocket) -
   GCP WebSocket load balancing
-- [Azure Application Gateway WebSocket](https://docs.microsoft.com/en-us/azure/application-gateway/websocket) -
+- [Azure Application Gateway WebSocket][azure-appgw-websocket] -
   Azure WebSocket configuration
-- [Cloudflare WebSocket Documentation](https://developers.cloudflare.com/support/websockets/) -
+- [Cloudflare WebSocket Documentation](https://developers.cloudflare.com/network/websockets/) -
   Cloudflare WebSocket support
 
 ### Container Orchestration
@@ -119,8 +119,8 @@ The most popular WebSocket libraries by language:
   NGINX Ingress Controller
 - [Traefik WebSocket Support](https://doc.traefik.io/traefik/routing/services/#websocket) -
   Traefik proxy configuration
-- [Istio WebSocket Configuration](https://istio.io/latest/docs/ops/websocket/) -
-  Service mesh WebSocket
+- [Istio protocol selection][istio-protocol-selection] - Service mesh
+  protocol detection, including WebSocket upgrade
 
 ## Development Resources
 
@@ -128,8 +128,8 @@ The most popular WebSocket libraries by language:
 
 - [Chrome DevTools WebSocket Debugging](https://developer.chrome.com/docs/devtools/network/#websocket) -
   Chrome WebSocket inspector
-- [Firefox Developer Tools WebSocket](https://firefox-source-docs.mozilla.org/devtools-user/websocket/) -
-  Firefox WebSocket debugging
+- [Firefox Developer Tools WebSocket][firefox-ws-devtools] - Firefox
+  WebSocket debugging
 - [Safari Web Inspector WebSocket](https://webkit.org/web-inspector/network-tab/) -
   Safari debugging tools
 
@@ -210,7 +210,7 @@ For a comprehensive comparison of the best WebSocket libraries for Node.js, see
   implementation
 - [Jetty WebSocket](https://eclipse.dev/jetty/documentation/jetty-12/programming-guide/index.html#websocket) -
   Jetty WebSocket API
-- [Netty](https://netty.io/wiki/websocket.html) - WebSocket protocol handler
+- [Netty WebSocket][netty-websocket] - WebSocket protocol handler
 
 ### C#/.NET
 
@@ -248,8 +248,8 @@ For a comprehensive comparison of the best WebSocket libraries for Node.js, see
 
 - [Comet: Low Latency Data for the Browser](https://infrequently.org/2006/03/comet-low-latency-data-for-the-browser/) -
   Alex Russell's seminal article
-- [Ajax: A New Approach to Web Applications](https://adaptivepath.org/ideas/ajax-new-approach-web-applications/) -
-  Jesse James Garrett
+- [Ajax: A New Approach to Web Applications](https://en.wikipedia.org/wiki/Ajax_(programming)) -
+  Jesse James Garrett, 2005 (term and original Adaptive Path essay)
 - [The Original HTTP as defined in 1991](https://www.w3.org/Protocols/HTTP/AsImplemented.html) -
   Historical reference
 
@@ -266,11 +266,11 @@ For a comprehensive comparison of the best WebSocket libraries for Node.js, see
 
 ### Architecture & Scaling
 
-- [Migrating Millions of Websockets to Envoy](https://slack.engineering/websockets-to-envoy/) -
+- [Migrating Millions of Concurrent Websockets to Envoy][slack-envoy] -
   Slack Engineering
 - [Engineering Fault Tolerance in Distributed Systems][ably-fault-tolerance] -
   Dr. Paddy Byers
-- [The Future of Web Software Is HTML-over-WebSockets](https://alistapart.com/article/html-over-websockets/) -
+- [The Future of Web Software Is HTML-over-WebSockets][ala-html-over-ws] -
   Architecture patterns
 - [Scaling WebSockets: The Challenge Explained][ably-scaling-challenge] -
   Common scaling challenges
@@ -393,6 +393,21 @@ and HTTP/3 respectively.
   for scaling WebSocket connections
 
 [exponential-backoff]: https://advancedweb.hu/how-to-implement-an-exponential-backoff-retry-strategy-in-javascript/
-[ably-realtime-patterns]: https://ably.com/blog/patterns-for-building-realtime-features?utm_source=websocket-org&utm_medium=websocket-resources
-[ably-fault-tolerance]: https://www.ably.io/blog/engineering-fault-tolerance/?utm_source=websocket-org&utm_medium=websocket-resources
-[ably-scaling-challenge]: https://ably.com/topic/the-challenge-of-scaling-websockets?utm_source=websocket-org&utm_medium=websocket-resources
+[ably-realtime-patterns]:
+  https://ably.com/blog/patterns-for-building-realtime-features?utm_source=websocket-org&utm_medium=websocket-resources
+[ably-fault-tolerance]:
+  https://ably.com/blog/engineering-dependability-and-fault-tolerance-in-a-distributed-system?utm_source=websocket-org&utm_medium=websocket-resources
+[ably-scaling-challenge]:
+  https://ably.com/topic/the-challenge-of-scaling-websockets?utm_source=websocket-org&utm_medium=websocket-resources
+[azure-appgw-websocket]:
+  https://learn.microsoft.com/en-us/azure/application-gateway/application-gateway-websocket
+[istio-protocol-selection]:
+  https://istio.io/latest/docs/ops/configuration/traffic-management/protocol-selection/
+[firefox-ws-devtools]:
+  https://firefox-source-docs.mozilla.org/devtools-user/network_monitor/inspecting_web_sockets/
+[netty-websocket]:
+  https://netty.io/4.1/api/io/netty/handler/codec/http/websocketx/package-summary.html
+[slack-envoy]:
+  https://slack.engineering/migrating-millions-of-concurrent-websockets-to-envoy/
+[ala-html-over-ws]:
+  https://alistapart.com/article/the-future-of-web-software-is-html-over-websockets/

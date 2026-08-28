@@ -289,7 +289,7 @@ vulnerability. See the
 you can implement yourself.
 
 [ably-ws]:
-  https://ably.com/websockets?utm_source=websocket-org&utm_medium=cors
+  https://ably.com/topic/websockets?utm_source=websocket-org&utm_medium=cors
 
 ## A debugging checklist
 
