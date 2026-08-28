@@ -14,9 +14,6 @@ export interface Props {
 
 // Destructure props with defaults
 const { propName, optionalProp = false, className = '' } = Astro.props;
-
-// Component logic here
-const processedData = propName.toLowerCase();
 ---
 
 <div class={`component-name ${className}`}>
@@ -60,7 +57,7 @@ const processedData = propName.toLowerCase();
 
   // Example: Add interactivity
   document.querySelectorAll('.component-name').forEach((element) => {
-    element.addEventListener('click', (e) => {
+    element.addEventListener('click', () => {
       // Handle click
     });
   });

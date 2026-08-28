@@ -151,11 +151,15 @@ const breadcrumbJsonLd =
 </script>
 <Default {...Astro.props}><slot /></Default>
 <GA4 {...Astro.props} />
-{jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
-{faqJsonLd && <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />}
-{howtoJsonLd && <script type="application/ld+json" set:html={JSON.stringify(howtoJsonLd)} />}
+{jsonLd && <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+{faqJsonLd && <script is:inline type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />}
+{
+  howtoJsonLd && (
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(howtoJsonLd)} />
+  )
+}
 {
   breadcrumbJsonLd && (
-    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} />
   )
 }

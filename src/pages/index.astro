@@ -8,7 +8,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 >
   <Fragment slot="head">
     <!-- GA4 -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BZ0LYEZXEJ"></script>
+    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-BZ0LYEZXEJ"></script>
     <script is:inline>
       window.dataLayer = window.dataLayer || [];
       function gtag() {
@@ -2324,9 +2324,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             The WebSocket protocol (RFC 6455) defines a framing layer over TCP. A client sends a
             standard HTTP request with an <code>Upgrade: websocket</code> header. If the server agrees,
             the connection switches from HTTP to the WebSocket frame format. Each frame carries an opcode
-            (text, binary, ping, pong, close), a payload length, and optional masking. The result is
-            a persistent, low-overhead channel that avoids the cost of repeated HTTP handshakes. For
-            the full technical breakdown, read our <a href="/guides/websocket-protocol/"
+            (text, binary, ping, pong, close), a payload length, and optional masking. The result is a
+            persistent, low-overhead channel that avoids the cost of repeated HTTP handshakes. For the
+            full technical breakdown, read our <a href="/guides/websocket-protocol/"
               >WebSocket Protocol</a
             > guide.
           </div>
