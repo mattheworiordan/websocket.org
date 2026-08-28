@@ -20,3 +20,10 @@ pnpm-debug.log*
 # macOS-specific files
 .DS_Store
 .vercel
+
+# agent scratch / local CI logs
+.working/
+
+# lychee link-checker cache and action output
+.lycheecache
+lychee/

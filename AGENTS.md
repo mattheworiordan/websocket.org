@@ -96,8 +96,7 @@ NOT use JSX comments in markdown files for prettier control.
 
 Only these HTML/JSX elements are allowed: `div`, `span`, `a`, `img`, `br`,
 `script`, `style`, `details`, `summary`, `sup`, `sub`, `p`, `strong`, `h2`,
-`pre`, `AuthorBio`, `SEOMetadata`, `CardGrid`, `Card`, `LinkCard`, `Tabs`,
-`TabItem`.
+`pre`, `AuthorBio`, `CardGrid`, `Card`, `LinkCard`, `Tabs`, `TabItem`.
 
 ## Prettier + MDX: Known Incompatibility
 

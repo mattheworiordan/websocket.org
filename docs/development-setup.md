@@ -7,8 +7,9 @@ WebSocket.org.
 
 ### Required Software
 
-- **Node.js**: Version 18.x or 20.x (check with `node --version`)
-- **npm**: Version 8+ (comes with Node.js, check with `npm --version`)
+- **Node.js**: Version 22.x or higher (see `.nvmrc`; check with
+  `node --version`)
+- **npm**: Version 10+ (comes with Node.js, check with `npm --version`)
 - **Git**: For version control
 - **VS Code**: Recommended editor (optional but recommended)
 
@@ -20,10 +21,10 @@ WebSocket.org.
 # Install nvm (macOS/Linux)
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 
-# Install Node.js 20 (LTS)
-nvm install 20
-nvm use 20
-nvm alias default 20
+# Install Node.js 22 (matches .nvmrc)
+nvm install 22
+nvm use 22
+nvm alias default 22
 ```
 
 #### Option 2: Direct Download

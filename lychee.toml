@@ -1,0 +1,99 @@
+# Link checker config for websocket.org
+#
+# Used by .github/workflows/link-checker.yml and `npm run check:links`.
+# Designed to catch real broken content links without failing the weekly
+# job on example hosts, bot-blocked sites, or origin rate limits.
+
+#############################  Display  #############################
+
+verbose = "warn"
+no_progress = true
+
+#############################  Cache  ###############################
+
+cache = true
+max_cache_age = "14d"
+
+#############################  Runtime  #############################
+
+max_retries = 5
+retry_wait_time = 4
+max_concurrency = 8
+timeout = 25
+max_redirects = 10
+index_files = ["index.html"]
+
+#############################  Requests  ############################
+
+user_agent = "Mozilla/5.0 (compatible; websocket.org-lychee; +https://github.com/mattheworiordan/websocket.org)"
+accept = ["200", "204", "206", "301", "302", "303", "307", "308"]
+scheme = ["https", "http", "file"]
+method = "get"
+
+# Collapse tracked variants so each path is checked once (avoids 429s
+# from unique UTM query strings hitting the same origin).
+remap = [
+  '(https://ably.com/[^?\s]+)\?\S+ $1',
+  '(https://www.ably.com/[^?\s]+)\?\S+ $1',
+  '(https://www.ably.io/[^?\s]+)\?\S+ $1',
+  '(https://go.ably.com/[^?\s]+)\?\S+ $1',
+]
+
+#############################  Exclusions  ##########################
+
+include_mail = false
+include_verbatim = false
+exclude_all_private = true
+exclude_loopback = true
+
+exclude = [
+  # Site 404 page (Starlight canonicalises it to /404/)
+  '^https://websocket\.org/404/?$',
+
+  # GitHub "Edit this page" HTML is rate-limited; not a content link
+  '^https://github\.com/.*/edit/',
+
+  # Hosts that block datacenter / GitHub Actions user-agents
+  '^https?://([^/]+\.)?linkedin\.com',
+  '^https?://([^/]+\.)?twitter\.com',
+  '^https?://([^/]+\.)?x\.com',
+  '^https?://([^/]+\.)?reddit\.com',
+  '^https?://([^/]+\.)?stackoverflow\.com',
+  '^https?://([^/]+\.)?stackexchange\.com',
+  '^https?://([^/]+\.)?medium\.com',
+
+  # Placeholder / example hosts used in code samples and nginx snippets
+  '^https?://backend(:[0-9]+)?(/|$)',
+  '^https?://(www\.)?yourdomain\.com',
+  '^https?://staging\.yourdomain\.com',
+  '^https?://(www\.)?myapp\.com',
+  '^https?://staging\.myapp\.com',
+  '^https?://(www\.)?other-domain\.com',
+  '^https?://(www\.)?server\.com',
+  '^https?://(www\.)?example\.com',
+  '^https?://(www\.)?yourapp\.com',
+  '^https?://api\.openai\.com',
+]
+
+#############################  Hosts  #############################
+
+# Global per-host politeness. Ably is linked from almost every page
+# with unique UTM params (collapsed by remap above).
+host_concurrency = 4
+host_request_interval = "250ms"
+
+[hosts."ably.com"]
+concurrency = 1
+request_interval = "750ms"
+
+[hosts."www.ably.com"]
+concurrency = 1
+request_interval = "750ms"
+
+[hosts."go.ably.com"]
+concurrency = 1
+request_interval = "750ms"
+
+[hosts."github.com"]
+concurrency = 2
+request_interval = "400ms"

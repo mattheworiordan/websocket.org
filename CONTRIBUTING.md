@@ -61,7 +61,7 @@ Unsure where to begin? Look for issues labeled:
 
 ### Prerequisites
 
-- Node.js (v18 or higher)
+- Node.js 22 or higher (see `.nvmrc`)
 - npm or yarn
 - Git
 

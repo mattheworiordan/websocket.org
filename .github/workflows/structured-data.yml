@@ -6,73 +6,103 @@ on:
       - 'src/**/*.astro'
       - 'src/**/*.md'
       - 'src/**/*.mdx'
+      - '.github/workflows/structured-data.yml'
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   validate-structured-data:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Use Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: npm ci
-    
-    - name: Build site
-      run: npm run build
-    
-    - name: Install schema-dts for validation
-      run: npm install -g schema-dts-gen
-    
-    - name: Validate JSON-LD structured data
-      run: |
-        echo "Checking for structured data in built HTML files..."
-        
-        # Find all HTML files
-        find ./dist -name "*.html" -type f | while read -r file; do
-          echo "Checking: $file"
-          
-          # Extract JSON-LD scripts and validate
-          grep -o '<script type="application/ld+json">.*</script>' "$file" | \
-          sed 's/<script type="application\/ld+json">//g' | \
-          sed 's/<\/script>//g' | \
-          while read -r jsonld; do
-            if [ ! -z "$jsonld" ]; then
-              echo "$jsonld" | npx ajv validate -s https://schema.org/version/latest/schemaorg-current-https.jsonld -d - || true
+      - uses: actions/checkout@v6
+
+      - name: Use Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          HUSKY: '0'
+
+      - name: Build site
+        run: npm run build
+        env:
+          CI: true
+
+      - name: Validate JSON-LD is parseable
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, pathlib, re, sys
+          root = pathlib.Path("./dist")
+          pattern = re.compile(
+              r'<script type="application/ld\+json">(.*?)</script>',
+              re.DOTALL | re.IGNORECASE,
+          )
+          errors = []
+          files = list(root.rglob("*.html"))
+          jsonld_files = 0
+          for path in files:
+              text = path.read_text(encoding="utf-8", errors="replace")
+              blocks = pattern.findall(text)
+              if not blocks:
+                  continue
+              jsonld_files += 1
+              for i, raw in enumerate(blocks, 1):
+                  try:
+                      json.loads(raw)
+                  except json.JSONDecodeError as exc:
+                      errors.append(f"{path}: block {i}: {exc}")
+          print(f"Checked {len(files)} HTML files, {jsonld_files} with JSON-LD")
+          if errors:
+              print("Invalid JSON-LD:")
+              print("\n".join(errors))
+              sys.exit(1)
+          print("All JSON-LD blocks parse as JSON")
+          PY
+
+      - name: Check Open Graph tags
+        continue-on-error: true
+        run: |
+          echo "Checking Open Graph meta tags..."
+          missing=0
+          while IFS= read -r -d '' file; do
+            case "$file" in
+              */404.html) continue ;;
+            esac
+            if ! grep -q 'property="og:title"' "$file"; then
+              echo "Missing og:title in $file"
+              missing=1
             fi
-          done
-        done
-      continue-on-error: true
-    
-    - name: Check Open Graph tags
-      run: |
-        echo "Checking Open Graph meta tags..."
-        
-        # Basic Open Graph validation
-        find ./dist -name "*.html" -type f | while read -r file; do
-          if ! grep -q 'property="og:title"' "$file"; then
-            echo "⚠️  Missing og:title in $file"
-          fi
-          if ! grep -q 'property="og:description"' "$file"; then
-            echo "⚠️  Missing og:description in $file"
-          fi
-        done
-      continue-on-error: true
-    
-    - name: Check Twitter Card tags
-      run: |
-        echo "Checking Twitter Card meta tags..."
-        
-        # Basic Twitter Card validation
-        find ./dist -name "*.html" -type f | while read -r file; do
-          if ! grep -q 'name="twitter:card"' "$file"; then
-            echo "⚠️  Missing twitter:card in $file"
-          fi
-        done
-      continue-on-error: true
+            if ! grep -q 'property="og:description"' "$file"; then
+              echo "Missing og:description in $file"
+              missing=1
+            fi
+          done < <(find ./dist -name "*.html" -type f -print0)
+          exit "$missing"
+
+      - name: Check Twitter Card tags
+        continue-on-error: true
+        run: |
+          echo "Checking Twitter Card meta tags..."
+          missing=0
+          while IFS= read -r -d '' file; do
+            case "$file" in
+              */404.html) continue ;;
+            esac
+            if ! grep -q 'name="twitter:card"' "$file"; then
+              echo "Missing twitter:card in $file"
+              missing=1
+            fi
+          done < <(find ./dist -name "*.html" -type f -print0)
+          exit "$missing"

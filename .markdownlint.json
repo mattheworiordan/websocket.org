@@ -48,7 +48,6 @@
       "button",
       "pre",
       "AuthorBio",
-      "SEOMetadata",
       "CardGrid",
       "Card",
       "LinkCard",
@@ -73,5 +72,6 @@
   },
   "MD050": {
     "style": "asterisk"
-  }
+  },
+  "MD060": false
 }

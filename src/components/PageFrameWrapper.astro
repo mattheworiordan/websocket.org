@@ -1,25 +1,5 @@
 ---
 import Default from '@astrojs/starlight/components/PageFrame.astro';
-import { getFrontmatter } from '../utils/getFrontmatter';
-
-// Get the current page's route data from Astro.locals
-const route = Astro.locals.starlightRoute;
-
-// Get custom frontmatter data directly from the file
-const customFrontmatter = getFrontmatter(Astro.url.pathname);
-const frontmatter: any = customFrontmatter || route?.entry?.data || {};
-
-// Get author details
-const author = frontmatter.author || "Matthew O'Riordan";
-const authorSlug = 'matthew-oriordan'; // Fixed slug to match actual file
-const publishedDate = frontmatter.date;
-
-// Determine if we should show the author info
-// Show for all content in guides, reference sections (excluding author pages)
-const pathSegments = Astro.url.pathname.split('/');
-const shouldShowAuthorInfo =
-  (pathSegments[1] === 'guides' || pathSegments[1] === 'reference') &&
-  !Astro.url.pathname.includes('/author/');
 ---
 
 <Default {...Astro.props}>
