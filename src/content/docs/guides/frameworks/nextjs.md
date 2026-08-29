@@ -7,7 +7,7 @@ description:
 author: Matthew O'Riordan
 authorRole: Co-founder & CEO, Ably
 date: 2026-03-23
-lastUpdated: 2026-06-29
+lastUpdated: 2026-08-30
 category: guide
 keywords:
   - nextjs websocket
@@ -35,12 +35,12 @@ faq:
       Function route. When self-hosting, use a custom server."
   - q: "Do WebSockets work on Vercel?"
     a:
-      "Yes. Vercel Functions can serve WebSocket connections when Fluid Compute
-      is enabled. In Next.js, use `experimental_upgradeWebSocket()` from
-      `@vercel/functions` because Next.js does not expose upgrade handling
-      itself. Keep shared state outside memory: reconnects can land on a
-      different function instance, and connections close when a function reaches
-      its maximum duration."
+      "Yes, in public beta. Vercel Functions can serve WebSocket connections
+      when Fluid Compute is enabled. In Next.js, use
+      `experimental_upgradeWebSocket()` from `@vercel/functions`. Default max
+      duration is 5 minutes (Hobby cannot go higher; Pro/Enterprise can set
+      800s, or 30 minutes as a per-function beta). Reconnects can land on a
+      different instance, so keep shared state outside memory."
   - q: "How do I use WebSockets in Next.js App Router?"
     a:
       "All WebSocket code must be in client components. Add `\"use client\"` at
@@ -68,9 +68,11 @@ faq:
 :::note[Quick Answer]
 Next.js has no built-in WebSocket server. Your WebSocket client code
 must live in client components (`"use client"`), guarded against SSR
-with `typeof window`. On Vercel, serve WebSocket endpoints from
-Vercel Functions with Fluid Compute and `experimental_upgradeWebSocket()`;
-for custom servers, use a separate WebSocket server or a managed service.
+with `typeof window`. On Vercel, WebSockets are in public beta on
+Functions with Fluid Compute. Next.js needs
+`experimental_upgradeWebSocket()`; connections are duration-capped
+and instance-pinned. For custom servers or multi-instance fan-out,
+use a separate WebSocket server or a managed service.
 :::
 
 Next.js is a React framework. WebSockets are a persistent connection
@@ -84,17 +86,18 @@ Next.js is designed around request-response. A browser requests a
 page, Next.js renders it (on the server or at build time), and sends
 back HTML. WebSockets need a server runtime that can upgrade the
 request and hold the connection open. Next.js itself does not provide
-a portable WebSocket server API, but Vercel Functions now provide a
-Vercel-specific upgrade path.
+a portable WebSocket server API. Vercel Functions provide a
+Vercel-specific upgrade path in public beta.
 
 This means:
 
-- There is no `app/api/websocket/route.ts` that gives you a
-  WebSocket endpoint
-- API Routes (both App Router and Pages Router) handle HTTP
-  requests, not persistent connections
-- On Vercel, your code runs in Functions that are subject
-  to request duration limits
+- There is no portable `app/api/websocket/route.ts` that gives you a
+  WebSocket endpoint across hosts. On Vercel, use
+  `experimental_upgradeWebSocket()` in a Function route
+- API Routes (both App Router and Pages Router) are HTTP handlers.
+  Next.js still has no native upgrade API
+- On Vercel, Functions are subject to request duration limits, and
+  a reconnect can land on a different instance
 
 ## Client components: where WebSocket code lives
 
@@ -303,10 +306,14 @@ persistent connection for identity. No cookies, no CORS issues.
 
 ## Vercel Functions
 
-Vercel Functions can serve WebSocket connections when Fluid Compute
-is enabled. For Next.js route handlers, use
+Vercel Functions can serve WebSocket connections in
+[public beta](https://vercel.com/docs/functions/websockets) when
+[Fluid Compute](https://vercel.com/docs/fluid-compute) is enabled.
+Fluid is the default for new projects created on or after 23 April
+2025. For Next.js route handlers, use
 `experimental_upgradeWebSocket()` from `@vercel/functions` because
-Next.js does not expose WebSocket upgrade handling itself.
+Next.js does not expose WebSocket upgrade handling itself. Other
+runtimes on Vercel can use `ws` or Socket.IO directly.
 
 ```ts
 // app/api/ws/route.ts
@@ -326,7 +333,12 @@ What still matters on Vercel:
 - **Custom servers** -- Vercel ignores `server.js`; use a Function
   route instead
 - **Function duration** -- connections close when the Function
-  reaches its [maximum duration](https://vercel.com/docs/functions/configuring-functions/duration#duration-limits)
+  reaches its
+  [maximum duration](https://vercel.com/docs/functions/configuring-functions/duration#duration-limits).
+  Default is 5 minutes on all plans. Hobby cannot exceed 5 minutes.
+  Pro and Enterprise can set 800 seconds, or 30 minutes with a
+  per-function
+  [extended duration beta](https://vercel.com/docs/functions/configuring-functions/duration#extended-max-duration-beta)
 - **Instance-local memory** -- one connection is pinned to one
   Function instance, but a reconnect can reach another instance
 - **Protocol level** -- Vercel supports WebSockets over HTTP/2, not
@@ -339,41 +351,15 @@ share state.
 
 ### When to still use a separate service
 
-Use Vercel Functions for small Vercel-native WebSocket endpoints,
-low coordination needs, and apps that can reconnect cleanly when a
-function reaches its [maximum duration](https://vercel.com/docs/functions/configuring-functions/duration#duration-limits).
+Use Vercel Functions for small, Vercel-native WebSocket endpoints
+with low coordination needs, and for apps that can reconnect
+cleanly when a function reaches its
+[maximum duration](https://vercel.com/docs/functions/configuring-functions/duration#duration-limits).
 
-The server code looks like the following:
-
-```ts
-// server.ts
-import http from 'http';
-import { Server } from 'socket.io';
-
-const server = http.createServer();
-const io = new Server(server);
-
-io.on('connection', (socket) => {
-  socket.on('message', (data) => {
-    socket.send(data);
-  });
-});
-
-export default server;
-```
-
-The client code looks like the following:
-
-```ts
-import { io } from 'socket.io-client';
-
-const socket = io('https://your-domain.com', {
-  // Socket.IO appends /socket.io to the path by default,
-  // so the full path becomes /api/socket-io/socket.io
-  path: '/api/socket-io/socket.io',
-  transports: ['websocket'], // required — Socket.IO defaults to HTTP long-polling
-});
-```
+Reach for a separate WebSocket process or a managed realtime
+service when you need rooms, presence, fan-out, or replay across
+many function instances, or when connections must outlive the
+function duration cap.
 
 New WebSocket connections are not guaranteed to reach the same
 Vercel Function instance. If a client reconnects, it may connect
@@ -410,6 +396,39 @@ app.prepare().then(() => {
   });
 
   httpServer.listen(3000);
+});
+```
+
+On Vercel Functions, Socket.IO works if the client uses the
+WebSocket transport directly. Long-polling is not a WebSocket
+upgrade. Keep room or presence state outside the function
+instance -- a reconnect can land on a different instance.
+
+```ts
+// server.ts -- Vercel Function (not a Next.js custom server)
+import http from "http";
+import { Server } from "socket.io";
+
+const server = http.createServer();
+const io = new Server(server);
+
+io.on("connection", (socket) => {
+  socket.on("message", (data) => {
+    socket.send(data);
+  });
+});
+
+export default server;
+```
+
+```ts
+import { io } from "socket.io-client";
+
+const socket = io("https://your-domain.com", {
+  // Socket.IO appends /socket.io to the path by default,
+  // so the full path becomes /api/socket-io/socket.io
+  path: "/api/socket-io/socket.io",
+  transports: ["websocket"], // required -- Socket.IO defaults to HTTP long-polling
 });
 ```
 
@@ -565,12 +584,12 @@ self-hosting, use a custom server.
 
 ### Do WebSockets work on Vercel?
 
-Yes. Vercel Functions can serve WebSocket connections when Fluid
-Compute is enabled. In Next.js, use `experimental_upgradeWebSocket()`
-from `@vercel/functions` because Next.js does not expose upgrade
-handling itself. Keep shared state outside memory: reconnects can
-land on a different function instance, and connections close when a
-function reaches its maximum duration.
+Yes, in public beta. Vercel Functions can serve WebSocket
+connections when Fluid Compute is enabled. In Next.js, use
+`experimental_upgradeWebSocket()` from `@vercel/functions`. Default
+max duration is 5 minutes (Hobby cannot go higher; Pro/Enterprise
+can set 800s, or 30 minutes as a per-function beta). Reconnects can
+land on a different instance, so keep shared state outside memory.
 
 ### How do I use WebSockets in Next.js App Router?
 
