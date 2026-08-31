@@ -273,6 +273,29 @@ For basic debugging, either browser works. If you're specifically
 debugging keepalive issues or ping/pong timing, Firefox is more
 useful because it doesn't hide those frames.
 
+## When the frames are encoded
+
+DevTools shows the payload exactly as it arrives on the wire, which is not
+always the payload your application sent. Two cases come up constantly.
+
+**Protocol framing.** Socket.IO frames arrive as `42["chat message",{...}]`.
+That is two protocols stacked: the leading `4` is the Engine.IO `message`
+packet type, the `2` is the Socket.IO `EVENT` type, and only the array after
+it is yours. A bare `2` arriving on an interval is an Engine.IO heartbeat
+ping, not application traffic. SignalR's `0x1e` record separator and STOMP's
+command frames cause the same confusion.
+
+**Encoded payloads.** A single frame can be JSON containing a string field
+that holds base64 of gzip of more JSON. DevTools shows you the outermost
+layer, correctly.
+
+Read-only browser extensions decode these in place when reading the framing
+by hand gets old. [Wirepeek](https://chromewebstore.google.com/detail/wirepeek/ojoojkjcpibfddgcljlfbjobkcpcbejn)
+covers Socket.IO/Engine.IO, MessagePack, CBOR, gzip and JSON nested in string
+fields, and captures from `document_start` so the handshake isn't missed;
+[WebSocket Visualizer](https://chromewebstore.google.com/detail/websocket-visualizer/fpjeijgigfegadgfpklgfghcgmgmcagj)
+formats JSON messages and includes a hex viewer for binary frames.
+
 ## When DevTools isn't enough: Wireshark
 
 Browser DevTools show you WebSocket frames after TLS decryption
