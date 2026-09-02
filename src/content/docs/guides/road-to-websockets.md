@@ -182,7 +182,7 @@ adding new capabilities. Some key changes:
 
 - Header fields including rich metadata about the request and response (HTTP
   version number, status code, content type).
-- Two new methods — `HEAD` and `POST``.
+- Two new methods — `HEAD` and `POST`.
 - Additional content types (e.g., scripts, stylesheets, or media), so that the
   response was no longer restricted to hypertext.
 
