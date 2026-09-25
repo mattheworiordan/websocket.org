@@ -241,6 +241,8 @@ For a comprehensive comparison of the best WebSocket libraries for Node.js, see
 - [Workerman](https://github.com/walkor/Workerman) - Async event-driven PHP
   framework
 - [ReactPHP](https://github.com/ratchetphp/Pawl) - Async WebSocket client
+- [Lightspeed](https://github.com/innerloop-dev/lightspeed) - Laravel websocket
+  server on Swoole with authenticated client-to-server messages
 
 ## Articles & Tutorials
 
