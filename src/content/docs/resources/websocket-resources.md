@@ -274,6 +274,8 @@ For a comprehensive comparison of the best WebSocket libraries for Node.js, see
   Architecture patterns
 - [Scaling WebSockets: The Challenge Explained][ably-scaling-challenge] -
   Common scaling challenges
+- [SSE vs WebSocket for a Live Operations Dashboard][frontendatlas-sse-vs-ws] -
+  Choosing the transport when updates flow mostly server to browser
 
 ## Video Tutorials
 
@@ -411,3 +413,5 @@ and HTTP/3 respectively.
   https://slack.engineering/migrating-millions-of-concurrent-websockets-to-envoy/
 [ala-html-over-ws]:
   https://alistapart.com/article/the-future-of-web-software-is-html-over-websockets/
+[frontendatlas-sse-vs-ws]:
+  https://frontendatlas.com/tradeoffs/sse-vs-websocket-live-dashboard
